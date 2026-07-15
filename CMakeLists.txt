@@ -30,12 +30,9 @@ add_library(procUtils
         processors/funcmaps.cpp
         processors/event_emitter.cpp
         modules/SoftClipModule.cpp
-<<<<<<< Updated upstream
-=======
         modules/DelayModule.cpp
         modules/NoiseModule.cpp
         modules/SimpleNoiseModule.cpp
->>>>>>> Stashed changes
 )
 
 # Include directories for procUtils

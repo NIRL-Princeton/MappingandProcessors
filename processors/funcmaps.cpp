@@ -36,14 +36,11 @@ namespace leaf
         (createModuleFunc) tLFOModule_init,
         (createModuleFunc) tStringModule_init,
         (createModuleFunc) tVCAModule_init,
-<<<<<<< Updated upstream
         (createModuleFunc) tSoftClipModule_init
-=======
         (createModuleFunc) tSoftClipModule_init,
         (createModuleFunc) tDelayModule_init,
         (createModuleFunc) tNoiseModule_init,
         (createModuleFunc) tSimpNoiseModule_init,
->>>>>>> Stashed changes
     };
 //
 //void createProcessor(float *params, tProcessor* proc,LEAF* leaf)

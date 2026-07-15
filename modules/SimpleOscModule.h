@@ -42,15 +42,11 @@ typedef enum {
 //the actual frequency setter function
 typedef void (*tFreqSetFunc)(void*, float);
 
-<<<<<<< Updated upstream
+
 typedef struct _tOscModule {
     uint32_t moduleType;
-=======
-typedef struct _tOscModule
-{
     ModuleHeader header;
 
->>>>>>> Stashed changes
     void* theOsc;
     uint32_t uniqueID;
     ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];

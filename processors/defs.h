@@ -16,6 +16,7 @@
     #define ATOMIC_FLOAT float
 #endif
 #ifdef __cplusplus
+
 extern "C" {
 #endif
 
@@ -57,7 +58,14 @@ typedef enum {
     PROCTAG,
     MAPTAG
 } BYTETAGS;
-
+    typedef struct ModuleHeader {
+        uint32_t moduleType;
+        uint32_t uniqueID;
+        ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];
+        tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
+        ATOMIC_FLOAT inputs[1];
+        ATOMIC_FLOAT outputs[1];
+    }ModuleHeader;
 #ifdef __cplusplus
 }
 #endif

@@ -8,7 +8,6 @@
 #include "leaf-mempool.h"
 #include "leaf-physical.h"
 #include "leaf.h"
-#include "processor.h"
 
 typedef enum {
     StringEventWatchFlag,
@@ -32,14 +31,11 @@ typedef enum {
 
 
 typedef struct _tStringModule {
-    uint32_t moduleType;
+    ModuleHeader header;
     tSimpleLivingString3 *theString;
-    uint32_t uniqueID;
-    tTickFuncReturningFloat tick; // The object's tick function
-    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
-    ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];
-    ATOMIC_FLOAT outputs[1];
+    float pluckPosition;
     tMempool* mempool;
+
 } _tStringModule;
 
 typedef _tStringModule* tStringModule;
@@ -53,6 +49,6 @@ void tStringModule_free(void** const env);
 void tStringModule_setParameter(tStringModule const s, StringModelParams param, float input);
 
 void tStringModule_onNoteOn(tStringModule const s, float velocity);
-void tStringModule_processorInit(tStringModule const filt, LEAF_NAMESPACE tProcessor* processor);
+void tStringModule_onNoteOn(tStringModule const env, float vel);
 
 #endif //STRINGMODULE_H

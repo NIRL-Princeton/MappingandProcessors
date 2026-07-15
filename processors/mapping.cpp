@@ -94,6 +94,7 @@ void processMapping (tMapping* mapping)
         sum += (*mapping->inSources[i] * CPPDEREF mapping->scalingValues[i]) + mapping->bipolarOffset[i];
     }
     tMapping_setParameter(mapping->destObject,mapping->paramID,sum);
+
     // mapping->setter(mapping->destObject, sum);
 }
 void tMapping_free (tMapping** const mapping) {

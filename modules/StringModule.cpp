@@ -20,6 +20,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     memcpy(module->params, params, StringNumParams);
     #endif
     module->mempool = m;
+    module->header.moduleType = ModuleTypeStringModule;
    //can't figure out how to get this module to add itself as a listener of the event emitter... -JS
     tSimpleLivingString3_create (mempool, &module->theString);
     tSimpleLivingString3_init   (m->leaf,
@@ -32,8 +33,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
                                  1.0,
                                  1.0,
                                  0);
-    module->setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
-
+    module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
 }
 
 void tStringModule_tick(tStringModule const s,float* buffer)
@@ -53,32 +53,16 @@ void tStringModule_onNoteOn(tStringModule const s, float velocity)
         ;
     }
 }
-void tStringModule_processorInit(tStringModule const s, LEAF_NAMESPACE tProcessor* processor)
-{
-
-    // Checks that arguments are valid
-    // assert(s != NULL);
-    //assert(processor != NULL);
-
-    processor->processorUniqueID = s->uniqueID;
-    processor->object = s;
-    processor->numSetterFunctions = StringNumParams;
-    processor->setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
-    processor->tick = (tTickFuncReturningVoid)&tStringModule_tick;
-    processor->inParameters = s->params;
-    processor->outParameters = s->outputs;
-    processor->processorTypeID = ModuleTypeStringModule;
-}
 void tStringModule_setParameter(tStringModule const s, StringModelParams param, float input)
 {
     switch (param)
     {
         case StringEventWatchFlag:
-            // TODO: implement EventWatchFlag inline if needed
+            CPPDEREF s->header.params[StringEventWatchFlag] = input; // store directly or implement oversample logic
             break;
 
         case StringOversample:
-            *s->params[StringOversample] = input; // store directly or implement oversample logic
+            CPPDEREF s->header.params[StringOversample] = input; // store directly or implement oversample logic
             break;
 
         case StringFreq:
@@ -127,6 +111,7 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             break;
 
         case StringPluckPosition:
+            s->pluckPosition = input;
             // s->theString->pluckPosition = input;
             break;
 
@@ -135,3 +120,4 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             break;
     }
 }
+

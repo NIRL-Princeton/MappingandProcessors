@@ -14,6 +14,12 @@
 #include "StringModule.h"
 #include "LFOModule.h"
 #include "SoftClipModule.h"
+<<<<<<< Updated upstream
+=======
+#include "DelayModule.h"
+#include "NoiseModule.h"
+#include "SimpleNoiseModule.h"
+>>>>>>> Stashed changes
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -62,6 +68,22 @@ void tMapping_setParameter(void* module, int paramID, float value) {
         case ModuleTypeSoftClipModule:
             tSoftClipModule_setParameter((tSoftClipModule) module, (SoftClipModuleParams) paramID, value);
             break;
+<<<<<<< Updated upstream
+=======
+
+        case ModuleTypeDelayModule:
+            tDelayModule_setParameter ((tDelayModule) module, (DelParams) paramID, value);
+            break;
+
+        case ModuleTypeNoiseModule:
+            tNoiseModule_setParameter ((tNoiseModule) module, (NosParams) paramID, value);
+            break;
+
+        case ModuleTypeSimpNoiseModule:
+            tSimpNoiseModule_setParameter ((tSimpNoiseModule) module, (SimpNosParams) paramID, value);
+            break;
+
+>>>>>>> Stashed changes
         default:
             // handle invalid type
             break;

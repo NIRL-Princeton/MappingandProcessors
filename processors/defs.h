@@ -47,6 +47,12 @@ typedef enum {
     ModuleTypeStringModule,
     ModuleTypeVCAModule,
     ModuleTypeSoftClipModule,
+<<<<<<< Updated upstream
+=======
+    ModuleTypeDelayModule,
+    ModuleTypeNoiseModule,
+    ModuleTypeSimpNoiseModule
+>>>>>>> Stashed changes
 
 } ModuleType;
 

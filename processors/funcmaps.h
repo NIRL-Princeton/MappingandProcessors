@@ -11,7 +11,14 @@
 #include "StringModule.h"
 #include "VCAModule.h"
 #include "SoftClipModule.h"
+<<<<<<< Updated upstream
 #include "processor.h"
+=======
+#include "DelayModule.h"
+#include "NoiseModule.h"
+#include "SimpleNoiseModule.h"
+typedef void (*createModuleFunc)(void** const module, float* const params, float id, LEAF* const leaf);
+>>>>>>> Stashed changes
 
 
 #ifdef __cplusplus

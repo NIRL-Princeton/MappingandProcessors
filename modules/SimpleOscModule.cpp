@@ -19,7 +19,6 @@ void tOscModule_setType (tOscModule const osc, int type)
 {
 //destroy current oscillator object
     //int type = osc->osctype;
-
     switch(osc->osctype)
     {
 		case OscTypeSawSquare:
@@ -124,7 +123,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		osc->freqOffset = (input * 4000.0f) - 2000.f;
 		break;
 	case OscShapeParam:
-	        //tOscModule_setType(osc, (int)(input * OscNumTypes));
+	        tOscModule_setShape(osc, input);
 		break;
 	case OscAmpParam:
 		osc->amp = input;
@@ -148,8 +147,14 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	case OscSyncIn:
 		break;
 	case OscType:
-		tOscModule_setType(osc, (int)(input * OscNumTypes));
-		break;
+	{
+	    uint8_t inp = (uint8_t)(input*(input * OscNumTypes));
+	    if (inp != osc->osctype)
+	    {
+	        tOscModule_setType(osc, LEAF_clip(0, inp, 5));
+	    }
+	    break;
+	}
 	default:
 		break;
 	}
@@ -165,8 +170,8 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 #endif __cplusplus
     OscModule->header.uniqueID = id;
 
-    int type =OscTypeSawSquare;
-    OscModule->osctype = type;
+    int type = OscTypeSawSquare;
+    OscModule->osctype = OscTypeSawSquare;
     OscModule->mempool = m;
     OscModule->invSr = m->leaf->invSampleRate;
     OscModule->sr = m->leaf->sampleRate;
@@ -277,39 +282,36 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 
 	    float finalFreq = (nowFreq * osc->harmonicMultiplier ) + osc->freqOffset;
 	switch (osc->osctype) {
-	case OscTypeSawSquare: {
-		tPBSawSquare_setFreq((tPBSawSquare*)osc->theOsc,finalFreq);
-		*buffer = tPBSawSquare_tick((tPBSawSquare*)osc->theOsc)* osc->amp;
-		break;
-	}
-	case OscTypeSineTri: {
-		tPBSineTriangle_setFreq((tPBSineTriangle*)osc->theOsc,finalFreq);
-		*buffer = tPBSineTriangle_tick((tPBSineTriangle*)osc->theOsc)* osc->amp;
-		break;
-	}
-
-	case OscTypeSaw: {
-		tPBSaw_setFreq((tPBSaw*)osc->theOsc,finalFreq);
-		*buffer = tPBSaw_tick((tPBSaw*)osc->theOsc)* osc->amp;
-		break;
-	}
-	case OscTypePulse: {
-		tPBPulse_setFreq((tPBPulse*)osc->theOsc,finalFreq);
-		*buffer = tPBPulse_tick((tPBPulse*)osc->theOsc)* osc->amp;
-		break;
-	}
-	case OscTypeSine: {
-		tCycle_setFreq((tCycle*)osc->theOsc,finalFreq);
-		*buffer = tCycle_tick((tCycle*)osc->theOsc)* osc->amp;
-		break;
-	}
-	case OscTypeTri: {
-		tPBTriangle_setFreq((tPBTriangle*)osc->theOsc,finalFreq);
-		*buffer = tPBTriangle_tick((tPBTriangle*)osc->theOsc)* osc->amp;
-		break;
-	}
-
-
+	    case OscTypeSawSquare: {
+		    tPBSawSquare_setFreq((tPBSawSquare*)osc->theOsc,finalFreq);
+		    *buffer = tPBSawSquare_tick((tPBSawSquare*)osc->theOsc)* osc->amp;
+		    break;
+	    }
+	    case OscTypeSineTri: {
+		    tPBSineTriangle_setFreq((tPBSineTriangle*)osc->theOsc,finalFreq);
+		    *buffer = tPBSineTriangle_tick((tPBSineTriangle*)osc->theOsc)* osc->amp;
+		    break;
+	    }
+	    case OscTypeSaw: {
+		    tPBSaw_setFreq((tPBSaw*)osc->theOsc,finalFreq);
+		    *buffer = tPBSaw_tick((tPBSaw*)osc->theOsc)* osc->amp;
+		    break;
+	    }
+	    case OscTypePulse: {
+		    tPBPulse_setFreq((tPBPulse*)osc->theOsc,finalFreq);
+		    *buffer = tPBPulse_tick((tPBPulse*)osc->theOsc)* osc->amp;
+		    break;
+	    }
+	    case OscTypeSine: {
+		    tCycle_setFreq((tCycle*)osc->theOsc,finalFreq);
+		    *buffer = tCycle_tick((tCycle*)osc->theOsc)* osc->amp;
+		    break;
+	    }
+	    case OscTypeTri: {
+		    tPBTriangle_setFreq((tPBTriangle*)osc->theOsc,finalFreq);
+		    *buffer = tPBTriangle_tick((tPBTriangle*)osc->theOsc)* osc->amp;
+		    break;
+	    }
 	}
 
 
@@ -317,7 +319,20 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
     osc->header.outputs[0] = *buffer;
 }
 
-
+void tOscModule_setShape(tOscModule const osc, float shape)
+{
+    switch (osc->osctype)
+    {
+        case OscTypeSawSquare:
+            tPBSawSquare_setShape((tPBSawSquare*)osc->theOsc,shape);
+            break;
+        case OscTypeSineTri:
+            tPBSineTriangle_setShape((tPBSineTriangle*)osc->theOsc,shape);
+            break;
+        default:
+            break;
+    }
+}
 
 
 

@@ -68,6 +68,7 @@ typedef struct _tOscModule {
     int hStepped;
     int pStepped;
     int syncMode;
+    float oscShape;
 
     tMempool* mempool;
 } _tOscModule;
@@ -86,6 +87,8 @@ void tOscModule_tick (tOscModule const osc, float*);
 // Non-modulatable setters
 void tOscModule_setMTOFTableLocation (tOscModule const osc, float* tableAddress);
 void tOscModule_setSampleRate (tOscModule const osc, float sr);
+void tOscModule_setType (tOscModule const osc, int type);
+
 
 
 #endif //SIMPLEOSCMODULE_H

@@ -17,6 +17,7 @@
 #include "DelayModule.h"
 #include "NoiseModule.h"
 #include "SimpleNoiseModule.h"
+#include "PerlinNoiseModule.h"
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -76,6 +77,10 @@ void tMapping_setParameter(void* module, int paramID, float value) {
 
         case ModuleTypeSimpNoiseModule:
             tSimpNoiseModule_setParameter ((tSimpNoiseModule) module, (SimpNosParams) paramID, value);
+            break;
+
+        case ModuleTypePerlNoiseModule:
+            tPerlNoiseModule_setParameter ((tPerlNoiseModule) module, (PerlNosParams) paramID, value);
             break;
 
         default:

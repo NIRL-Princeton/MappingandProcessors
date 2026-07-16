@@ -32,6 +32,7 @@ add_library(procUtils
         modules/DelayModule.cpp
         modules/NoiseModule.cpp
         modules/SimpleNoiseModule.cpp
+        modules/PerlinNoiseModule.cpp
 )
 
 # Include directories for procUtils

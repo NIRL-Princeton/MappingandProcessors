@@ -15,12 +15,12 @@ void tOscModule_blankFunction (tOscModule const osc, float freq)
     ;
 }
 
-void tOscModule_setType (tOscModule const osc, float typefloat)
+void tOscModule_setType (tOscModule const osc, int type)
 {
 //destroy current oscillator object
-    int type = osc->osctype;
+    //int type = osc->osctype;
 
-    switch(type)
+    switch(osc->osctype)
     {
 		case OscTypeSawSquare:
 			tPBSawSquare_free((tPBSawSquare**)&osc->theOsc);
@@ -45,7 +45,7 @@ void tOscModule_setType (tOscModule const osc, float typefloat)
     }
 
     //set new oscillator type
-    type = round(typefloat * (float)OscNumTypes);
+    //type = round(typefloat * (float)OscNumTypes);
     //create new oscillator object
 	switch (type)
 	{
@@ -124,6 +124,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		osc->freqOffset = (input * 4000.0f) - 2000.f;
 		break;
 	case OscShapeParam:
+	        //tOscModule_setType(osc, (int)(input * OscNumTypes));
 		break;
 	case OscAmpParam:
 		osc->amp = input;
@@ -147,7 +148,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	case OscSyncIn:
 		break;
 	case OscType:
-		tOscModule_setType(osc, input);
+		tOscModule_setType(osc, (int)(input * OscNumTypes));
 		break;
 	default:
 		break;

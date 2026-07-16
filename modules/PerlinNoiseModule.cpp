@@ -41,8 +41,8 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
 
     PerlNoiseModule->mempool = m;
 
-    tPerlinNoise_create (&PerlNoiseModule->mempool, (tPerlinNoise**)&PerlNoiseModule->thePerlNoise);
-    tPerlinNoise_init (PerlNoiseModule->mempool->leaf, (tPerlinNoise*)PerlNoiseModule->thePerlNoise, 4.f, .5f);
+    //tPerlinNoise_create (&PerlNoiseModule->mempool, (tPerlinNoise**)&PerlNoiseModule->thePerlNoise);
+    //tPerlinNoise_init (PerlNoiseModule->mempool->leaf, (tPerlinNoise*)PerlNoiseModule->thePerlNoise, 4.f, .5f);
 
     PerlNoiseModule->header.moduleType = ModuleTypePerlNoiseModule;
 
@@ -59,22 +59,23 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
 void tPerlNoiseModule_free(void** const perlNoise)
 {
     _tPerlNoiseModule* PerlNoiseModule = (_tPerlNoiseModule*) (*perlNoise);
-    tPerlinNoise_free((tPerlinNoise**)&PerlNoiseModule->thePerlNoise);
+    //tPerlinNoise_free((tPerlinNoise**)&PerlNoiseModule->thePerlNoise);
     mpool_free((char*)PerlNoiseModule, PerlNoiseModule->mempool);
 }
 
 // tick function
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 {
-    perlNoise->header.outputs[0] = tPerlinNoise_tick((tPerlinNoise*)perlNoise->thePerlNoise) * perlNoise->gain;
+    //perlNoise->header.outputs[0] = tPerlinNoise_tick((tPerlinNoise*)perlNoise->thePerlNoise) * perlNoise->gain;
+    perlNoise->header.outputs[0] = 0.0f;
 }
 
 void tPerlNoiseModule_setRate(LEAF* const leaf, tPerlNoiseModule const perlNoise, float rate)
 {
-    tPerlinNoise_setRate(leaf, (tPerlinNoise*)perlNoise->thePerlNoise, rate);
+    //tPerlinNoise_setRate(leaf, (tPerlinNoise*)perlNoise->thePerlNoise, rate);
 }
 
 void tPerlNoiseModule_setEnergy(LEAF* const leaf, tPerlNoiseModule const perlNoise, float energy)
 {
-    tPerlinNoise_setEnergy(leaf, (tPerlinNoise*)perlNoise->thePerlNoise, energy);
+    //tPerlinNoise_setEnergy(leaf, (tPerlinNoise*)perlNoise->thePerlNoise, energy);
 }

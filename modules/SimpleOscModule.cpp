@@ -151,7 +151,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    uint8_t inp = (uint8_t)(input*(input * OscNumTypes));
 	    if (inp != osc->osctype)
 	    {
-	        tOscModule_setType(osc, LEAF_clip(0, inp, 5));
+	        tOscModule_setType(osc, LEAF_clip(0, inp, 4)); // limited to 4 to stop it from crashing for now
 	    }
 	    break;
 	}

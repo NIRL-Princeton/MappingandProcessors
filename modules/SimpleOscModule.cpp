@@ -319,6 +319,7 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
     osc->header.outputs[0] = *buffer;
 }
 
+
 void tOscModule_setShape(tOscModule const osc, float shape)
 {
     switch (osc->osctype)
@@ -335,8 +336,10 @@ void tOscModule_setShape(tOscModule const osc, float shape)
 }
 
 
-
-
+void tOscModule_setGlideOrigin(tOscModule const osc, float originNote)
+{
+    tExpSmooth_setVal(&osc->pitchSmoother, originNote);
+}
 
 
 void tOscModule_setOctave (tOscModule const osc, float const oct)

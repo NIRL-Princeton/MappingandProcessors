@@ -89,6 +89,7 @@ void tOscModule_setMTOFTableLocation (tOscModule const osc, float* tableAddress)
 void tOscModule_setSampleRate (tOscModule const osc, float sr);
 void tOscModule_setType (tOscModule const osc, int type);
 void tOscModule_setShape (tOscModule const osc, float shape);
+void tOscModule_setGlideOrigin (tOscModule const osc, float originNote);
 
 
 

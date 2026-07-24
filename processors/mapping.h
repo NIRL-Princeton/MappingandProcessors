@@ -24,20 +24,24 @@ namespace leaf
 
     typedef struct Mapping
     {
-        ModuleType dest_type;
+        // ModuleType dest_type;
         // tSetter setter; // Setter function for the parameter of the mapping
         uint8_t uuid; //ID for the mapping's parameter
-        uint8_t destinationProcessorUniqueID; // ID for destination processors that param is in
-
         uint8_t index;
+
+        // destination (output)
         void* destObject; // OUT destination for the mapping
         uint8_t paramID;
+        uint8_t destinationProcessorUniqueID; // ID for destination processors that param is in
+        ATOMIC_FLOAT* initialVal; // The mapping's initial value
+
+        // source (input)
         uint8_t numUsedSources; // Number of active sources for the mapping
         uint8_t inUUIDS[MAX_NUM_SOURCES];
-        ATOMIC_FLOAT bipolarOffset[MAX_NUM_SOURCES];
         ATOMIC_FLOAT* inSources[MAX_NUM_SOURCES]; // IN sources from processors
         ATOMIC_FLOAT CPPDEREF scalingValues[MAX_NUM_SOURCES]; // Scaling for the IN sources
-        ATOMIC_FLOAT* initialVal; // The mapping's initial value
+        ATOMIC_FLOAT bipolarOffset[MAX_NUM_SOURCES];
+
         tMempool *mempool;
     } tMapping;
 

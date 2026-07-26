@@ -11,6 +11,7 @@
 
 typedef enum {
     StringEventWatchFlag,
+    StringAudioIn,
     StringOversample,
     StringFreq,
     StringWaveLength,

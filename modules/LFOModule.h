@@ -14,6 +14,7 @@
 typedef void (*tFreqSetFunc)(void*, float);
 typedef enum {
     LFOEventWatchFlag,
+    LFOAudioIn,
     LFORateParam,
     LFOShapeParam,
     LFOPhaseParam,

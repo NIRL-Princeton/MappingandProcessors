@@ -60,6 +60,12 @@ void tMapping_setAudioInput (void* module, float val)
 }
 
 void tMapping_setParameter(void* module, int paramID, float value) {
+    if (paramID == 1) // all modules have second param (with val 1) in their param enum as AudioIn
+    {
+        tMapping_setAudioInput (module, value);
+        return;
+    }
+
     uint32_t type = *((uint32_t*)module);
     switch (type)
     {
@@ -118,10 +124,7 @@ void processMapping (tMapping* mapping)
     {
         sum += (*mapping->inSources[i] * CPPDEREF mapping->scalingValues[i]) + mapping->bipolarOffset[i];
     }
-    if (mapping->destType == DestinationType::Parameter)
-        tMapping_setParameter(mapping->destObject, mapping->paramID, sum);
-    else
-        tMapping_setAudioInput(mapping->destObject, sum);
+    tMapping_setParameter(mapping->destObject, mapping->paramID, sum);
     // Either 1) have a separate function for routing to audio input of LEAF module, like:
     // tMapping_setAudioInput(mapping->destObject, sum);
     // Or 2) modify tMapping_setParameter ^^  function to also route to audio, with a new paramId for audio destination
@@ -136,7 +139,6 @@ void tMapping_free (tMapping** const mapping) {
 void tMappingAdd_(tMapping *mapping,
     ATOMIC_FLOAT* insource,
     uint8_t insource_uuid,
-    DestinationType destType,
     ATOMIC_FLOAT* dest_param,
     uint8_t dest_uuid, tSetter setter,
     uint8_t dest_param_index,
@@ -155,7 +157,6 @@ void tMappingAdd_(tMapping *mapping,
  //    mapping->scalingValues[2] = scalingValues[2];
 
      mapping->initialVal = dest_param;
-     mapping->destType = destType;
      // mapping->setter = setter;
      mapping->destinationProcessorUniqueID = dest_uuid;
      mapping->paramID = dest_param_index;

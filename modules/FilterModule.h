@@ -12,6 +12,7 @@
 
 typedef enum {
     FiltEventWatchFlag,
+    FiltAudioIn,
     FiltMidiPitch,
     FiltCutoff,
     FiltGain,

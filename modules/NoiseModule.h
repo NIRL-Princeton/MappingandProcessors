@@ -13,6 +13,7 @@
 typedef enum
 {
     NoiseEventWatchFlag,
+    NoiseAudioIn,
     NoiseGain,
     NoiseTilt,
     NoisePeakGain,

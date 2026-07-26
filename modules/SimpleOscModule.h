@@ -12,6 +12,7 @@
 #include "leaf-envelopes.h"
 typedef enum {
     OscEventWatchFlag,
+    OscAudioIn,
     OscMidiPitch,
     OscHarmonic,
     OscPitchOffset,

@@ -14,12 +14,6 @@
     #ifdef __cplusplus
     #include <cstdio>
 
-enum DestinationType
-{
-    Parameter,
-    AudioInput
-};
-
 namespace leaf
 {
     #endif
@@ -32,7 +26,6 @@ namespace leaf
         uint8_t index;
 
         // destination (output)
-        DestinationType destType; // 0 = Parameter, 1 = AudioInput
         void* destObject; // OUT destination for the mapping
         uint8_t paramID;
         uint8_t destinationProcessorUniqueID; // ID for destination processors that param is in
@@ -105,7 +98,7 @@ namespace leaf
     // void tMappingUpdateDest(tMapping* mapping, uint8_t source,
     //      tProcessor *newDestProcessor, uint8_t destParam,
     //     ATOMIC_FLOAT CPPDEREF scalingValue);
-    void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid, DestinationType destType,
+    void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid,
         ATOMIC_FLOAT* dest_param, uint8_t dest_uuid,tSetter setter, uint8_t dest_param_index,
         void* obj, LEAF* leaf,
     ATOMIC_FLOAT CPPDEREF scalingValue);

@@ -14,6 +14,7 @@
 #define DECAY_EXP_BUFFER_SIZE 2048
 typedef enum {
     EnvEventWatchFlag, //all of them need this
+    EnvAudioIn,
     EnvAttack,
     EnvDecay,
     EnvSustain,

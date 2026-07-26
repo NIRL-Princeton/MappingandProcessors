@@ -244,6 +244,8 @@ void tFiltModule_free(void** const filt)
 // tick function
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
+    const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    buffer[0] += input;
     //removing keyfollow since it is not set up to a parameter right now
     //TODO: add keyfollow
     float const cutoff  = filt->cutoffKnob + (filt->inputNote*filt->keyFollow);//  * CPPDEREF filt->params[FiltKeyfollow]); // TODO: should this be cutoffKnob * 137 to allow full range of knob turn to map to maxium freq?)

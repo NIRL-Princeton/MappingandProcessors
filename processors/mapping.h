@@ -13,23 +13,26 @@
 #include "defs.h"
     #ifdef __cplusplus
     #include <cstdio>
+
+enum DestinationType
+{
+    Parameter,
+    AudioInput
+};
+
 namespace leaf
 {
     #endif
-
-    typedef struct AudioRouting {
-        ATOMIC_FLOAT* audio;
-    } tAudioRouting;
-
 
     typedef struct Mapping
     {
         // ModuleType dest_type;
         // tSetter setter; // Setter function for the parameter of the mapping
-        uint8_t uuid; //ID for the mapping's parameter
+        uint8_t uuid; // ID for the mapping's parameter
         uint8_t index;
 
         // destination (output)
+        DestinationType destType; // 0 = Parameter, 1 = AudioInput
         void* destObject; // OUT destination for the mapping
         uint8_t paramID;
         uint8_t destinationProcessorUniqueID; // ID for destination processors that param is in
@@ -94,13 +97,15 @@ namespace leaf
     void tMapping_free (tMapping** const mapping);
 
     void tMapping_setParameter(void* module, int paramID, float val);
+    void tMapping_setAudioInput(void* module, float val);
+
     void tMapping_initToPool (tMapping** const mapping, tMempool** const mp);
     // void tMappingAdd (tMapping* mapping, tProcessor* outputProcessor, tProcessor* destProcessor, uint8_t destParam,
     //     uint8_t source, LEAF *leaf, ATOMIC_FLOAT CPPDEREF scalingptr);
     // void tMappingUpdateDest(tMapping* mapping, uint8_t source,
     //      tProcessor *newDestProcessor, uint8_t destParam,
     //     ATOMIC_FLOAT CPPDEREF scalingValue);
-    void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid,
+    void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid, DestinationType destType,
         ATOMIC_FLOAT* dest_param, uint8_t dest_uuid,tSetter setter, uint8_t dest_param_index,
         void* obj, LEAF* leaf,
     ATOMIC_FLOAT CPPDEREF scalingValue);

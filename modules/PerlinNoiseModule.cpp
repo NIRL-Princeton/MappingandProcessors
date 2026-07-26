@@ -66,6 +66,9 @@ void tPerlNoiseModule_free(void** const perlNoise)
 // tick function
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 {
+    // const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    // buffer[0] += input;
+
     perlNoise->header.outputs[0] = tPerlinNoise_tick((tPerlinNoise*)perlNoise->thePerlNoise) * perlNoise->gain;
     //perlNoise->header.outputs[0] = 0.0f;
 }

@@ -96,6 +96,9 @@ void tNoiseModule_free(void** const noise)
 // tick function
 void tNoiseModule_tick (tNoiseModule const noise,float* buffer)
 {
+    // const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    // buffer[0] += input;
+
     //*buffer = (noise->mempool->leaf->random()*2.f - 1.f);
     *buffer = tNoise_tick((tNoise*)noise->theNoise);
     *buffer = tTiltFilter_tick((tTiltFilter*)&noise->theTilter, *buffer);

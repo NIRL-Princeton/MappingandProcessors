@@ -84,7 +84,12 @@ void tOscModule_setType (tOscModule const osc, int type)
 
     osc->osctype = type;
 }
-void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float input)
+
+void tOscModule_setAudioInput(tOscModule const osc, float input)
+{
+}
+
+void tOscModule_setParameter(tOscModule const osc, OscParams param_type, float input)
 {
 	float factor;
 	switch (param_type) {
@@ -267,20 +272,24 @@ void tOscModule_free(void** const osc)
 
 
 // tick function
-void tOscModule_tick (tOscModule const osc,float* buffer)
+void tOscModule_tick (tOscModule const osc, float* buffer)
 {
+    // externalInputSum (audio input) has undefined behavior for OscModule. We could use it for FM synthesis or something.
+    // const float input = osc->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    // buffer[0] += input;
+
 	float freqToSmooth = (osc->inputNote + (osc->fine));
-	    tExpSmooth_setDest(&osc->pitchSmoother, freqToSmooth);
-	    float tempMIDI =  tExpSmooth_tick(&osc->pitchSmoother) + osc->pitchOffset + osc->octaveOffset;
+	tExpSmooth_setDest(&osc->pitchSmoother, freqToSmooth);
+	float tempMIDI =  tExpSmooth_tick(&osc->pitchSmoother) + osc->pitchOffset + osc->octaveOffset;
 
-	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
-	//    int tempIndexI = (int)tempIndexF;
-	//    tempIndexF = tempIndexF -tempIndexI;
-	//    float freqToSmooth1 = osc->mtofTable[tempIndexI & 32767];
-	//    float freqToSmooth2 = osc->mtofTable[(tempIndexI + 1) & 32767];
-	    float nowFreq = mtof(tempMIDI);// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
+//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
+//    int tempIndexI = (int)tempIndexF;
+//    tempIndexF = tempIndexF -tempIndexI;
+//    float freqToSmooth1 = osc->mtofTable[tempIndexI & 32767];
+//    float freqToSmooth2 = osc->mtofTable[(tempIndexI + 1) & 32767];
+	float nowFreq = mtof(tempMIDI);// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
-	    float finalFreq = (nowFreq * osc->harmonicMultiplier ) + osc->freqOffset;
+	float finalFreq = (nowFreq * osc->harmonicMultiplier ) + osc->freqOffset;
 	switch (osc->osctype) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq((tPBSawSquare*)osc->theOsc,finalFreq);

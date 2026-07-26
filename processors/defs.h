@@ -36,7 +36,7 @@ typedef void (*tTickFuncReturningVoid)(void*, float*); // used for processors (d
 
 typedef float (*tTickFuncReturningFloat)(void*); //used inside modules to wrap internal tick functions as function pointers
 
-    typedef float (*tTickFuncFloatInReturningFloat)(void*, float in); //used inside modules to wrap internal tick functions as function pointers
+typedef float (*tTickFuncFloatInReturningFloat)(void*, float in); //used inside modules to wrap internal tick functions as function pointers
 // Defines `_tParameter` to be the name of a new function pointer type
 typedef void (*tSetter)(void*, float);
 
@@ -64,7 +64,7 @@ typedef enum {
         uint32_t uniqueID;
         ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];
         tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
-        ATOMIC_FLOAT inputs[1];
+        ATOMIC_FLOAT externalInputSum[1];
         ATOMIC_FLOAT outputs[1];
     }ModuleHeader;
 #ifdef __cplusplus

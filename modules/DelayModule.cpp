@@ -173,7 +173,8 @@ void tDelayModule_free(void** const delay)
 // tick function
 void tDelayModule_tick (tDelayModule const delay, float* buffer)
 {
-    buffer[0] = delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  buffer[0]) * delay->amp + buffer[0];
+    const float input = delay->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    buffer[0] = delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp + input;
     // switch(delay->delayType)
     // {
     //     case DelayTypeDelay:

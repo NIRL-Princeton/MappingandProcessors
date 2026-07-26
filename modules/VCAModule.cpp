@@ -58,7 +58,10 @@ void tVCAModule_setGain(tVCAModule const VCA, float gain) {
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
-    buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
+    const float input = VCA->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    buffer[0] += input;
+
+    buffer[0] = VCA->header.outputs[0] = (buffer[0] + VCA->external_input)*VCA->amp;
 }
 
 // Modulatable setters

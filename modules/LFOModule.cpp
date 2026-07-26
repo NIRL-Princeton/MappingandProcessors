@@ -119,37 +119,38 @@ void tLFOModule_free(void** const lfo)
 //tick function
 void tLFOModule_tick (tLFOModule const lfo)
 {
+    // const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    // buffer[0] += input;
+    switch (lfo->lfo_type)
+    {
+        case LFOTypeSineTri:
+            lfo->header.outputs[0] = tSineTriLFO_tick((tSineTriLFO*)lfo->theLFO);
+            break;
 
-        switch (lfo->lfo_type)
-        {
-            case LFOTypeSineTri:
-                lfo->header.outputs[0] = tSineTriLFO_tick((tSineTriLFO*)lfo->theLFO);
-                break;
+        case LFOTypeSawSquare:
+            lfo->header.outputs[0] = tSawSquareLFO_tick((tSawSquareLFO*)lfo->theLFO);
+            break;
 
-            case LFOTypeSawSquare:
-                lfo->header.outputs[0] = tSawSquareLFO_tick((tSawSquareLFO*)lfo->theLFO);
-                break;
+        case LFOTypeSine:
+            lfo->header.outputs[0] = tCycle_tick((tCycle*)lfo->theLFO);
+            break;
 
-            case LFOTypeSine:
-                lfo->header.outputs[0] = tCycle_tick((tCycle*)lfo->theLFO);
-                break;
+        case LFOTypeTri:
+            lfo->header.outputs[0] = tTriLFO_tick((tTriLFO*)lfo->theLFO);
+            break;
 
-            case LFOTypeTri:
-                lfo->header.outputs[0] = tTriLFO_tick((tTriLFO*)lfo->theLFO);
-                break;
+        case LFOTypeSaw:
+            lfo->header.outputs[0] = tIntPhasor_tickBiPolar((tIntPhasor*)lfo->theLFO);
+            break;
 
-            case LFOTypeSaw:
-                lfo->header.outputs[0] = tIntPhasor_tickBiPolar((tIntPhasor*)lfo->theLFO);
-                break;
+        case LFOTypeSquare:
+            lfo->header.outputs[0] = tSquareLFO_tick((tSquareLFO*)lfo->theLFO);
+            break;
 
-            case LFOTypeSquare:
-                lfo->header.outputs[0] = tSquareLFO_tick((tSquareLFO*)lfo->theLFO);
-                break;
-
-            default:
-                lfo->header.outputs[0] = 0.0f;
-                break;
-        }
+        default:
+            lfo->header.outputs[0] = 0.0f;
+            break;
+    }
 }
 
 //special noteOnFunction

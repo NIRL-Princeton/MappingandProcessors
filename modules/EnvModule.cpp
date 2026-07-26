@@ -19,6 +19,8 @@ void tEnvModule_free (void** const env)
 //tick function
 void tEnvModule_tick (tEnvModule const env)
 {
+    // How could we use externalInputSum here, if at all?
+    // const float input = env->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
     env->header.outputs[0] = tADSRT_tick (&env->theEnv);
 }
 

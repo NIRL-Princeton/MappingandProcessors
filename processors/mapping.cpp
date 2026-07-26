@@ -39,6 +39,26 @@ void tMapping_initToPool (tMapping** const mapping, tMempool** const mp)
     map->uuid = 255;
 }
 
+void tMapping_setAudioInput (void* module, float val)
+{
+    #ifdef __cplusplus
+    auto* header = reinterpret_cast<ModuleHeader*>(module);
+    auto& sum = header->externalInputSum[0];
+
+    float current = sum.load(std::memory_order_relaxed);
+    while (!sum.compare_exchange_weak(
+        current,
+        current + val,
+        std::memory_order_relaxed,
+        std::memory_order_relaxed))
+    {
+    }
+    #else
+    ModuleHeader* header = (ModuleHeader*) module;
+    header->externalInputSum[0] += value;
+    #endif
+}
+
 void tMapping_setParameter(void* module, int paramID, float value) {
     uint32_t type = *((uint32_t*)module);
     switch (type)
@@ -98,7 +118,14 @@ void processMapping (tMapping* mapping)
     {
         sum += (*mapping->inSources[i] * CPPDEREF mapping->scalingValues[i]) + mapping->bipolarOffset[i];
     }
-    tMapping_setParameter(mapping->destObject, mapping->paramID,sum);
+    if (mapping->destType == DestinationType::Parameter)
+        tMapping_setParameter(mapping->destObject, mapping->paramID, sum);
+    else
+        tMapping_setAudioInput(mapping->destObject, sum);
+    // Either 1) have a separate function for routing to audio input of LEAF module, like:
+    // tMapping_setAudioInput(mapping->destObject, sum);
+    // Or 2) modify tMapping_setParameter ^^  function to also route to audio, with a new paramId for audio destination
+
 
     // mapping->setter(mapping->destObject, sum);
 }
@@ -106,21 +133,29 @@ void tMapping_free (tMapping** const mapping) {
    mpool_free((char*)*mapping, (*mapping)->mempool);
 }
 
-void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid,  ATOMIC_FLOAT* dest_param, uint8_t dest_uuid, tSetter setter, uint8_t dest_param_index, void* obj, LEAF* leaf, ATOMIC_FLOAT CPPDEREF scalingValue)
+void tMappingAdd_(tMapping *mapping,
+    ATOMIC_FLOAT* insource,
+    uint8_t insource_uuid,
+    DestinationType destType,
+    ATOMIC_FLOAT* dest_param,
+    uint8_t dest_uuid, tSetter setter,
+    uint8_t dest_param_index,
+    void* obj, LEAF* leaf,
+    ATOMIC_FLOAT CPPDEREF scalingValue)
  {
      if (mapping->uuid == 255)
          mapping->uuid = getNextUuid(leaf);
-    int currIndex = mapping->numUsedSources;
+     int currIndex = mapping->numUsedSources;
      // Updates the _tMapping struct with the given arguments
      mapping->inSources[currIndex] = insource;
      mapping->inUUIDS[currIndex] = insource_uuid;
-
 
  //    mapping->scalingValues[0] = scalingValues[0];
  //    mapping->scalingValues[1] = scalingValues[1];
  //    mapping->scalingValues[2] = scalingValues[2];
 
      mapping->initialVal = dest_param;
+     mapping->destType = destType;
      // mapping->setter = setter;
      mapping->destinationProcessorUniqueID = dest_uuid;
      mapping->paramID = dest_param_index;
@@ -128,7 +163,6 @@ void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uu
 #ifdef __cplusplus
      if (scalingValue != nullptr)
 #endif
-
          mapping->scalingValues[currIndex] =  scalingValue;
      mapping->numUsedSources++;
  }

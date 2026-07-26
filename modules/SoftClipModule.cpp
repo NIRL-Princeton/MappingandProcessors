@@ -23,6 +23,9 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
+    const float input = c->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    buffer[0] += input;
+
     float sample = buffer[0];
     sample = sample * c->inputGain * 5.0f;
     sample = sample + (c->offset * 2.0f) - 1.0f;

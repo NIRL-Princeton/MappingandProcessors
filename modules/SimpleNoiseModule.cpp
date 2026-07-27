@@ -57,7 +57,7 @@ void tSimpNoiseModule_free(void** const simpNoise)
 // tick function
 void tSimpNoiseModule_tick (tSimpNoiseModule const simpNoise)
 {
-    // const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    const float input = simpNoise->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
     // buffer[0] += input;
 
     simpNoise->header.outputs[0] = tNoise_tick((tNoise*)simpNoise->theSimpNoise) * simpNoise->gain;

@@ -132,6 +132,7 @@ void processMapping (tMapping* mapping)
 
     // mapping->setter(mapping->destObject, sum);
 }
+    
 void tMapping_free (tMapping** const mapping) {
    mpool_free((char*)*mapping, (*mapping)->mempool);
 }

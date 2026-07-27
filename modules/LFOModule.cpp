@@ -119,8 +119,8 @@ void tLFOModule_free(void** const lfo)
 //tick function
 void tLFOModule_tick (tLFOModule const lfo)
 {
-    // const float input = filt->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
-    // buffer[0] += input;
+    const float input = lfo->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+
     switch (lfo->lfo_type)
     {
         case LFOTypeSineTri:

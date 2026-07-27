@@ -271,7 +271,7 @@ void tOscModule_free(void** const osc)
 void tOscModule_tick (tOscModule const osc, float* buffer)
 {
     // externalInputSum (audio input) has undefined behavior for OscModule. We could use it for FM synthesis or something.
-    // const float input = osc->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
+    const float input = osc->header.externalInputSum[0].exchange(0.0f, std::memory_order_relaxed);
     // buffer[0] += input;
 
 	float freqToSmooth = (osc->inputNote + (osc->fine));

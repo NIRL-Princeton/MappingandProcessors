@@ -20,7 +20,7 @@
 
 typedef enum {
     SoftClipEventWatchFlag,
-    SoftClipAudioIn,
+    SoftClipAudioIn = param_AudioIn,
     SoftClipInputGain,
     SoftClipOffset,
     SoftClipShape,

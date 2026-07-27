@@ -12,7 +12,7 @@
 typedef enum
 {
     PerlNoiseEventWatchFlag,
-    PerlNoiseAudioIn,
+    PerlNoiseAudioIn = param_AudioIn,
     PerlNoiseGain,
     PerlNoiseRate,
     PerlNoiseEnergy

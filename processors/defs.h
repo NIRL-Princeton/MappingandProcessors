@@ -40,6 +40,8 @@ typedef float (*tTickFuncFloatInReturningFloat)(void*, float in); //used inside 
 // Defines `_tParameter` to be the name of a new function pointer type
 typedef void (*tSetter)(void*, float);
 
+const int param_AudioIn = 1;
+
 typedef enum {
     ModuleTypeOscModule,
     ModuleTypeLFOModule,

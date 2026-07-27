@@ -11,8 +11,8 @@
 #include "leaf-oscillators.h"
 #include "leaf-envelopes.h"
 typedef enum {
-    OscEventWatchFlag,
-    OscAudioIn,
+    OscEventWatchFlag = 0,
+    OscAudioIn = param_AudioIn,
     OscMidiPitch,
     OscHarmonic,
     OscPitchOffset,

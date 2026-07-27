@@ -13,7 +13,7 @@
 
 typedef enum {
     DelayEventWatchFlag,
-    DelayAudioIn,
+    DelayAudioIn = param_AudioIn,
     DelayTime,
     DelayGain,
     // DelayFeedback,

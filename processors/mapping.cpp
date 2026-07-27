@@ -60,7 +60,7 @@ void tMapping_setAudioInput (void* module, float val)
 }
 
 void tMapping_setParameter(void* module, int paramID, float value) {
-    if (paramID == 1) // all modules have second param (with val 1) in their param enum as AudioIn
+    if (paramID == param_AudioIn) // all modules have second param (with val 1) in their param enum as AudioIn
     {
         tMapping_setAudioInput (module, value);
         return;

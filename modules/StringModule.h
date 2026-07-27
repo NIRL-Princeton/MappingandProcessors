@@ -10,8 +10,8 @@
 #include "leaf.h"
 
 typedef enum {
-    StringEventWatchFlag,
-    StringAudioIn,
+    StringEventWatchFlag = 0,
+    StringAudioIn = param_AudioIn,
     StringOversample,
     StringFreq,
     StringWaveLength,

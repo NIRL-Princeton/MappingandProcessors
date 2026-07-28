@@ -4,6 +4,7 @@
 
 #include "SimpleOscModule.h"
 #include <iostream>
+#include "defs.h"
 
 #include <assert.h>
 void tOscModule_init(void** const osc, float* params, float id, LEAF* const leaf)
@@ -128,18 +129,13 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		osc->freqOffset = (input * 4000.0f) - 2000.f;
 		break;
 	case OscShapeParam:
-	        tOscModule_setShape(osc, input);
+        tRamp_setDest(&osc->shapeSmoother, input);
 		break;
 	case OscAmpParam:
-		osc->amp = input;
+		tRamp_setDest(&osc->ampSmoother, input);
 		break;
 	case OscGlide:
-		factor = 1.0f;
-		if (input >= 0.00001f) {
-			factor = 1.0f - (expf(-osc->invSr / input));
-		}
-		//tExpSmooth_setFactor(&osc->pitchSmoother, factor);
-	    tRamp_setTime(&osc->pitchSmooth, input*5000.f);
+	    tRamp_setTime(&osc->pitchSmooth, input);
 		break;
 	case OscSteppedHarmonic:
 		osc->hStepped = roundf(input);
@@ -187,7 +183,6 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 	float val = 64.f;
 	float factor = 0.05f;
     //tRamp_create(mempool, (tRamp**)&OscModule->theOsc);
-    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->pitchSmooth, 1.0f, 1);
     //OscModule->pitchSmooth.curr = val;
     //OscModule->pitchSmooth.dest = val;
 	//if (factor < 0.0f) factor = 0.0f;
@@ -195,6 +190,13 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 	//smooth->baseFactor = factor;
     //OscModule->pitchSmoother.factor = factor;
 	//OscModule->pitchSmoother.oneminusfactor = 1.0f - factor;
+
+    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->pitchSmooth, 1.0f, 1);
+    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->ampSmoother, SMOOTH_TIME_MS, 1);
+    tRamp_setVal(&OscModule->ampSmoother, OscModule->amp);
+    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->shapeSmoother, SMOOTH_TIME_MS, 1);
+    tRamp_setVal(&OscModule->shapeSmoother, OscModule->oscShape);
+
 	switch (type)
 	{
 		case OscTypeSawSquare:
@@ -292,6 +294,8 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 // tick function
 void tOscModule_tick (tOscModule const osc,float* buffer)
 {
+    tOscModule_setShape(osc, tRamp_tick(&osc->shapeSmoother));
+    osc->amp = tRamp_tick(&osc->ampSmoother);
 	//float freqToSmooth = (osc->inputNote + (osc->fine));
 	    //tExpSmooth_setDest(&osc->pitchSmoother, mtof(freqToSmooth));
         //tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
@@ -390,7 +394,4 @@ void tOscModule_setMTOFTableLocation (tOscModule const osc, float* const tableAd
 {
     osc->mtofTable = tableAddress;
 }
-
-
-
 

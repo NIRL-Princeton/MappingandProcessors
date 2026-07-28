@@ -20,7 +20,8 @@
 extern "C" {
 #endif
 
-
+// Universal smoothing time in ms for knobs
+#define SMOOTH_TIME_MS 15.f
 
 // Maximum number of parameters for a processors object
 #define MAX_NUM_PARAMS 16

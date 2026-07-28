@@ -35,7 +35,8 @@ void tOscModule_setType (tOscModule const osc, int type)
 			tPBPulse_free((tPBPulse**)&osc->theOsc);
 			break;
 		case OscTypeSine:
-			tCycle_free((tCycle**)&osc->theOsc);
+			//tCycle_free((tCycle**)&osc->theOsc);
+            tPBSineTriangle_free((tPBSineTriangle**)&osc->theOsc);
 			break;
 		case OscTypeTri:
 			tPBTriangle_free((tPBTriangle**)&osc->theOsc);
@@ -70,8 +71,10 @@ void tOscModule_setType (tOscModule const osc, int type)
 			break;
 
 		case OscTypeSine:
-			tCycle_create (&osc->mempool, (tCycle**)&osc->theOsc);
-			tCycle_init   (osc->mempool->leaf, (tCycle*)osc->theOsc);
+			// tCycle_create (&osc->mempool, (tCycle**)&osc->theOsc);
+			// tCycle_init   (osc->mempool->leaf, (tCycle*)osc->theOsc);
+	        tPBSineTriangle_create (&osc->mempool, (tPBSineTriangle**)&osc->theOsc);
+	        tPBSineTriangle_init   (osc->mempool->leaf, (tPBSineTriangle*)osc->theOsc);
 			break;
 
 		case OscTypeTri:
@@ -151,10 +154,10 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		break;
 	case OscType:
 	{
-	    uint8_t inp = (uint8_t)(input*(input * OscNumTypes));
+	    uint8_t inp = (uint8_t)(input * (OscNumTypes - 1));
 	    if (inp != osc->osctype)
 	    {
-	        tOscModule_setType(osc, LEAF_clip(0, inp, 2)); // limited to 4 to stop it from crashing for now
+	        tOscModule_setType(osc, inp);
 	    }
 	    break;
 	}
@@ -215,8 +218,10 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 			break;
 
 		case OscTypeSine:
-			tCycle_create (&OscModule->mempool, (tCycle**)&OscModule->theOsc);
-			tCycle_init   (OscModule->mempool->leaf, (tCycle*)OscModule->theOsc);
+			// tCycle_create (&OscModule->mempool, (tCycle**)&OscModule->theOsc);
+			// tCycle_init   (OscModule->mempool->leaf, (tCycle*)OscModule->theOsc);
+	        tPBSineTriangle_create (&OscModule->mempool, (tPBSineTriangle**)&OscModule->theOsc);
+	        tPBSineTriangle_init   (OscModule->mempool->leaf, (tPBSineTriangle*)OscModule->theOsc);
 			break;
 
 		case OscTypeTri:
@@ -260,7 +265,8 @@ void tOscModule_free(void** const osc)
 			tPBPulse_free((tPBPulse**)&OscModule->theOsc);
 			break;
 		case OscTypeSine:
-			tCycle_free((tCycle**)&OscModule->theOsc);
+			//tCycle_free((tCycle**)&OscModule->theOsc);
+            tPBSineTriangle_free((tPBSineTriangle**)&OscModule->theOsc);
 			break;
 		case OscTypeTri:
 			tPBTriangle_free((tPBTriangle**)&OscModule->theOsc);
@@ -277,7 +283,7 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
     if (osc->inputNote != inputNote)
     {
         osc->inputNote = inputNote;
-        float freqToSmooth = (osc->inputNote + (osc->fine));
+        float freqToSmooth = (osc->inputNote);
         tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
         //printf("hello\n");
     }
@@ -291,7 +297,7 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
         //tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
 
 	    //float nowFreq =  mtof(ftom(tExpSmooth_tick(&osc->pitchSmoother)) + osc->pitchOffset + osc->octaveOffset);
-        float nowFreq =  tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset;
+        float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
     //std::cout << freqToSmooth << std::endl;
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
@@ -301,7 +307,8 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 	//    float freqToSmooth2 = osc->mtofTable[(tempIndexI + 1) & 32767];
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
-	    float finalFreq = mtof((nowFreq * osc->harmonicMultiplier ) + osc->freqOffset);
+	    float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
+        //printf("HM: %f", osc->harmonicMultiplier);
 	switch (osc->osctype) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq((tPBSawSquare*)osc->theOsc,finalFreq);
@@ -324,8 +331,10 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 		    break;
 	    }
 	    case OscTypeSine: {
-		    tCycle_setFreq((tCycle*)osc->theOsc,finalFreq);
-		    *buffer = tCycle_tick((tCycle*)osc->theOsc)* osc->amp;
+		    // tCycle_setFreq((tCycle*)osc->theOsc,finalFreq);
+		    // *buffer = tCycle_tick((tCycle*)osc->theOsc)* osc->amp;
+	        tPBSineTriangle_setFreq((tPBSineTriangle*)osc->theOsc,finalFreq);
+	        *buffer = tPBSineTriangle_tick((tPBSineTriangle*)osc->theOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeTri: {
@@ -350,6 +359,12 @@ void tOscModule_setShape(tOscModule const osc, float shape)
             break;
         case OscTypeSineTri:
             tPBSineTriangle_setShape((tPBSineTriangle*)osc->theOsc,shape);
+            break;
+        case OscTypePulse:
+            tPBPulse_setWidth((tPBPulse*)osc->theOsc,shape);
+            break;
+        case OscTypeTri:
+            tPBTriangle_setSkew((tPBTriangle*)osc->theOsc,shape);
             break;
         default:
             break;

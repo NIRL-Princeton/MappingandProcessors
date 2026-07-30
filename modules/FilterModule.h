@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "leaf-mempool.h"
 #include "leaf-filters.h"
+#include "leaf-envelopes.h"
 
 
 typedef enum {
@@ -41,6 +42,7 @@ typedef struct _tFiltModule {
     ModuleHeader header;
     void* theFilt;
 
+
     float* dbTableAddress;
     uint32_t dbTableScalar;
     float dbTableOffset;
@@ -48,12 +50,18 @@ typedef struct _tFiltModule {
     float* resTableAddress;
     float resTableSizeMinusOne;
     uint32_t filtType;
+
     float amp;
+    tRamp ampSmoother;
+
     float cutoffKnob;
+    tRamp cutoffSmoother;
+    tRamp qSmoother;
     float keyFollow;
     float inputNote;
     float sr;
     float invSr;
+
     tMempool* mempool;
     tLookupTable* table;
 } _tFiltModule;
@@ -76,6 +84,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 //Modulatable setters
 void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);
 void tFiltModule_setCutoff(tFiltModule const filt, float cutoff);
+void tFiltModule_setType(tFiltModule const filt, int filtType);
 
 // Non-modulatable setters
 

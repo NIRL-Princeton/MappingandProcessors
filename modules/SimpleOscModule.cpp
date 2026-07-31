@@ -93,74 +93,76 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 {
 	float factor;
 	switch (param_type) {
-	case OscEventWatchFlag:
+	    case OscEventWatchFlag:
 
-		break;
-	case OscMidiPitch:
-	    tOscModule_setInputNote (osc, input * 127.f);
-		//osc->inputNote = input * 127.0f;
-		break;
-	case OscHarmonic:
-		input -= 0.5f;
-		input *= 2.f;
-		input *= 15.0f;
-		if (osc->hStepped) {
-			input = roundf(input);
-		}
+		    break;
+	    case OscMidiPitch:
+	        tOscModule_setInputNote (osc, input * 127.f);
+		    //osc->inputNote = input * 127.0f;
+		    break;
+	    case OscHarmonic:
+		    input -= 0.5f;
+		    input *= 2.f;
+		    input *= 15.0f;
+		    if (osc->hStepped) {
+			    input = roundf(input);
+		    }
 
-		if (input >= 0.0f) {
-			osc->harmonicMultiplier = (input + 1.0f);
-		} else {
-			osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
-		}
-		break;
-	case OscPitchOffset:
-		input -= 0.5f;
-		input *= 24.0f;
-		if (osc->pStepped) {
-			input = roundf(input);
-		}
-		osc->pitchOffset = input;
-		break;
-	case OscPitchFine:
-		osc->fine = (input - 0.5f) * 2.f;
-		break;
-	case OscFreqOffset:
-		osc->freqOffset = (input * 4000.0f) - 2000.f;
-		break;
-	case OscShapeParam:
-        tRamp_setDest(&osc->shapeSmoother, input);
-		break;
-	case OscAmpParam:
-		tRamp_setDest(&osc->ampSmoother, input);
-		break;
-	case OscGlide:
-	    tRamp_setTime(&osc->pitchSmooth, input);
-		break;
-	case OscSteppedHarmonic:
-		osc->hStepped = roundf(input);
-		break;
-	case OscSteppedPitch:
-		osc->pStepped = roundf(input);
-		break;
-	case OscSyncMode:
-		osc->syncMode = roundf(input);
-		break;
-	case OscSyncIn:
-		break;
-	case OscType:
-	{
-	    uint8_t inp = (uint8_t)(input * (OscNumTypes - 1));
-	    if (inp != osc->osctype)
+		    if (input >= 0.0f) {
+			    osc->harmonicMultiplier = (input + 1.0f);
+		    } else {
+			    osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
+		    }
+		    break;
+	    case OscPitchOffset:
+		    input -= 0.5f;
+		    input *= 24.0f;
+		    if (osc->pStepped) {
+			    input = roundf(input);
+		    }
+		    osc->pitchOffset = input;
+		    break;
+	    case OscPitchFine:
+		    osc->fine = (input - 0.5f) * 2.f;
+		    break;
+	    case OscFreqOffset:
+		    osc->freqOffset = (input * 4000.0f) - 2000.f;
+		    break;
+	    case OscShapeParam:
+            //tRamp_setDest(&osc->shapeSmooth, input);
+	        tSlopeRamp_setDest(&osc->shapeSmoother, input);
+		    break;
+	    case OscAmpParam:
+		    //tRamp_setDest(&osc->ampSmooth, input);
+	        tSlopeRamp_setDest(&osc->ampSmoother, input);
+		    break;
+	    case OscGlide:
+	        tRamp_setTime(&osc->pitchSmooth, input);
+		    break;
+	    case OscSteppedHarmonic:
+		    osc->hStepped = roundf(input);
+		    break;
+	    case OscSteppedPitch:
+		    osc->pStepped = roundf(input);
+		    break;
+	    case OscSyncMode:
+		    osc->syncMode = roundf(input);
+		    break;
+	    case OscSyncIn:
+		    break;
+	    case OscType:
 	    {
-	        tOscModule_setType(osc, inp);
+	        uint8_t inp = (uint8_t)(input * (OscNumTypes - 1));
+	        if (inp != osc->osctype)
+	        {
+	            tOscModule_setType(osc, inp);
+	        }
+	        break;
 	    }
-	    break;
-	}
-    case OscPortaType:
-	    osc->portaType = input;
-	default:
-		break;
+        case OscPortaType:
+	        osc->portaType = input;
+	    default:
+		    break;
 	}
 }
 
@@ -192,10 +194,15 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 	//OscModule->pitchSmoother.oneminusfactor = 1.0f - factor;
 
     tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->pitchSmooth, 1.0f, 1);
-    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->ampSmoother, SMOOTH_TIME_MS, 1);
-    tRamp_setVal(&OscModule->ampSmoother, OscModule->amp);
-    tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->shapeSmoother, SMOOTH_TIME_MS, 1);
-    tRamp_setVal(&OscModule->shapeSmoother, OscModule->oscShape);
+
+    // tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->ampSmooth, SMOOTH_TIME_MS, 1);
+    // tRamp_setVal(&OscModule->ampSmooth, OscModule->amp);
+    // tRamp_init(OscModule->mempool->leaf, (tRamp*)&OscModule->shapeSmooth, SMOOTH_TIME_MS, 1);
+    // tRamp_setVal(&OscModule->shapeSmooth, OscModule->oscShape);
+
+    tSlopeRamp_init(OscModule->mempool->leaf, (tSlopeRamp*)&OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    tSlopeRamp_init(OscModule->mempool->leaf, (tSlopeRamp*)&OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
+
 
 	switch (type)
 	{
@@ -294,14 +301,16 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 // tick function
 void tOscModule_tick (tOscModule const osc,float* buffer)
 {
-    tOscModule_setShape(osc, tRamp_tick(&osc->shapeSmoother));
-    osc->amp = tRamp_tick(&osc->ampSmoother);
+    //tOscModule_setShape(osc, tRamp_tick(&osc->shapeSmooth));
+    tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
+    //osc->amp = tRamp_tick(&osc->ampSmooth);
+    osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 	//float freqToSmooth = (osc->inputNote + (osc->fine));
 	    //tExpSmooth_setDest(&osc->pitchSmoother, mtof(freqToSmooth));
         //tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
 
 	    //float nowFreq =  mtof(ftom(tExpSmooth_tick(&osc->pitchSmoother)) + osc->pitchOffset + osc->octaveOffset);
-        float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
     //std::cout << freqToSmooth << std::endl;
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
@@ -311,7 +320,7 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 	//    float freqToSmooth2 = osc->mtofTable[(tempIndexI + 1) & 32767];
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
-	    float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
+    float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
         //printf("HM: %f", osc->harmonicMultiplier);
 	switch (osc->osctype) {
 	    case OscTypeSawSquare: {
@@ -347,8 +356,6 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 		    break;
 	    }
 	}
-
-
 //    osc->freq_set_func(osc->theOsc, finalFreq);
     osc->header.outputs[0] = *buffer;
 }

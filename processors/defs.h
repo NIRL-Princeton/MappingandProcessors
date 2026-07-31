@@ -22,6 +22,7 @@ extern "C" {
 
 // Universal smoothing time in ms for knobs
 #define SMOOTH_TIME_MS 15.f
+#define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample
 
 // Maximum number of parameters for a processors object
 #define MAX_NUM_PARAMS 16

@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
+#include "leaf-envelopes.h"
 
 typedef enum
 {
@@ -25,6 +26,7 @@ typedef struct _tPerlNoiseModule
     void* thePerlNoise;
 
     float gain;
+    tSlopeRamp gainSmoother;
     float rateMs;
 
     tMempool* mempool;
@@ -42,6 +44,6 @@ void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, PerlNosPara
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise);
 
 void tPerlNoiseModule_setRate(LEAF* const leaf, tPerlNoiseModule const perlNoise, float rate);
-void tPerlNoiseModule_setEnergy(LEAF* const leaf, tPerlNoiseModule const perlNoise, float energy);
+void tPerlNoiseModule_setEnergy(tPerlNoiseModule const perlNoise, float energy);
 
 #endif // ELECTORSYNTH_PERLINNOISEMODULE_H

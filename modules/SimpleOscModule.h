@@ -64,7 +64,8 @@ typedef struct _tOscModule {
     float inputNote;
     float finalFreq;
     float amp;
-    tRamp ampSmoother;
+    tRamp ampSmooth;
+    tSlopeRamp ampSmoother;
     float* mtofTable;
     float sr;
     float invSr;
@@ -72,7 +73,8 @@ typedef struct _tOscModule {
     int pStepped;
     int syncMode;
     float oscShape;
-    tRamp shapeSmoother;
+    tRamp shapeSmooth;
+    tSlopeRamp shapeSmoother;
     int portaType;
 
     tMempool* mempool;

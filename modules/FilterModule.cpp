@@ -46,53 +46,29 @@ float resTableLookupFunction (float input, float* resTableAddress, float resTabl
 void tFiltModule_setGain(tFiltModule const filt, float const gain)
 {
     filt->amp = gain;
-	// float floatIndex = 0.0f;
-	// switch(filt->filtType)
-	//  {
-	//  case FiltTypeLowpass:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  case FiltTypeHighpass:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  case FiltTypeBandpass:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  case FiltTypeDiodeLowpass:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  case FiltTypePeak:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	  tVZFilterBell_setGain((tVZFilterBell*)filt->theFilt, dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress));
-	// 	 break;
-	//  case FiltTypeHighShelf:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 tVZFilterHS_setGain((tVZFilterHS*)filt->theFilt, dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress));
-	// 	 break;
-	//  case FiltTypeLowShelf:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 tVZFilterLS_setGain((tVZFilterLS*)filt->theFilt, dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress));
-	// 	 break;
-	//  case FiltTypeNotch:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  case FiltTypeLadderLowpass:
-	// 	 floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
-	// 	 filt->amp = gain;//dbToATableLookupFunction(floatIndex, filt->dbTableSizeMinusOne, filt->dbTableAddress);
-	// 	 break;
-	//  default:
-	// 	 break;
-	//  }
+    //float floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+	switch(filt->filtType)
+	 {
+	 case FiltTypePeak:
+		 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+		 tVZFilterBell_setGain((tVZFilterBell*)filt->theFilt, gain);
+		 break;
+	 case FiltTypeHighShelf:
+		 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+		 tVZFilterHS_setGain((tVZFilterHS*)filt->theFilt, gain);
+		 break;
+	 case FiltTypeLowShelf:
+		 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+		 tVZFilterLS_setGain((tVZFilterLS*)filt->theFilt, gain);
+		 break;
+	 default:
+		 break;
+	 }
 }
-
 
 void tFiltModule_setRes(tFiltModule const filt, float const res)
 {
+    filt->qValue = res;
 	 switch(filt->filtType)
 	 {
 	 case FiltTypeLowpass:
@@ -140,13 +116,14 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     //CPPDEREF FiltModule->params[FiltAudioInput] = 0.0f;
     int type = 0.0f;//roundf(FiltModule->params[FiltType]);
     FiltModule->mempool = m;
-    FiltModule->amp = 1.0f;
+    FiltModule->amp = 1.f;
     FiltModule->invSr = m->leaf->invSampleRate;
     FiltModule->sr = m->leaf->sampleRate;
 	FiltModule->table = resTable;
 
     tSlopeRamp_init(m->leaf, &FiltModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
-    tSlopeRamp_init(m->leaf, &FiltModule->freqSmoother, SMOOTH_SLOPE_MULTIPLIER, 10000.0f);
+    tSlopeRamp_init(m->leaf, &FiltModule->cutoffSmoother, SMOOTH_SLOPE_MULTIPLIER * 125.0f, 10000.0f);
+    tSlopeRamp_init(m->leaf, &FiltModule->keyFollowSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     tSlopeRamp_init(m->leaf, &FiltModule->qSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
 
     if (type == FiltTypeLowpass) {
@@ -253,20 +230,21 @@ void tFiltModule_free(void** const filt)
 // tick function
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
-    //removing keyfollow since it is not set up to a parameter right now
-    //TODO: add keyfollow
-    //float const cutoff  = filt->cutoffKnob + (filt->inputNote*filt->keyFollow);//  * CPPDEREF filt->params[FiltKeyfollow]); // TODO: should this be cutoffKnob * 137 to allow full range of knob turn to map to maxium freq?)
+    //float const cutoff  = filt->cutoffKnob + (filt->inputNote*filt->keyFollow);//  * CPPDEREF filt->params[FiltKeyfollow]);
 
-    //tFiltModule_setCutoff(filt, tSlopeRamp_tick(&filt->freqSmoother));
+    tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->ampSmoother));
     tFiltModule_setRes(filt, tSlopeRamp_tick(&filt->qSmoother));
-    //tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->ampSmoother));
+
+    filt->cutoffKnob = tSlopeRamp_tick(&filt->cutoffSmoother);
+    filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
+    tFiltModule_setFreq(filt, filt->cutoffKnob + filt->keyFollow * filt->inputNote);
 
     switch(filt->filtType)
     {
     case FiltTypeLowpass:
-    	tSVF_setFreqFast((tSVF*)filt->theFilt, tSlopeRamp_tick(&filt->freqSmoother));
+    	//tSVF_setFreqFast((tSVF*)filt->theFilt, filt->currFreq);
         //buffer[0] += CPPDEREF filt->params[FiltAudioInput]; //buffer passed to function
-        buffer[0] = filt->header.outputs[0] = tSVF_tick((tSVF*)filt->theFilt,  buffer[0]) * tSlopeRamp_tick(&filt->ampSmoother);
+        buffer[0] = filt->header.outputs[0] = tSVF_tick((tSVF*)filt->theFilt,  buffer[0]) * filt->amp;
     	break;
 
     case FiltTypeHighpass:
@@ -326,30 +304,30 @@ void tFiltModule_tick (tFiltModule const filt, float* buffer)
 
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input)
 {
-    float newInput;
+    float newInputF;
+    int newInputI;
 	switch (param_type) {
 	    case FiltEventWatchFlag:
 	        break;
 	    case FiltMidiPitch:
-		    newInput = input * 127.f;
-	        if (filt->inputNote != newInput)
+		    newInputF = input * 127.f;
+	        if (filt->inputNote != newInputF)
 		    {
-                filt->inputNote = newInput;
-	            tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob * (1 - filt->keyFollow));
+                filt->inputNote = newInputF;
 		    }
 		    break;
 	    case FiltCutoff:
-	        newInput = input * 127.f;
-	        if (filt->cutoffKnob!= newInput)
+	        newInputF = input * 135.5f; // 135.5 to allow for about 21000hz
+	        if (filt->cutoffKnob!= newInputF)
 	        {
-	            filt->cutoffKnob = newInput;
-	            tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob * (1 - filt->keyFollow));
+	            filt->cutoffKnob = newInputF;
+	            //tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob);
+	            tSlopeRamp_setDest(&filt->cutoffSmoother, filt->cutoffKnob);
 	        }
 		    break;
 	    case FiltGain:
-		    if (filt->amp != input)
+		    if (filt->ampSmoother.curr != input)
 		    {
-		        filt->amp = input;
 		        tSlopeRamp_setDest(&filt->ampSmoother, input);
 		    }
 		    break;
@@ -362,14 +340,14 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 	    case FiltKeyfollow:
 		    if (filt->keyFollow != input)
 		    {
-		        filt->keyFollow = input;
-		        tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob * (1 - filt->keyFollow));
+		        tSlopeRamp_setDest(&filt->keyFollowSmoother, input);
 		    }
 		    break;
 	    case FiltType:
-	        if (filt->filtType != (int)roundf(input * 8.f))
+	        newInputI = (int)roundf(input * 8.f);
+	        if (filt->filtType != newInputI)
 	        {
-	            tFiltModule_setType(filt, (int)roundf(input * 8.f));
+	            tFiltModule_setType(filt, newInputI);
 	        }
 		    break;
 	    default:
@@ -377,44 +355,37 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 	}
 }
 
-// void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input)
-// {
-//     filt->inputNote = input;
-// }
-
-void tFiltModule_setCutoff (tFiltModule const filt, float const cutoffInput, float const midiInput)
+void tFiltModule_setFreq (tFiltModule const filt, float const freqInput)
 {
-    filt->cutoffKnob = cutoffInput;
-    filt->inputNote = midiInput;
-    float sum = cutoffInput + filt->keyFollow * midiInput;
+    filt->currFreq = freqInput;
     switch(filt->filtType)
     {
         case FiltTypeLowpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, sum);
+            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
             break;
         case FiltTypeHighpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, sum);
+            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
             break;
         case FiltTypeBandpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, sum);
+            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
             break;
         case FiltTypeDiodeLowpass:
-            tDiodeFilter_setFreqFast((tDiodeFilter*)filt->theFilt, sum);
+            tDiodeFilter_setFreqFast((tDiodeFilter*)filt->theFilt, freqInput);
             break;
         case FiltTypePeak:
-            tVZFilterBell_setFreqFast((tVZFilterBell*)filt->theFilt, sum);
+            tVZFilterBell_setFreqFast((tVZFilterBell*)filt->theFilt, freqInput);
             break;
         case FiltTypeHighShelf:
-            tVZFilterHS_setFreqFast((tVZFilterHS*)filt->theFilt, sum);
+            tVZFilterHS_setFreqFast((tVZFilterHS*)filt->theFilt, freqInput);
             break;
         case FiltTypeLowShelf:
-            tVZFilterLS_setFreqFast((tVZFilterLS*)filt->theFilt, sum);
+            tVZFilterLS_setFreqFast((tVZFilterLS*)filt->theFilt, freqInput);
             break;
         case FiltTypeNotch:
-            tVZFilterBR_setFreqFast((tVZFilterBR*)filt->theFilt, sum);
+            tVZFilterBR_setFreqFast((tVZFilterBR*)filt->theFilt, freqInput);
             break;
         case FiltTypeLadderLowpass:
-            tLadderFilter_setFreqFast((tLadderFilter*)filt->theFilt, sum);
+            tLadderFilter_setFreqFast((tLadderFilter*)filt->theFilt, freqInput);
             break;
         default:
             break;

@@ -52,17 +52,17 @@ typedef struct _tFiltModule {
     uint32_t filtType;
 
     float amp;
-    //tRamp ampSmooth;
     tSlopeRamp ampSmoother;
 
-
-    float cutoffKnob;
-    //tRamp cutoffSmooth;
-    //tRamp qSmooth;
-    tSlopeRamp freqSmoother;
-    tSlopeRamp qSmoother;
     float keyFollow;
+    tSlopeRamp keyFollowSmoother;
+    float cutoffKnob;
+    tSlopeRamp cutoffSmoother;
     float inputNote;
+    float currFreq;
+
+    float qValue;
+    tSlopeRamp qSmoother;
     float sr;
     float invSr;
 
@@ -87,8 +87,10 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 
 //Modulatable setters
 //void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);
-void tFiltModule_setCutoff(tFiltModule const filt, float cutoff);
+void tFiltModule_setFreq(tFiltModule const filt, float freqInput);
 void tFiltModule_setType(tFiltModule const filt, int filtType);
+void tFiltModule_setGain(tFiltModule const filt, float gain);
+void tFiltModule_setKeyFollow(tFiltModule const filt, float keyFollow);
 
 // Non-modulatable setters
 

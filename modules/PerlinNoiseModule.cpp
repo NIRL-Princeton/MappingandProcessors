@@ -24,13 +24,14 @@ void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, const PerlN
             temp = input * 1999.9f + 0.1f;
             if (perlNoise->rateMs != temp)
             {
-                tPerlNoiseModule_setRate (perlNoise->mempool->leaf, perlNoise, input * 1999.9f + 0.1f);
+                tPerlNoiseModule_setRate (perlNoise, input * 1999.9f + 0.1f);
             }
             break;
         case PerlNoiseEnergy:
-            if (perlNoise)
-
-            tPerlNoiseModule_setEnergy(perlNoise, input);
+            if (perlNoise->energy != input)
+            {
+                tPerlNoiseModule_setEnergy(perlNoise, input);
+            }
             break;
         default:
             break;
@@ -51,7 +52,7 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
 
     tPerlinNoise_create (&PerlNoiseModule->mempool, (tPerlinNoise**)&PerlNoiseModule->thePerlNoise);
     tPerlinNoise_init (PerlNoiseModule->mempool->leaf, (tPerlinNoise*)PerlNoiseModule->thePerlNoise, 4.f, .5f);
-    tSlopeRamp_init(PerlNoiseModule->mempool->leaf, &PerlNoiseModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    tSlopeRamp_init (PerlNoiseModule->mempool->leaf, &PerlNoiseModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
 
     PerlNoiseModule->header.moduleType = ModuleTypePerlNoiseModule;
 
@@ -75,19 +76,27 @@ void tPerlNoiseModule_free(void** const perlNoise)
 // tick function
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 {
-    perlNoise->gain = tSlopeRamp_tick(&perlNoise->gainSmoother);
+    tPerlNoiseModule_setGain(perlNoise, tSlopeRamp_tick(&perlNoise->gainSmoother));
+
     perlNoise->header.outputs[0] = tPerlinNoise_tick((tPerlinNoise*)perlNoise->thePerlNoise) * perlNoise->gain;
     //float output = tPerlinNoise_tick((tPerlinNoise*)perlNoise->thePerlNoise) * perlNoise->gain;
     //perlNoise->header.outputs[0] = output;
     //printf("%f,", output);
 }
 
-void tPerlNoiseModule_setRate(LEAF* const leaf, tPerlNoiseModule const perlNoise, float rate)
+void tPerlNoiseModule_setRate(tPerlNoiseModule const perlNoise, float rate)
 {
-    tPerlinNoise_setRate(leaf, (tPerlinNoise*)perlNoise->thePerlNoise, rate);
+    perlNoise->rateMs = rate;
+    tPerlinNoise_setRate((tPerlinNoise*)perlNoise->thePerlNoise, rate);
 }
 
 void tPerlNoiseModule_setEnergy(tPerlNoiseModule const perlNoise, float energy)
 {
+    perlNoise->energy = energy;
     tPerlinNoise_setEnergy((tPerlinNoise*)perlNoise->thePerlNoise, energy);
+}
+
+void tPerlNoiseModule_setGain (tPerlNoiseModule const perlNoise, float gain)
+{
+    perlNoise->gain = gain;
 }

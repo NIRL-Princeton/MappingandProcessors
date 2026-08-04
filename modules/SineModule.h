@@ -21,7 +21,7 @@ typedef enum {
 typedef struct _tSineModule {
     ModuleHeader header;
 
-    void* theSine;
+    tCycle* theSine;
 
     // float fine;
     // float harmonicMultiplier;
@@ -51,7 +51,7 @@ typedef _tSineModule* tSineModule;
 void tSineModule_init(void** const osc, float* const params, float id, LEAF* const leaf);
 void tSineModule_initToPool(void** const osc, float* const params, float id, tMempool** const mempool);
 void tSineModule_free(void** const osc);
-void tSineModule_setParameter(tSineModule osc, SineParams param_type, float input);
+void tSineModule_setParameter(tSineModule const osc, SineParams param_type, float input);
 // Modulatable setters
 //void tSineModule_setInputNote (tSineModule const osc, float inputNote);
 void tSineModule_tick (tSineModule const osc, float*);

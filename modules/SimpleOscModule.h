@@ -86,7 +86,7 @@ typedef _tOscModule* tOscModule;
 void tOscModule_init(void** const osc, float* const params, float id, LEAF* const leaf);
 void tOscModule_initToPool(void** const osc, float* const params, float id, tMempool** const mempool);
 void tOscModule_free(void** const osc);
-void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float input);
+void tOscModule_setParameter(tOscModule const osc, OscParams param_type, float input);
 // Modulatable setters
 void tOscModule_setInputNote (tOscModule const osc, float inputNote);
 void tOscModule_tick (tOscModule const osc, float*);

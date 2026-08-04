@@ -53,7 +53,8 @@ typedef enum {
     ModuleTypeDelayModule,
     ModuleTypeNoiseModule,
     ModuleTypeSimpNoiseModule,
-    ModuleTypePerlNoiseModule
+    ModuleTypePerlNoiseModule,
+    ModuleTypeSineModule
 
 } ModuleType;
 

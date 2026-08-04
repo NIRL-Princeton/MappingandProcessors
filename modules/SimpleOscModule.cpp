@@ -12,11 +12,6 @@ void tOscModule_init(void** const osc, float* params, float id, LEAF* const leaf
     tOscModule_initToPool(osc, params, id, &leaf->mempool);
 }
 
-void tOscModule_blankFunction (tOscModule const osc, float freq)
-{
-    ;
-}
-
 void tOscModule_setType (tOscModule const osc, int type)
 {
 //destroy current oscillator object

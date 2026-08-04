@@ -40,6 +40,7 @@ typedef void (*tFiltInternalParamSetFunc)(void*, float);
 typedef struct _tFiltModule {
     ModuleHeader header;
     void* theFilt;
+    void* filters[FiltNumTypes];
 
     float* dbTableAddress;
     uint32_t dbTableScalar;
@@ -48,7 +49,12 @@ typedef struct _tFiltModule {
     float* resTableAddress;
     float resTableSizeMinusOne;
     uint32_t filtType;
+    uint32_t previousFiltType;
+    uint32_t transitionSamplesRemaining;
+    uint32_t transitionSamplesTotal;
     float amp;
+    float gainKnob;
+    float resonanceKnob;
     float cutoffKnob;
     float keyFollow;
     float inputNote;
@@ -72,6 +78,7 @@ void tFiltModule_tick (tFiltModule const filt, float*);
 
 
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input);
+void tFiltModule_setType(tFiltModule const filt, uint32_t type, uint32_t transitionSamples);
 
 //Modulatable setters
 void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);

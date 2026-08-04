@@ -12,7 +12,7 @@
 typedef enum {
     StringEventWatchFlag,
     StringOversample,
-    StringFreq,
+    StringMidiFreq,
     StringWaveLength,
     StringDampFreq,
     StringDecay,

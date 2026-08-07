@@ -55,73 +55,6 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
     tSquareLFO_create   (mempool, &LFOModule->squareLFO);
     tSquareLFO_init     (m->leaf, LFOModule->squareLFO);
 
-    // if (LFOModule->lfo_type == LFOTypeSineTri)
-    // {
-    //     tSineTriLFO_create (mempool, (tSineTriLFO**)&LFOModule->theLFO);
-    //     tSineTriLFO_init   (m->leaf, (tSineTriLFO*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tSineTriLFO_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tSineTriLFO_tick);
-    //     LFOModule->phaseSetter = (tSetter)(&tSineTriLFO_setPhase);
-    //     LFOModule->shapeSetter = (tSetter)(&tSineTriLFO_setShape);
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tSineTriLFO_tick);
-    // }
-    // else if (LFOModule->lfo_type == LFOTypeSawSquare)
-    // {
-    //     tSawSquareLFO_create (mempool, (tSawSquareLFO**)&LFOModule->theLFO);
-    //     tSawSquareLFO_init   (m->leaf, (tSawSquareLFO*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tSawSquareLFO_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tSawSquareLFO_tick);
-    //     LFOModule->phaseSetter = (tSetter)(&tSawSquareLFO_setPhase);
-    //     LFOModule->shapeSetter = (tSetter)(&tSawSquareLFO_setShape);
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tSawSquareLFO_tick);
-    // }
-    // else if (LFOModule->lfo_type == LFOTypeSine)
-    // {
-    //     tCycle_create (mempool, (tCycle**)&LFOModule->theLFO);
-    //     tCycle_init   (m->leaf, (tCycle*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tCycle_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tCycle_tick);
-    //     LFOModule->phaseSetter = (tSetter)(&tCycle_setPhase);
-    //     LFOModule->shapeSetter = blankSetter;
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tCycle_tick);
-    // }
-    // else if (LFOModule->lfo_type == LFOTypeTri)
-    // {
-    //     tTriLFO_create (mempool, (tTriLFO**)&LFOModule->theLFO);
-    //     tTriLFO_init   (m->leaf, (tTriLFO*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tTriLFO_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tTriLFO_tick);
-    //     LFOModule->phaseSetter = (tSetter)(&tTriLFO_setPhase);
-    //     LFOModule->shapeSetter = blankSetter;
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tTriLFO_tick);
-    // }
-    // else if (LFOModule->lfo_type == LFOTypeSaw)
-    // {
-    //     tIntPhasor_create (mempool, (tIntPhasor**)&LFOModule->theLFO);
-    //     tIntPhasor_init   (m->leaf, (tIntPhasor*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tIntPhasor_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tIntPhasor_tickBiPolar);
-    //     LFOModule->phaseSetter = (tSetter)(&tIntPhasor_setPhase);
-    //     LFOModule->shapeSetter = blankSetter;
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tIntPhasor_tickBiPolar);
-    // }
-    // else if (LFOModule->lfo_type == LFOTypeSquare)
-    // {
-    //     tSquareLFO_create (mempool, (tSquareLFO**)&LFOModule->theLFO);
-    //     tSquareLFO_init   (m->leaf, (tSquareLFO*)LFOModule->theLFO);
-    //
-    //     LFOModule->freqSetter = (tSetter)(&tSquareLFO_setFreq);
-    //     LFOModule->lfoTicker = (tTickFuncReturningFloat)(&tSquareLFO_tick);
-    //     LFOModule->phaseSetter = (tSetter)(&tSquareLFO_setPhase);
-    //     LFOModule->shapeSetter = (tSetter)(&tSquareLFO_setPulseWidth);
-    //     // LFOModule->header.tick          = (tTickFuncReturningFloat)(&tSquareLFO_tick);
-    // }
-
     LFOModule->header.moduleType = ModuleTypeLFOModule;
 }
 
@@ -137,29 +70,6 @@ void tLFOModule_free(void** const lfo)
     tSquareLFO_free     (&LFOModule->squareLFO);
     tSlopeRamp_free     (&LFOModule->shapeSmoother);
 
-    // switch (LFOModule->lfo_type)
-    // {
-    //     case(LFOTypeSineTri):
-    //         tSineTriLFO_free((tSineTriLFO**)&LFOModule->theLFO);
-    //         break;
-    //     case(LFOTypeSawSquare):
-    //         tSawSquareLFO_free((tSawSquareLFO**)&LFOModule->theLFO);
-    //         break;
-    //     case(LFOTypeSine):
-    //         tCycle_free((tCycle**)&LFOModule->theLFO);
-    //         break;
-    //     case(LFOTypeTri):
-    //         tTriLFO_free((tTriLFO**)&LFOModule->theLFO);
-    //         break;
-    //     case(LFOTypeSaw):
-    //         tIntPhasor_free((tIntPhasor**)&LFOModule->theLFO);
-    //         break;
-    //     case(LFOTypeSquare):
-    //         tSquareLFO_free((tSquareLFO**)&LFOModule->theLFO);
-    //         break;
-    //     default:
-    //         break;
-    // }
     mpool_free((char*)LFOModule, LFOModule->mempool);
 }
 //tick function
@@ -238,7 +148,7 @@ void tLFOModule_onNoteOn(tLFOModule const lfo)
 
 void tLFOModule_setRate (tLFOModule const lfo, float rate)
 {
-    lfo->inputRate = rate;
+    lfo->rate = rate;
     switch(lfo->lfo_type)
     {
         case(LFOTypeSineTri):
@@ -336,9 +246,8 @@ void tLFOModule_setType (tLFOModule const lfo, int type)
 {
     lfo->lfo_type = type;
     //tLFOModule_setParameter(lfo, LFORateParam, lfo->inputRate);
-    tLFOModule_setRate(lfo, lfo->inputRate);
+    tLFOModule_setRate(lfo, lfo->rate);
     tLFOModule_setPhase(lfo, lfo->phase);
-    printf("setType!!!!, %i\n", type);
 }
 
 void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float input)
@@ -364,13 +273,14 @@ void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float i
             {
                 lfo->inputRate = input;
                 // Interpolate lookup table and set frequency
-                input *= (float)lfo->table->tableSize;
-                int inputInt = (int)input;
-                float inputFloat = (float)inputInt - input;
-                int nextPos = LEAF_clip(0, inputInt + 1, lfo->table->tableSize);
-                float tempRate = (lfo->table->table[inputInt] * (1.0f - inputFloat))
-                               + (lfo->table->table[nextPos] * inputFloat);
-                tLFOModule_setRate (lfo, tempRate);
+                // input *= (float)lfo->table->tableSize;
+                // int inputInt = (int)input;
+                // float inputFloat = (float)inputInt - input;
+                // int nextPos = LEAF_clip(0, inputInt + 1, lfo->table->tableSize);
+                // float tempRate = (lfo->table->table[inputInt] * (1.0f - inputFloat))
+                //                + (lfo->table->table[nextPos] * inputFloat);
+
+                tLFOModule_setRate (lfo, lfo->table->table[(int)roundf(input * 2047)]);
                 //printf("%f\n", tempRate);
                 break;
             }
@@ -379,7 +289,8 @@ void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float i
         case LFOShapeParam:
             if (input != lfo->shapeSmoother->dest)
             {
-                 tSlopeRamp_setDest(lfo->shapeSmoother, input);
+                tSlopeRamp_setDest(lfo->shapeSmoother, input);
+                //printf("Always?!?!?\n");
             }
             break;
 

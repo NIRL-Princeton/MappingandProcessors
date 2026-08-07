@@ -51,6 +51,7 @@ typedef struct _tLFOModule {
     tLookupTable* table;
 
     float inputRate;
+    float rate;
     //tSetter freqSetter;
     //tTickFuncReturningFloat lfoTicker;
 

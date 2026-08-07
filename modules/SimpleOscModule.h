@@ -39,33 +39,28 @@ typedef enum {
     OscNumTypes
 } OscTypes;
 
-//the actual frequency setter function
-typedef void (*tFreqSetFunc)(void*, float);
-
 typedef struct _tOscModule {
     ModuleHeader header;
 
-    void* theOsc;
-
-    uint32_t osctype;
-
-//    tTickFuncReturningFloat tick; // The object's tick function
-//    tFreqSetFunc freq_set_func;
-
-//    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
+    tPBSawSquare* sawSquareOsc;
+    tPBSineTriangle* sineTriangleOsc;
+    tPBSaw* sawOsc;
+    tPBPulse* squareOsc;
+    tCycle* sineOsc;
+    tPBTriangle* triOsc;
+    uint32_t oscType;
 
     float fine;
     float harmonicMultiplier;
     float pitchOffset;
     float freqOffset;
     //tExpSmooth pitchSmoother;
-    tRamp pitchSmooth;
+    tRamp* pitchSmooth;
     float octaveOffset;
     float inputNote;
     float finalFreq;
     float amp;
-    tRamp ampSmooth;
-    tSlopeRamp ampSmoother;
+    tSlopeRamp* ampSmoother;
     float* mtofTable;
     float sr;
     float invSr;
@@ -73,8 +68,7 @@ typedef struct _tOscModule {
     int pStepped;
     int syncMode;
     float oscShape;
-    tRamp shapeSmooth;
-    tSlopeRamp shapeSmoother;
+    tSlopeRamp* shapeSmoother;
     int portaType;
 
     tMempool* mempool;

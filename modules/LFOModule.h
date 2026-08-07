@@ -51,16 +51,16 @@ typedef struct _tLFOModule {
     tLookupTable* table;
 
     float inputRate;
-    tSetter freqSetter;
-    tTickFuncReturningFloat lfoTicker;
+    //tSetter freqSetter;
+    //tTickFuncReturningFloat lfoTicker;
 
     float phase;
-    tSetter phaseSetter;
+    //tSetter phaseSetter;
     uint8_t counter;
 
     float shape;
-    tSlopeRamp shapeSmoother;
-    tSetter shapeSetter;
+    tSlopeRamp* shapeSmoother;
+    //tSetter shapeSetter;
 
     uint8_t syncNoteOn;
 

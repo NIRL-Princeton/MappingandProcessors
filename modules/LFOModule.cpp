@@ -34,6 +34,8 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
 
     LFOModule->mempool = m;
 
+    LFOModule->counter = 0;
+
     tSlopeRamp_init(m->leaf, &LFOModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     // LFOModule->setterFunctions[LFOEventWatchFlag] = (tSetter)(&tLFOModule_blankFunction);
     // LFOModule->setterFunctions[LFOType] = (tSetter)(&tLFOModule_blankFunction);
@@ -115,22 +117,22 @@ void tLFOModule_free(void** const lfo)
     switch (LFOModule->lfo_type)
     {
         case(LFOTypeSineTri):
-            tSineTriLFO_free((tSineTriLFO**)LFOModule->theLFO);
+            tSineTriLFO_free((tSineTriLFO**)&LFOModule->theLFO);
             break;
         case(LFOTypeSawSquare):
-            tSawSquareLFO_free((tSawSquareLFO**)LFOModule->theLFO);
+            tSawSquareLFO_free((tSawSquareLFO**)&LFOModule->theLFO);
             break;
         case(LFOTypeSine):
-            tCycle_free((tCycle**)LFOModule->theLFO);
+            tCycle_free((tCycle**)&LFOModule->theLFO);
             break;
         case(LFOTypeTri):
-            tTriLFO_free((tTriLFO**)LFOModule->theLFO);
+            tTriLFO_free((tTriLFO**)&LFOModule->theLFO);
             break;
         case(LFOTypeSaw):
-            tIntPhasor_free((tIntPhasor**)LFOModule->theLFO);
+            tIntPhasor_free((tIntPhasor**)&LFOModule->theLFO);
             break;
         case(LFOTypeSquare):
-            tSquareLFO_free((tSquareLFO**)LFOModule->theLFO);
+            tSquareLFO_free((tSquareLFO**)&LFOModule->theLFO);
             break;
         default:
             break;
@@ -144,14 +146,26 @@ void tLFOModule_tick (tLFOModule const lfo)
     lfo->shapeSetter(lfo->theLFO, lfo->shape);
 
     lfo->header.outputs[0] = lfo->lfoTicker(lfo->theLFO);
+    //printf("Ticking!!");
 }
 
 //special noteOnFunction
 void tLFOModule_onNoteOn(tLFOModule const lfo)
 {
-    printf("Note on!!");
+    //printf("Note on!!");
     // lfo->setterFunctions[LFOPhaseParam](lfo->theLFO, CPPDEREF lfo->params[LFOPhaseParam]); //call actual function
-    lfo->phaseSetter(lfo->theLFO, lfo->phase);
+
+    if (lfo->counter == 0 && lfo->syncNoteOn == 1)
+    {
+        lfo->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+        //printf("really on\n");
+        lfo->phaseSetter(lfo->theLFO, lfo->phase);
+    } else
+    {
+        lfo->counter = 0;
+        //printf("really off\n");
+    }
+
 }
 
 // Modulatable setters
@@ -350,8 +364,12 @@ void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float i
             break;
 
         case LFOSyncNoteOnParam:
-
-
+            if ((uint8_t)input != lfo->syncNoteOn)
+            {
+                lfo->syncNoteOn = (uint8_t)input;
+                printf("changed sync!!!");
+            }
+            break;
         default:
             break;
     }

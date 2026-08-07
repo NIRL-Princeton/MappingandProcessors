@@ -36,9 +36,17 @@ typedef enum {
 typedef struct _tLFOModule {
     ModuleHeader header;
     void* theLFO;
+
+    tSineTriLFO* sineTriLFO;
+    tSawSquareLFO* sawSquareLFO;
+    tCycle* sineLFO;
+    tTriLFO* triLFO;
+    tIntPhasor* sawLFO;
+    tSquareLFO* squareLFO;
+
     uint32_t lfo_type;
 
-    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
+    //tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
 
     tLookupTable* table;
 
@@ -48,6 +56,7 @@ typedef struct _tLFOModule {
 
     float phase;
     tSetter phaseSetter;
+    uint8_t counter;
 
     float shape;
     tSlopeRamp shapeSmoother;

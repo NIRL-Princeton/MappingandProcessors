@@ -10,14 +10,16 @@
 // #include "processor.h"
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
+#include "leaf-envelopes.h"
 
-typedef void (*tFreqSetFunc)(void*, float);
+//typedef void (*tFreqSetFunc)(void*, float);
 typedef enum {
     LFOEventWatchFlag,
     LFORateParam,
     LFOShapeParam,
     LFOPhaseParam,
     LFOType,//non modulatable
+    LFOSyncNoteOnParam,
     LFONumParams
 } LFOParams;
 
@@ -33,14 +35,26 @@ typedef enum {
 
 typedef struct _tLFOModule {
     ModuleHeader header;
-   void* theLFO;
+    void* theLFO;
     uint32_t lfo_type;
 
-    // tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
-
+    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
 
     tLookupTable* table;
-    tFreqSetFunc freq_set_func;
+
+    float inputRate;
+    tSetter freqSetter;
+    tTickFuncReturningFloat lfoTicker;
+
+    float phase;
+    tSetter phaseSetter;
+
+    float shape;
+    tSlopeRamp shapeSmoother;
+    tSetter shapeSetter;
+
+    uint8_t syncNoteOn;
+
    tMempool* mempool;
 } _tLFOModule;
 
@@ -52,17 +66,20 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
 void tLFOModule_free(void** const lfo);
 
 //note on action
-void tLFOModule_onNoteOn(tLFOModule const lfo, float pitch, float velocity);
+//void tLFOModule_onNoteOn(tLFOModule const lfo, float pitch, float velocity);
+void tLFOModule_onNoteOn(tLFOModule const lfo);
 
 // Modulatable setters
 void tLFOModule_setRate (tLFOModule const lfo, float rate);
+void tLFOModule_setType(tLFOModule const lfo, int type);
+void tLFOModule_setShape(tLFOModule const lfo, float shape);
+void tLFOModule_setPhase(tLFOModule const lfo, float phase);
 
 void tLFOModule_setParameter(tLFOModule const, LFOParams param_type, float input);
 
 // Non-modulatable setters
 //void tLFOModule_setRateTableLocationAndSize (tLFOModule const lfo, float* tableAddress, uint32_t size);
 void tLFOModule_setSampleRate (tLFOModule const lfo, float sr);
-
 
 void tLFOModule_tick (tLFOModule const lfo);
 #endif //LFOMODULE_H

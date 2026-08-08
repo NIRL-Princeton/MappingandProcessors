@@ -25,6 +25,7 @@ typedef enum {
     OscSyncMode,
     OscSyncIn,
     OscType,
+    OscPortaType,
     OscNumParams
 } OscParams;
 
@@ -57,11 +58,14 @@ typedef struct _tOscModule {
     float harmonicMultiplier;
     float pitchOffset;
     float freqOffset;
-    tExpSmooth pitchSmoother;
+    //tExpSmooth pitchSmoother;
+    tRamp pitchSmooth;
     float octaveOffset;
     float inputNote;
     float finalFreq;
     float amp;
+    tRamp ampSmooth;
+    tSlopeRamp ampSmoother;
     float* mtofTable;
     float sr;
     float invSr;
@@ -69,6 +73,9 @@ typedef struct _tOscModule {
     int pStepped;
     int syncMode;
     float oscShape;
+    tRamp shapeSmooth;
+    tSlopeRamp shapeSmoother;
+    int portaType;
 
     tMempool* mempool;
 } _tOscModule;
@@ -79,8 +86,9 @@ typedef _tOscModule* tOscModule;
 void tOscModule_init(void** const osc, float* const params, float id, LEAF* const leaf);
 void tOscModule_initToPool(void** const osc, float* const params, float id, tMempool** const mempool);
 void tOscModule_free(void** const osc);
-void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float input);
+void tOscModule_setParameter(tOscModule const osc, OscParams param_type, float input);
 // Modulatable setters
+void tOscModule_setInputNote (tOscModule const osc, float inputNote);
 void tOscModule_tick (tOscModule const osc, float*);
 
 

@@ -12,7 +12,7 @@
 typedef enum {
     StringEventWatchFlag,
     StringOversample,
-    StringFreq,
+    StringMidiFreq,
     StringWaveLength,
     StringDampFreq,
     StringDecay,
@@ -26,9 +26,6 @@ typedef enum {
     StringPluckPosition,
     StringNumParams
 } StringModelParams;
-
-
-
 
 typedef struct _tStringModule {
     ModuleHeader header;

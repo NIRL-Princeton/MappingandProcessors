@@ -38,7 +38,8 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
 
 void tStringModule_tick(tStringModule const s,float* buffer)
     {
-        buffer[0] = tSimpleLivingString3_tick(s->theString, buffer[0] );
+        buffer[0] = tSimpleLivingString3_tick(s->theString, buffer[0]);
+
     }
 
 void tStringModule_onNoteOn(tStringModule const s, float velocity)
@@ -58,19 +59,19 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
     switch (param)
     {
         case StringEventWatchFlag:
-            CPPDEREF s->header.params[StringEventWatchFlag] = input; // store directly or implement oversample logic
+            //CPPDEREF s->header.params[StringEventWatchFlag] = input; // store directly or implement oversample logic
             break;
 
         case StringOversample:
-            CPPDEREF s->header.params[StringOversample] = input; // store directly or implement oversample logic
+            //CPPDEREF s->header.params[StringOversample] = input; // store directly or implement oversample logic
             break;
 
-        case StringFreq:
+        case StringMidiFreq:
             tSimpleLivingString3_setFreq(s->theString, input);
             break;
 
         case StringWaveLength:
-            tSimpleLivingString3_setWaveLength(s->theString, input);
+            tSimpleLivingString3_setWaveLength(s->theString, input * 95.f + 5.f);
             break;
 
         case StringDampFreq:

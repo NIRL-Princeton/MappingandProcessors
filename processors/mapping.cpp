@@ -18,6 +18,7 @@
 #include "NoiseModule.h"
 #include "SimpleNoiseModule.h"
 #include "PerlinNoiseModule.h"
+#include "SineModule.h"
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -81,6 +82,10 @@ void tMapping_setParameter(void* module, int paramID, float value) {
 
         case ModuleTypePerlNoiseModule:
             tPerlNoiseModule_setParameter ((tPerlNoiseModule) module, (PerlNosParams) paramID, value);
+            break;
+
+        case ModuleTypeSineModule:
+            tSineModule_setParameter ((tSineModule) module, (SineParams) paramID, value);
             break;
 
         default:

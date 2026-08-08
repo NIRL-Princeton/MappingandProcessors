@@ -8,6 +8,7 @@
 #include "defs.h"
 #include "leaf-mempool.h"
 #include "leaf-filters.h"
+#include "leaf-envelopes.h"
 
 
 typedef enum {
@@ -49,17 +50,26 @@ typedef struct _tFiltModule {
     float* resTableAddress;
     float resTableSizeMinusOne;
     uint32_t filtType;
-    uint32_t previousFiltType;
-    uint32_t transitionSamplesRemaining;
-    uint32_t transitionSamplesTotal;
+
+    float gainKnob; // from Gabe
     float amp;
-    float gainKnob;
-    float resonanceKnob;
-    float cutoffKnob;
+    tSlopeRamp ampSmoother;
+
     float keyFollow;
+    tSlopeRamp keyFollowSmoother;
+
+    float cutoffKnob; // from Gabe
     float inputNote;
+    float currFreq;
+    tSlopeRamp cutoffSmoother;
+
+    float qValue;
+    float resonanceKnob; // from Gave
+    tSlopeRamp qSmoother;
+
     float sr;
     float invSr;
+
     tMempool* mempool;
     tLookupTable* table;
 } _tFiltModule;
@@ -78,11 +88,14 @@ void tFiltModule_tick (tFiltModule const filt, float*);
 
 
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input);
-void tFiltModule_setType(tFiltModule const filt, uint32_t type, uint32_t transitionSamples);
+void tFiltModule_setType(tFiltModule const filt, uint32_t type);
 
 //Modulatable setters
-void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);
-void tFiltModule_setCutoff(tFiltModule const filt, float cutoff);
+//void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);
+void tFiltModule_setFreq(tFiltModule const filt, float freqInput);
+void tFiltModule_setType(tFiltModule const filt, int filtType);
+void tFiltModule_setGain(tFiltModule const filt, float gain);
+void tFiltModule_setKeyFollow(tFiltModule const filt, float keyFollow);
 
 // Non-modulatable setters
 

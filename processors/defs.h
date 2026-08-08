@@ -20,7 +20,9 @@
 extern "C" {
 #endif
 
-
+// Universal smoothing time in ms for knobs
+#define SMOOTH_TIME_MS 15.f
+#define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample
 
 // Maximum number of parameters for a processors object
 #define MAX_NUM_PARAMS 16
@@ -40,6 +42,8 @@ typedef float (*tTickFuncReturningFloat)(void*); //used inside modules to wrap i
 // Defines `_tParameter` to be the name of a new function pointer type
 typedef void (*tSetter)(void*, float);
 
+inline tSetter blankSetter;// {};
+
 typedef enum {
     ModuleTypeOscModule,
     ModuleTypeLFOModule,
@@ -51,7 +55,8 @@ typedef enum {
     ModuleTypeDelayModule,
     ModuleTypeNoiseModule,
     ModuleTypeSimpNoiseModule,
-    ModuleTypePerlNoiseModule
+    ModuleTypePerlNoiseModule,
+    ModuleTypeSineModule
 
 } ModuleType;
 

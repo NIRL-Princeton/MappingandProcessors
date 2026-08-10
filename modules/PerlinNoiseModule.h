@@ -23,12 +23,15 @@ typedef struct _tPerlNoiseModule
 {
     ModuleHeader header;
 
-    void* thePerlNoise;
+    tPerlinNoise* thePerlNoise;
 
     float gain;
-    tSlopeRamp gainSmoother;
-    float rateMs;
+    tSlopeRamp* gainSmoother;
+    float inputRateHz;
+    float rateHz;
     float energy;
+
+    tLookupTable* table;
 
     tMempool* mempool;
 
@@ -38,7 +41,7 @@ typedef _tPerlNoiseModule* tPerlNoiseModule;
 
 //init module
 void tPerlNoiseModule_init(void** const perlNoise, float* const params, float id, LEAF* const leaf);
-void tPerlNoiseModule_initToPool(void** const perlNoise, float* const params, float id, tMempool** const mempool);
+void tPerlNoiseModule_initToPool(void** const perlNoise, float* const params, float id, tMempool** const mempool, tLookupTable* const table);
 void tPerlNoiseModule_free(void** const perlNoise);
 void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, PerlNosParams param_type, float input);
 // Modulatable setters

@@ -3,6 +3,7 @@
 //
 
 #include "NoiseModule.h"
+#include "leaf-envelopes.h"
 #include <iostream>
 
 void tNoiseModule_init(void** const noise, float* params, float id, LEAF* const leaf)
@@ -13,36 +14,74 @@ void tNoiseModule_init(void** const noise, float* params, float id, LEAF* const 
         tLookupTable_init(leaf, leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
     }
     tNoiseModule_initToPool(noise, params, id, &leaf->mempool, leaf->resTable);
-    //noise->theNoise
 }
 
 void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_type, float input)
 {
     switch (param_type) {
         case NoiseGain:
-            noise->gain = input;
+            if (noise->gain != input)
+            {
+                noise->gain = input;
+            }
             break;
-
         case NoiseTilt:
             input = (20.f * input) - 10.f;
-            noise->tilt = input;
-            tTiltFilter_setTilt((tTiltFilter*)&noise->theTilter, input);
+            if (noise->tilt != input)
+            {
+                noise->tilt = input;
+                tTiltFilter_setTilt(&noise->theTilter, input);
+            }
             break;
-
         case NoisePeakGain:
-            noise->peakGain = input;
-            tVZFilterBell_setGain((tVZFilterBell*)&noise->theBellter, input * 9.f + 1.f); // < 1 causes a dip at the target frequency - might add later
+            if (noise->peakGain != input)
+            {
+                noise->peakGain = input;
+                tVZFilterBell_setGain(&noise->theBellter, input * 90.f + 1.f); // < 1 causes a dip at the target frequency - might add later
+            }
             break;
-
-        case NoisePeakFreq:
-            noise->peakFreq = input;
-            tVZFilterBell_setFreq((tVZFilterBell*)&noise->theBellter, input * 19880.f + 20.f);
+        case NoiseFreqKnob:
+            input = input * 137.5f;
+            if (noise->freqKnob != input)
+            {
+                noise->freqKnob = input;
+            }
             break;
-
         case NoisePeakBandwidth:
-            noise->peakBandwidth = input;
-            tVZFilterBell_setBandwidth((tVZFilterBell*)&noise->theBellter, input * 5.f);
-
+            if (noise->peakBandwidth != input)
+            {
+                noise->peakBandwidth = input;
+                tVZFilterBell_setBandwidth(&noise->theBellter, input * 5.f);
+            }
+            break;
+        case NoiseKeyFollow:
+            if (noise->keyFollow != input)
+            {
+                noise->keyFollow = input;
+            }
+            break;
+        case NoiseGlide:
+            if (noise->glide != input)
+            {
+                noise->glide = input;
+                tRamp_setTime(&noise->pitchSmoother, input);
+            }
+            break;
+        case NoisePortaType:
+            if (noise->portaType != input)
+            {
+                noise->portaType = input;
+            }
+            break;
+        case NoiseMIDIPitch:
+            //noise->inputMIDINote = input * 127.0;
+            //tNoiseModule_setInputNote(noise, input * 127.0);
+            if (noise->inputMIDINote != input * 127.0)
+            {
+                noise->inputMIDINote = input * 127.0;
+                tRamp_setDest(&noise->pitchSmoother, noise->inputMIDINote);
+            }
+            break;
         default:
             break;
     }
@@ -57,50 +96,64 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
     memcpy(NoiseModule->params, param, NoiseNumParams*sizeof(float));
 #endif __cplusplus
     NoiseModule->header.uniqueID = id;
-
     NoiseModule->mempool = m;
-
-    tNoise_create (&NoiseModule->mempool, (tNoise**)&NoiseModule->theNoise);
-    tNoise_init (NoiseModule->mempool->leaf, (tNoise*)NoiseModule->theNoise, WhiteNoise);
-
     NoiseModule->header.moduleType = ModuleTypeNoiseModule;
 
-    tTiltFilter_create(&NoiseModule->mempool, (tTiltFilter**)&NoiseModule->theTilter);
-    tTiltFilter_init(NoiseModule->mempool->leaf, (tTiltFilter*)&NoiseModule->theTilter, 1000.f);
-    //tTiltFilter_setSampleRate((tTiltFilter*)&NoiseModule->theTilter, NoiseModule->mempool->leaf->sampleRate * 2.f);
+    tNoise_init(NoiseModule->mempool->leaf, &NoiseModule->theNoise, WhiteNoise);
 
-    tVZFilterBell_create(&NoiseModule->mempool, (tVZFilterBell**)&NoiseModule->theBellter);
-    tVZFilterBell_init(NoiseModule->mempool->leaf, (tVZFilterBell*)&NoiseModule->theBellter, 1000.f, 50.f, 1.f);
+    tTiltFilter_init(NoiseModule->mempool->leaf, &NoiseModule->theTilter, 1000.f);
+    //tTiltFilter_setSampleRate((tTiltFilter*)&NoiseModule->theTilter, NoiseModule->mempool->leaf->sampleRate * 2.f);
+    tVZFilterBell_init(NoiseModule->mempool->leaf, &NoiseModule->theBellter, 1000.f, 50.f, 1.f);
     //tVZFilterBell_setSampleRate((tVZFilterBell*)&NoiseModule->theBellter, NoiseModule->mempool->leaf->sampleRate * 2.f);
+    tRamp_init (NoiseModule->mempool->leaf, &NoiseModule->pitchSmoother, 1.0f, 1);
+
 #ifndef __cplusplus
     for (int i = 0; i < NoiseNumParams; i++)
     {
     	tNoiseModule_setParameter(NoiseModule, i, NoiseModule->params[i]);
-
     }
 #endif
-
 }
 
 void tNoiseModule_free(void** const noise)
 {
     _tNoiseModule* NoiseModule = (_tNoiseModule*) (*noise);
 
-    tTiltFilter_free((tTiltFilter**)&NoiseModule->theTilter);
-    tVZFilterBell_free((tVZFilterBell**)&NoiseModule->theBellter);
-    tNoise_free((tNoise**)&NoiseModule->theNoise);
+    // tTiltFilter_free((tTiltFilter**)&NoiseModule->theTilter);
+    // tVZFilterBell_free((tVZFilterBell**)&NoiseModule->theBellter);
+    // tNoise_free((tNoise**)&NoiseModule->theNoise);
 
     mpool_free((char*)NoiseModule, NoiseModule->mempool);
+}
+
+void tNoiseModule_setGlideOrigin (tNoiseModule const noise, float originNote)
+{
+    tRamp_setVal(&noise->pitchSmoother, originNote);
+}
+
+// void tNoiseModule_setInputNote (tNoiseModule const noise, float inputNote)
+// {
+//     if (noise->inputMIDINote != inputNote)
+//     {
+//         noise->inputMIDINote = inputNote;
+//         tRamp_setDest(&noise->pitchSmoother, noise->inputMIDINote);
+//     }
+// }
+
+void tNoiseModule_setPeakFreq (tNoiseModule const noise, float inputFreq)
+{
+    noise->peakFreq = inputFreq;
+    tVZFilterBell_setFreqFast(&noise->theBellter, noise->peakFreq);
 }
 
 // tick function
 void tNoiseModule_tick (tNoiseModule const noise,float* buffer)
 {
-    //*buffer = (noise->mempool->leaf->random()*2.f - 1.f);
-    *buffer = tNoise_tick((tNoise*)noise->theNoise);
-    *buffer = tTiltFilter_tick((tTiltFilter*)&noise->theTilter, *buffer);
-    *buffer = tVZFilterBell_tick((tVZFilterBell*)&noise->theBellter, *buffer) * noise->gain;
-    //*buffer = (*buffer * noise->gain)*2.f-1.0f;
+    tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->freqKnob);
+
+    *buffer = tNoise_tick(&noise->theNoise);
+    *buffer = tTiltFilter_tick(&noise->theTilter, *buffer);
+    *buffer = tVZFilterBell_tick(&noise->theBellter, *buffer) * noise->gain;
 
     noise->header.outputs[0] = *buffer;
 }

@@ -21,7 +21,7 @@ typedef enum {
 typedef struct _tSineModule {
     ModuleHeader header;
 
-    tCycle* theSine;
+    tCycle theSine;
 
     // float fine;
     // float harmonicMultiplier;

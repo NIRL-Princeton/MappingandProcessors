@@ -88,7 +88,6 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	float factor;
 	switch (param_type) {
 	    case OscEventWatchFlag:
-
 		    break;
 	    case OscMidiPitch:
 	        tOscModule_setInputNote (osc, input * 127.f);
@@ -124,14 +123,14 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		    break;
 	    case OscShapeParam:
             //tRamp_setDest(&osc->shapeSmooth, input);
-	        tSlopeRamp_setDest(osc->shapeSmoother, input);
+	        tSlopeRamp_setDest(&osc->shapeSmoother, input);
 		    break;
 	    case OscAmpParam:
 		    //tRamp_setDest(&osc->ampSmooth, input);
-	        tSlopeRamp_setDest(osc->ampSmoother, input);
+	        tSlopeRamp_setDest(&osc->ampSmoother, input);
 		    break;
 	    case OscGlide:
-	        tRamp_setTime(osc->pitchSmooth, input);
+	        tRamp_setTime(&osc->pitchSmooth, input);
 		    break;
 	    case OscSteppedHarmonic:
 		    osc->hStepped = roundf(input);
@@ -187,25 +186,25 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     //OscModule->pitchSmoother.factor = factor;
 	//OscModule->pitchSmoother.oneminusfactor = 1.0f - factor;
 
-    tRamp_create(mempool, &OscModule->pitchSmooth);
-    tRamp_init(OscModule->mempool->leaf, OscModule->pitchSmooth, 1.0f, 1);
-    tSlopeRamp_create(mempool, &OscModule->ampSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
-    tSlopeRamp_create(mempool, &OscModule->shapeSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
+    //tRamp_create(mempool, &OscModule->pitchSmooth);
+    tRamp_init(OscModule->mempool->leaf, &OscModule->pitchSmooth, 1.0f, 1);
+    //tSlopeRamp_create(mempool, &OscModule->ampSmoother);
+    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    //tSlopeRamp_create(mempool, &OscModule->shapeSmoother);
+    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
 
-    tPBSawSquare_create (&OscModule->mempool, &OscModule->sawSquareOsc);
-    tPBSawSquare_init   (OscModule->mempool->leaf, OscModule->sawSquareOsc);
-    tPBSineTriangle_create (&OscModule->mempool, &OscModule->sineTriangleOsc);
-    tPBSineTriangle_init   (OscModule->mempool->leaf, OscModule->sineTriangleOsc);
-    tPBSaw_create (&OscModule->mempool, &OscModule->sawOsc);
-    tPBSaw_init   (OscModule->mempool->leaf, OscModule->sawOsc);
-    tPBPulse_create (&OscModule->mempool, &OscModule->squareOsc);
-    tPBPulse_init   (OscModule->mempool->leaf, OscModule->squareOsc);
-    tCycle_create (&OscModule->mempool, &OscModule->sineOsc);
-    tCycle_init   (OscModule->mempool->leaf, OscModule->sineOsc);
-    tPBTriangle_create (&OscModule->mempool, &OscModule->triOsc);
-    tPBTriangle_init   (OscModule->mempool->leaf, OscModule->triOsc);
+    //tPBSawSquare_create (&OscModule->mempool, &OscModule->sawSquareOsc);
+    tPBSawSquare_init   (OscModule->mempool->leaf, &OscModule->sawSquareOsc);
+    //tPBSineTriangle_create (&OscModule->mempool, &OscModule->sineTriangleOsc);
+    tPBSineTriangle_init   (OscModule->mempool->leaf, &OscModule->sineTriangleOsc);
+    //tPBSaw_create (&OscModule->mempool, &OscModule->sawOsc);
+    tPBSaw_init   (OscModule->mempool->leaf, &OscModule->sawOsc);
+    //tPBPulse_create (&OscModule->mempool, &OscModule->squareOsc);
+    tPBPulse_init   (OscModule->mempool->leaf, &OscModule->squareOsc);
+    //tCycle_create (&OscModule->mempool, &OscModule->sineOsc);
+    tCycle_init   (OscModule->mempool->leaf, &OscModule->sineOsc);
+    //tPBTriangle_create (&OscModule->mempool, &OscModule->triOsc);
+    tPBTriangle_init   (OscModule->mempool->leaf, &OscModule->triOsc);
 
     OscModule->header.moduleType = ModuleTypeOscModule;
 #ifndef __cplusplus
@@ -222,16 +221,16 @@ void tOscModule_free(void** const osc)
 {
     _tOscModule* OscModule = (_tOscModule*) (*osc);
 
-    tPBSawSquare_free(&OscModule->sawSquareOsc);
-    tPBSineTriangle_free(&OscModule->sineTriangleOsc);
-    tPBSaw_free(&OscModule->sawOsc);
-    tPBPulse_free(&OscModule->squareOsc);
-    tCycle_free(&OscModule->sineOsc);
-    tPBTriangle_free(&OscModule->triOsc);
+    // tPBSawSquare_free(&OscModule->sawSquareOsc);
+    // tPBSineTriangle_free(&OscModule->sineTriangleOsc);
+    // tPBSaw_free(&OscModule->sawOsc);
+    // tPBPulse_free(&OscModule->squareOsc);
+    // tCycle_free(&OscModule->sineOsc);
+    // tPBTriangle_free(&OscModule->triOsc);
 
-    tRamp_free(&OscModule->pitchSmooth);
-    tSlopeRamp_free(&OscModule->ampSmoother);
-    tSlopeRamp_free(&OscModule->shapeSmoother);
+    // tRamp_free(&OscModule->pitchSmooth);
+    // tSlopeRamp_free(&OscModule->ampSmoother);
+    // tSlopeRamp_free(&OscModule->shapeSmoother);
 
     mpool_free((char*)OscModule, OscModule->mempool);
 }
@@ -242,7 +241,7 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
     {
         osc->inputNote = inputNote;
         float freqToSmooth = (osc->inputNote);
-        tRamp_setDest(osc->pitchSmooth, freqToSmooth);
+        tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
         //printf("hello\n");
     }
 }
@@ -251,15 +250,15 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 void tOscModule_tick (tOscModule const osc,float* buffer)
 {
     //tOscModule_setShape(osc, tRamp_tick(&osc->shapeSmooth));
-    tOscModule_setShape(osc, tSlopeRamp_tick(osc->shapeSmoother));
+    tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
     //osc->amp = tRamp_tick(&osc->ampSmooth);
-    osc->amp = tSlopeRamp_tick(osc->ampSmoother);
+    osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 	//float freqToSmooth = (osc->inputNote + (osc->fine));
 	    //tExpSmooth_setDest(&osc->pitchSmoother, mtof(freqToSmooth));
         //tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
 
 	    //float nowFreq =  mtof(ftom(tExpSmooth_tick(&osc->pitchSmoother)) + osc->pitchOffset + osc->octaveOffset);
-    float tempMIDI = tRamp_tick(osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
     //std::cout << freqToSmooth << std::endl;
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
@@ -273,33 +272,33 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
         //printf("HM: %f", osc->harmonicMultiplier);
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
-		    tPBSawSquare_setFreq(osc->sawSquareOsc,finalFreq);
-		    *buffer = tPBSawSquare_tick(osc->sawSquareOsc)* osc->amp;
+		    tPBSawSquare_setFreq(&osc->sawSquareOsc,finalFreq);
+		    *buffer = tPBSawSquare_tick(&osc->sawSquareOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeSineTri: {
-		    tPBSineTriangle_setFreq(osc->sineTriangleOsc,finalFreq);
-		    *buffer = tPBSineTriangle_tick(osc->sineTriangleOsc)* osc->amp;
+		    tPBSineTriangle_setFreq(&osc->sineTriangleOsc,finalFreq);
+		    *buffer = tPBSineTriangle_tick(&osc->sineTriangleOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeSaw: {
-		    tPBSaw_setFreq(osc->sawOsc,finalFreq);
-		    *buffer = tPBSaw_tick(osc->sawOsc)* osc->amp;
+		    tPBSaw_setFreq(&osc->sawOsc,finalFreq);
+		    *buffer = tPBSaw_tick(&osc->sawOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypePulse: {
-		    tPBPulse_setFreq(osc->squareOsc,finalFreq);
-		    *buffer = tPBPulse_tick(osc->squareOsc)* osc->amp;
+		    tPBPulse_setFreq(&osc->squareOsc,finalFreq);
+		    *buffer = tPBPulse_tick(&osc->squareOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeSine: {
-		    tCycle_setFreq(osc->sineOsc,finalFreq);
-		    *buffer = tCycle_tick(osc->sineOsc)* osc->amp;
+		    tCycle_setFreq(&osc->sineOsc,finalFreq);
+		    *buffer = tCycle_tick(&osc->sineOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeTri: {
-		    tPBTriangle_setFreq(osc->triOsc,finalFreq);
-		    *buffer = tPBTriangle_tick(osc->triOsc)* osc->amp;
+		    tPBTriangle_setFreq(&osc->triOsc,finalFreq);
+		    *buffer = tPBTriangle_tick(&osc->triOsc)* osc->amp;
 		    break;
 	    }
 	}
@@ -311,16 +310,16 @@ void tOscModule_setShape(tOscModule const osc, float shape)
     switch (osc->oscType)
     {
         case OscTypeSawSquare:
-            tPBSawSquare_setShape(osc->sawSquareOsc,shape);
+            tPBSawSquare_setShape(&osc->sawSquareOsc,shape);
             break;
         case OscTypeSineTri:
-            tPBSineTriangle_setShape(osc->sineTriangleOsc,shape);
+            tPBSineTriangle_setShape(&osc->sineTriangleOsc,shape);
             break;
         case OscTypePulse:
-            tPBPulse_setWidth(osc->squareOsc,shape);
+            tPBPulse_setWidth(&osc->squareOsc,shape);
             break;
         case OscTypeTri:
-            tPBTriangle_setSkew(osc->triOsc,shape);
+            tPBTriangle_setSkew(&osc->triOsc,shape);
             break;
         default:
             break;
@@ -330,7 +329,7 @@ void tOscModule_setShape(tOscModule const osc, float shape)
 void tOscModule_setGlideOrigin(tOscModule const osc, float originNote)
 {
     //tExpSmooth_setVal(&osc->pitchSmoother, originNote);
-    tRamp_setVal(osc->pitchSmooth, originNote);
+    tRamp_setVal(&osc->pitchSmooth, originNote);
 }
 
 void tOscModule_setOctave (tOscModule const osc, float const oct)

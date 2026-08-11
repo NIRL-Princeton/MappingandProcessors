@@ -40,7 +40,7 @@ typedef void (*tFiltInternalParamSetFunc)(void*, float);
 
 typedef struct _tFiltModule {
     ModuleHeader header;
-    void* theFilt;
+    //void* theFilt;
     void* filters[FiltNumTypes];
 
     float* dbTableAddress;

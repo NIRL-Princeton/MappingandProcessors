@@ -19,7 +19,7 @@ void tSineModule_setParameter(tSineModule osc, SineParams param_type, float inpu
 		    break;
 	    case SinePitch:
 	        //tOscModule_setInputNote (osc, input * 127.f);
-	        tCycle_setFreq(osc->theSine, mtof(input * 127.f));
+	        tCycle_setFreq(&osc->theSine, mtof(input * 127.f));
 		    break;
 	    case SineGain:
 	        tSlopeRamp_setDest(&osc->ampSmoother, input);
@@ -47,8 +47,8 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
 
     tSlopeRamp_init(SineModule->mempool->leaf, (tSlopeRamp*)&SineModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
 
-    tCycle_create (mempool, &SineModule->theSine);
-    tCycle_init   (SineModule->mempool->leaf, SineModule->theSine);
+    //tCycle_create (mempool, &SineModule->theSine);
+    tCycle_init   (SineModule->mempool->leaf, &SineModule->theSine);
 
     SineModule->header.moduleType = ModuleTypeSineModule;
 #ifndef __cplusplus
@@ -65,7 +65,7 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
 void tSineModule_free(void** const osc)
 {
     _tSineModule* SineModule = (_tSineModule*) (*osc);
-    tCycle_free(&SineModule->theSine);
+    //tCycle_free(&SineModule->theSine);
     mpool_free((char*)SineModule, SineModule->mempool);
 }
 
@@ -88,7 +88,7 @@ void tSineModule_tick (tSineModule const osc,float* buffer)
     //float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
 
     //tCycle_setFreq((tCycle*)osc->theOsc,osc->note);
-    *buffer = tCycle_tick(osc->theSine)* osc->amp;
+    *buffer = tCycle_tick(&osc->theSine)* osc->amp;
 
     //float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
     //printf("%f",osc->amp);

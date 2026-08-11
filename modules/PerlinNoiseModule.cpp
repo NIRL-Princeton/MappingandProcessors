@@ -19,9 +19,9 @@ void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, const PerlN
 {
     switch (param_type) {
         case PerlNoiseGain:
-            if (perlNoise->gainSmoother->dest != input)
+            if (perlNoise->gainSmoother.dest != input)
             {
-                tSlopeRamp_setDest(perlNoise->gainSmoother, input);
+                tSlopeRamp_setDest(&perlNoise->gainSmoother, input);
             }
             break;
         case PerlNoiseRate:
@@ -56,10 +56,10 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
 
     PerlNoiseModule->mempool = m;
 
-    tPerlinNoise_create (&PerlNoiseModule->mempool, &PerlNoiseModule->thePerlNoise);
-    tPerlinNoise_init (PerlNoiseModule->mempool->leaf, PerlNoiseModule->thePerlNoise, 4.f, .5f);
-    tSlopeRamp_create(&PerlNoiseModule->mempool, &PerlNoiseModule->gainSmoother);
-    tSlopeRamp_init (PerlNoiseModule->mempool->leaf, PerlNoiseModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    //tPerlinNoise_create (&PerlNoiseModule->mempool, &PerlNoiseModule->thePerlNoise);
+    tPerlinNoise_init (PerlNoiseModule->mempool->leaf, &PerlNoiseModule->thePerlNoise, 4.f, .5f);
+    //tSlopeRamp_create(&PerlNoiseModule->mempool, &PerlNoiseModule->gainSmoother);
+    tSlopeRamp_init (PerlNoiseModule->mempool->leaf, &PerlNoiseModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
 
     PerlNoiseModule->header.moduleType = ModuleTypePerlNoiseModule;
 
@@ -76,17 +76,17 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
 void tPerlNoiseModule_free(void** const perlNoise)
 {
     _tPerlNoiseModule* PerlNoiseModule = (_tPerlNoiseModule*) (*perlNoise);
-    tSlopeRamp_free(&PerlNoiseModule->gainSmoother);
-    tPerlinNoise_free(&PerlNoiseModule->thePerlNoise);
+    // tSlopeRamp_free(&PerlNoiseModule->gainSmoother);
+    // tPerlinNoise_free(&PerlNoiseModule->thePerlNoise);
     mpool_free((char*)PerlNoiseModule, PerlNoiseModule->mempool);
 }
 
 // tick function
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 {
-    tPerlNoiseModule_setGain(perlNoise, tSlopeRamp_tick(perlNoise->gainSmoother));
+    tPerlNoiseModule_setGain(perlNoise, tSlopeRamp_tick(&perlNoise->gainSmoother));
 
-    perlNoise->header.outputs[0] = tPerlinNoise_tick(perlNoise->thePerlNoise) * perlNoise->gain;
+    perlNoise->header.outputs[0] = tPerlinNoise_tick(&perlNoise->thePerlNoise) * perlNoise->gain;
     //float output = tPerlinNoise_tick(perlNoise->thePerlNoise) * perlNoise->gain;
     //perlNoise->header.outputs[0] = output;
     //printf("%f,", output);
@@ -95,13 +95,13 @@ void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 void tPerlNoiseModule_setRate(tPerlNoiseModule const perlNoise, float rate)
 {
     perlNoise->rateHz = rate;
-    tPerlinNoise_setRate(perlNoise->thePerlNoise, 1000.f/rate);
+    tPerlinNoise_setRate(&perlNoise->thePerlNoise, 1000.f/rate);
 }
 
 void tPerlNoiseModule_setEnergy(tPerlNoiseModule const perlNoise, float energy)
 {
     perlNoise->energy = energy;
-    tPerlinNoise_setEnergy(perlNoise->thePerlNoise, energy);
+    tPerlinNoise_setEnergy(&perlNoise->thePerlNoise, energy);
 }
 
 void tPerlNoiseModule_setGain (tPerlNoiseModule const perlNoise, float gain)

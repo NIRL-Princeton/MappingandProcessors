@@ -42,12 +42,12 @@ typedef enum {
 typedef struct _tOscModule {
     ModuleHeader header;
 
-    tPBSawSquare* sawSquareOsc;
-    tPBSineTriangle* sineTriangleOsc;
-    tPBSaw* sawOsc;
-    tPBPulse* squareOsc;
-    tCycle* sineOsc;
-    tPBTriangle* triOsc;
+    tPBSawSquare sawSquareOsc;
+    tPBSineTriangle sineTriangleOsc;
+    tPBSaw sawOsc;
+    tPBPulse squareOsc;
+    tCycle sineOsc;
+    tPBTriangle triOsc;
     uint32_t oscType;
 
     float fine;
@@ -55,12 +55,12 @@ typedef struct _tOscModule {
     float pitchOffset;
     float freqOffset;
     //tExpSmooth pitchSmoother;
-    tRamp* pitchSmooth;
+    tRamp pitchSmooth;
     float octaveOffset;
     float inputNote;
     float finalFreq;
     float amp;
-    tSlopeRamp* ampSmoother;
+    tSlopeRamp ampSmoother;
     float* mtofTable;
     float sr;
     float invSr;
@@ -68,7 +68,7 @@ typedef struct _tOscModule {
     int pStepped;
     int syncMode;
     float oscShape;
-    tSlopeRamp* shapeSmoother;
+    tSlopeRamp shapeSmoother;
     int portaType;
 
     tMempool* mempool;

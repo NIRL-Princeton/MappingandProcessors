@@ -36,24 +36,24 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
 
     LFOModule->counter = 0;
 
-    tSlopeRamp_create(mempool, &LFOModule->shapeSmoother);
-    tSlopeRamp_init(m->leaf, LFOModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
+    //tSlopeRamp_create(mempool, &LFOModule->shapeSmoother);
+    tSlopeRamp_init(m->leaf, &LFOModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     // LFOModule->setterFunctions[LFOEventWatchFlag] = (tSetter)(&tLFOModule_blankFunction);
     // LFOModule->setterFunctions[LFOType] = (tSetter)(&tLFOModule_blankFunction);
     // LFOModule->setterFunctions[LFORateParam] = (tSetter)(&tLFOModule_setRate);
 
-    tSineTriLFO_create  (mempool, &LFOModule->sineTriLFO);
-    tSineTriLFO_init    (m->leaf, LFOModule->sineTriLFO);
-    tSawSquareLFO_create(mempool, &LFOModule->sawSquareLFO);
-    tSawSquareLFO_init  (m->leaf, LFOModule->sawSquareLFO);
-    tCycle_create       (mempool, &LFOModule->sineLFO);
-    tCycle_init         (m->leaf, LFOModule->sineLFO);
-    tTriLFO_create      (mempool, &LFOModule->triLFO);
-    tTriLFO_init        (m->leaf, LFOModule->triLFO);
-    tIntPhasor_create   (mempool, &LFOModule->sawLFO);
-    tIntPhasor_init     (m->leaf, LFOModule->sawLFO);
-    tSquareLFO_create   (mempool, &LFOModule->squareLFO);
-    tSquareLFO_init     (m->leaf, LFOModule->squareLFO);
+    //tSineTriLFO_create  (mempool, &LFOModule->sineTriLFO);
+    tSineTriLFO_init    (m->leaf, &LFOModule->sineTriLFO);
+    //tSawSquareLFO_create(mempool, &LFOModule->sawSquareLFO);
+    tSawSquareLFO_init  (m->leaf, &LFOModule->sawSquareLFO);
+    //tCycle_create       (mempool, &LFOModule->sineLFO);
+    tCycle_init         (m->leaf, &LFOModule->sineLFO);
+    //tTriLFO_create      (mempool, &LFOModule->triLFO);
+    tTriLFO_init        (m->leaf, &LFOModule->triLFO);
+    //tIntPhasor_create   (mempool, &LFOModule->sawLFO);
+    tIntPhasor_init     (m->leaf, &LFOModule->sawLFO);
+    //tSquareLFO_create   (mempool, &LFOModule->squareLFO);
+    tSquareLFO_init     (m->leaf, &LFOModule->squareLFO);
 
     LFOModule->header.moduleType = ModuleTypeLFOModule;
 }
@@ -62,49 +62,49 @@ void tLFOModule_free(void** const lfo)
 {
     _tLFOModule* LFOModule = static_cast<_tLFOModule*>(*lfo);
 
-    tSineTriLFO_free    (&LFOModule->sineTriLFO);
-    tSawSquareLFO_free  (&LFOModule->sawSquareLFO);
-    tCycle_free         (&LFOModule->sineLFO);
-    tTriLFO_free        (&LFOModule->triLFO);
-    tIntPhasor_free     (&LFOModule->sawLFO);
-    tSquareLFO_free     (&LFOModule->squareLFO);
-    tSlopeRamp_free     (&LFOModule->shapeSmoother);
+    // tSineTriLFO_free    (&LFOModule->sineTriLFO);
+    // tSawSquareLFO_free  (&LFOModule->sawSquareLFO);
+    // tCycle_free         (&LFOModule->sineLFO);
+    // tTriLFO_free        (&LFOModule->triLFO);
+    // tIntPhasor_free     (&LFOModule->sawLFO);
+    // tSquareLFO_free     (&LFOModule->squareLFO);
+    // tSlopeRamp_free     (&LFOModule->shapeSmoother);
 
     mpool_free((char*)LFOModule, LFOModule->mempool);
 }
 //tick function
 void tLFOModule_tick (tLFOModule const lfo)
 {
-    lfo->shape = tSlopeRamp_tick(lfo->shapeSmoother);
+    lfo->shape = tSlopeRamp_tick(&lfo->shapeSmoother);
 
     switch (lfo->lfo_type)
     {
         case(LFOTypeSineTri):
-            tSineTriLFO_setShape(lfo->sineTriLFO, lfo->shape);
+            tSineTriLFO_setShape(&lfo->sineTriLFO, lfo->shape);
 
-            lfo->header.outputs[0] =tSineTriLFO_tick(lfo->sineTriLFO);
+            lfo->header.outputs[0] =tSineTriLFO_tick(&lfo->sineTriLFO);
             break;
         case(LFOTypeSawSquare):
-            tSawSquareLFO_setShape(lfo->sawSquareLFO, lfo->shape);
+            tSawSquareLFO_setShape(&lfo->sawSquareLFO, lfo->shape);
 
-            lfo->header.outputs[0] = tSawSquareLFO_tick(lfo->sawSquareLFO);
+            lfo->header.outputs[0] = tSawSquareLFO_tick(&lfo->sawSquareLFO);
             break;
         case(LFOTypeSine):
 
-            lfo->header.outputs[0] = tCycle_tick(lfo->sineLFO);
+            lfo->header.outputs[0] = tCycle_tick(&lfo->sineLFO);
             break;
         case(LFOTypeTri):
 
-            lfo->header.outputs[0] = tTriLFO_tick(lfo->triLFO);
+            lfo->header.outputs[0] = tTriLFO_tick(&lfo->triLFO);
             break;
         case(LFOTypeSaw):
 
-            lfo->header.outputs[0] = tIntPhasor_tick(lfo->sawLFO);
+            lfo->header.outputs[0] = tIntPhasor_tick(&lfo->sawLFO);
             break;
         case(LFOTypeSquare):
-            tSquareLFO_setPulseWidth(lfo->squareLFO, lfo->shape);
+            tSquareLFO_setPulseWidth(&lfo->squareLFO, lfo->shape);
 
-            lfo->header.outputs[0] = tSquareLFO_tick(lfo->squareLFO);
+            lfo->header.outputs[0] = tSquareLFO_tick(&lfo->squareLFO);
             break;
         default:
             break;
@@ -152,22 +152,22 @@ void tLFOModule_setRate (tLFOModule const lfo, float rate)
     switch(lfo->lfo_type)
     {
         case(LFOTypeSineTri):
-            tSineTriLFO_setFreq(lfo->sineTriLFO, rate);
+            tSineTriLFO_setFreq(&lfo->sineTriLFO, rate);
             break;
         case(LFOTypeSawSquare):
-            tSawSquareLFO_setFreq(lfo->sawSquareLFO, rate);
+            tSawSquareLFO_setFreq(&lfo->sawSquareLFO, rate);
             break;
         case(LFOTypeSine):
-            tCycle_setFreq(lfo->sineLFO, rate);
+            tCycle_setFreq(&lfo->sineLFO, rate);
             break;
         case(LFOTypeTri):
-            tTriLFO_setFreq(lfo->triLFO, rate);
+            tTriLFO_setFreq(&lfo->triLFO, rate);
             break;
         case(LFOTypeSaw):
-            tIntPhasor_setFreq(lfo->sawLFO, rate);
+            tIntPhasor_setFreq(&lfo->sawLFO, rate);
             break;
         case(LFOTypeSquare):
-            tSquareLFO_setFreq(lfo->squareLFO, rate);
+            tSquareLFO_setFreq(&lfo->squareLFO, rate);
             break;
         default:
             break;
@@ -177,18 +177,18 @@ void tLFOModule_setRate (tLFOModule const lfo, float rate)
 
 void tLFOModule_setShape(tLFOModule const lfo, float shape)
 {
-    tSlopeRamp_setDest(lfo->shapeSmoother, shape);
+    tSlopeRamp_setDest(&lfo->shapeSmoother, shape);
 
     switch (lfo->lfo_type)
     {
         case(LFOTypeSineTri):
-            tSineTriLFO_setShape(lfo->sineTriLFO, shape);
+            tSineTriLFO_setShape(&lfo->sineTriLFO, shape);
             break;
         case(LFOTypeSawSquare):
-            tSawSquareLFO_setShape(lfo->sawSquareLFO, shape);
+            tSawSquareLFO_setShape(&lfo->sawSquareLFO, shape);
             break;
         case(LFOTypeSquare):
-            tSquareLFO_setPulseWidth(lfo->squareLFO, shape);
+            tSquareLFO_setPulseWidth(&lfo->squareLFO, shape);
             break;
         default:
             break;
@@ -202,22 +202,22 @@ void tLFOModule_setPhase (tLFOModule const lfo, float phase)
     switch(lfo->lfo_type)
     {
         case(LFOTypeSineTri):
-            tSineTriLFO_setPhase(lfo->sineTriLFO, phase);
+            tSineTriLFO_setPhase(&lfo->sineTriLFO, phase);
             break;
         case(LFOTypeSawSquare):
-            tSawSquareLFO_setPhase(lfo->sawSquareLFO, phase);
+            tSawSquareLFO_setPhase(&lfo->sawSquareLFO, phase);
             break;
         case(LFOTypeSine):
-            tCycle_setPhase(lfo->sineLFO, phase);
+            tCycle_setPhase(&lfo->sineLFO, phase);
             break;
         case(LFOTypeTri):
-            tTriLFO_setPhase(lfo->triLFO, phase);
+            tTriLFO_setPhase(&lfo->triLFO, phase);
             break;
         case(LFOTypeSaw):
-            tIntPhasor_setPhase(lfo->sawLFO, phase);
+            tIntPhasor_setPhase(&lfo->sawLFO, phase);
             break;
         case(LFOTypeSquare):
-            tSquareLFO_setPhase(lfo->squareLFO, phase);
+            tSquareLFO_setPhase(&lfo->squareLFO, phase);
             break;
         default:
             break;
@@ -234,12 +234,12 @@ void tLFOModule_setPhase (tLFOModule const lfo, float phase)
 
 void tLFOModule_setSampleRate (tLFOModule const lfo, float sr)
 {
-    tSineTriLFO_setSampleRate(lfo->sineTriLFO, sr);
-    tSawSquareLFO_setSampleRate(lfo->sawSquareLFO, sr);
-    tCycle_setSampleRate(lfo->sineLFO, sr);
-    tTriLFO_setSampleRate(lfo->triLFO, sr);
-    tIntPhasor_setSampleRate(lfo->sawLFO, sr);
-    tSquareLFO_setSampleRate(lfo->squareLFO, sr);
+    tSineTriLFO_setSampleRate(&lfo->sineTriLFO, sr);
+    tSawSquareLFO_setSampleRate(&lfo->sawSquareLFO, sr);
+    tCycle_setSampleRate(&lfo->sineLFO, sr);
+    tTriLFO_setSampleRate(&lfo->triLFO, sr);
+    tIntPhasor_setSampleRate(&lfo->sawLFO, sr);
+    tSquareLFO_setSampleRate(&lfo->squareLFO, sr);
 }
 
 void tLFOModule_setType (tLFOModule const lfo, int type)
@@ -287,9 +287,9 @@ void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float i
         }
 
         case LFOShapeParam:
-            if (input != lfo->shapeSmoother->dest)
+            if (input != lfo->shapeSmoother.dest)
             {
-                tSlopeRamp_setDest(lfo->shapeSmoother, input);
+                tSlopeRamp_setDest(&lfo->shapeSmoother, input);
                 //printf("Always?!?!?\n");
             }
             break;

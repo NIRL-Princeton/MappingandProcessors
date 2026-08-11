@@ -195,7 +195,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     tFiltModule_resetNonlinearState(FiltModule, FiltTypeLadderLowpass);
 
     FiltModule->filtType = FiltTypeLowpass;
-    FiltModule->theFilt = FiltModule->filters[FiltTypeLowpass];
+    //FiltModule->theFilt = FiltModule->filters[FiltTypeLowpass];
 
 
     // if (type == FiltTypeLowpass) {
@@ -266,6 +266,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
 void tFiltModule_free(void** const filt)
 {
     _tFiltModule* FiltModule =(_tFiltModule*) *filt;
+
     tSVF_free((tSVF**)&FiltModule->filters[FiltTypeLowpass]);
     tSVF_free((tSVF**)&FiltModule->filters[FiltTypeHighpass]);
     tSVF_free((tSVF**)&FiltModule->filters[FiltTypeBandpass]);
@@ -275,35 +276,7 @@ void tFiltModule_free(void** const filt)
     tVZFilterLS_free((tVZFilterLS**)&FiltModule->filters[FiltTypeLowShelf]);
     tVZFilterBR_free((tVZFilterBR**)&FiltModule->filters[FiltTypeNotch]);
     tLadderFilter_free((tLadderFilter**)&FiltModule->filters[FiltTypeLadderLowpass]);
-    // //int type = roundf(CPPDEREF FiltModule->header.params[FiltType]);
-    // int type = FiltModule->filtType;
-    // if (type == FiltTypeLowpass) {
-    //     tSVF_free((tSVF**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeHighpass) {
-    //     tSVF_free((tSVF**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeBandpass) {
-    //     tSVF_free((tSVF**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeDiodeLowpass) {
-    //     tDiodeFilter_free((tDiodeFilter**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypePeak) {
-    //     tVZFilterBell_free((tVZFilterBell**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeLowShelf) {
-    //     tVZFilterLS_free((tVZFilterLS**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeHighShelf) {
-    //     tVZFilterHS_free((tVZFilterHS**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeNotch) {
-    //     tVZFilterBR_free((tVZFilterBR**)&FiltModule->theFilt);
-    // }
-    // else if (type == FiltTypeLadderLowpass) {
-    //     tLadderFilter_free((tLadderFilter**)&FiltModule->theFilt);
-    // }
+
     mpool_free((char*)FiltModule, FiltModule->mempool);
 }
 
@@ -318,6 +291,7 @@ static float tFiltModule_tickType(tFiltModule const filt, uint32_t const type,
     filt->cutoffKnob = tSlopeRamp_tick(&filt->cutoffSmoother);
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     tFiltModule_setFreq(filt, filt->cutoffKnob + filt->keyFollow * filt->inputNote);
+    //printf("Freq: %f", filt->currFreq);
 
     void* const filter = filt->filters[type];
     switch (type)
@@ -365,25 +339,23 @@ void tFiltModule_tick (tFiltModule const filt, float* buffer)
 // Modulatable setters
 
 
-void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input)
+void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, float input)
 {
-    float newInputF;
-    int newInputI;
 	switch (param_type) {
 	    case FiltEventWatchFlag:
 	        break;
 	    case FiltMidiPitch:
-		    newInputF = input * 127.f;
-	        if (filt->inputNote != newInputF)
+		    input = input * 127.f;
+	        if (filt->inputNote != input)
 		    {
-                filt->inputNote = newInputF;
+                filt->inputNote = input;
 		    }
 		    break;
 	    case FiltCutoff:
-	        newInputF = input * 135.5f; // 135.5 to allow for about 21000hz
-	        if (filt->cutoffKnob!= newInputF)
+	        input = input * 135.5f; // 135.5 to allow for about 21000hz
+	        if (filt->cutoffKnob!= input)
 	        {
-	            filt->cutoffKnob = newInputF;
+	            filt->cutoffKnob = input;
 	            //tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob);
 	            tSlopeRamp_setDest(&filt->cutoffSmoother, filt->cutoffKnob);
 	        }
@@ -407,10 +379,10 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 		    }
 		    break;
 	    case FiltType:
-	        newInputI = (int)roundf(input * 8.f);
-	        if (filt->filtType != newInputI)
+	        input = roundf(input * 8.f);
+	        if (filt->filtType != (int)input)
 	        {
-	            tFiltModule_setType(filt, newInputI);
+	            tFiltModule_setType(filt, (int)input);
 	        }
 		    break;
 	    default:
@@ -421,122 +393,122 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,floa
 void tFiltModule_setFreq (tFiltModule const filt, float const freqInput)
 {
     filt->currFreq = freqInput;
-    switch(filt->filtType)
-    {
-        case FiltTypeLowpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeHighpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeBandpass:
-            tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeDiodeLowpass:
-            tDiodeFilter_setFreqFast((tDiodeFilter*)filt->theFilt, freqInput);
-            break;
-        case FiltTypePeak:
-            tVZFilterBell_setFreqFast((tVZFilterBell*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeHighShelf:
-            tVZFilterHS_setFreqFast((tVZFilterHS*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeLowShelf:
-            tVZFilterLS_setFreqFast((tVZFilterLS*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeNotch:
-            tVZFilterBR_setFreqFast((tVZFilterBR*)filt->theFilt, freqInput);
-            break;
-        case FiltTypeLadderLowpass:
-            tLadderFilter_setFreqFast((tLadderFilter*)filt->theFilt, freqInput);
-            break;
-        default:
-            break;
-    }
+    // switch(filt->filtType)
+    // {
+    //     case FiltTypeLowpass:
+    //         tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeHighpass:
+    //         tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeBandpass:
+    //         tSVF_setFreqFast((tSVF*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeDiodeLowpass:
+    //         tDiodeFilter_setFreqFast((tDiodeFilter*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypePeak:
+    //         tVZFilterBell_setFreqFast((tVZFilterBell*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeHighShelf:
+    //         tVZFilterHS_setFreqFast((tVZFilterHS*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeLowShelf:
+    //         tVZFilterLS_setFreqFast((tVZFilterLS*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeNotch:
+    //         tVZFilterBR_setFreqFast((tVZFilterBR*)filt->theFilt, freqInput);
+    //         break;
+    //     case FiltTypeLadderLowpass:
+    //         tLadderFilter_setFreqFast((tLadderFilter*)filt->theFilt, freqInput);
+    //         break;
+    //     default:
+    //         break;
+    // }
 }
 
 void tFiltModule_setType(tFiltModule const filt, int const input)
 {
     //tFiltModule_free(&filt->theFilt);
     //int type = FiltModule->filtType;
-    if (filt->filtType == FiltTypeLowpass) {
-        tSVF_free((tSVF**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeHighpass) {
-        tSVF_free((tSVF**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeBandpass) {
-        tSVF_free((tSVF**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeDiodeLowpass) {
-        tDiodeFilter_free((tDiodeFilter**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypePeak) {
-        tVZFilterBell_free((tVZFilterBell**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeLowShelf) {
-        tVZFilterLS_free((tVZFilterLS**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeHighShelf) {
-        tVZFilterHS_free((tVZFilterHS**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeNotch) {
-        tVZFilterBR_free((tVZFilterBR**)&filt->theFilt);
-    }
-    else if (filt->filtType == FiltTypeLadderLowpass) {
-        tLadderFilter_free((tLadderFilter**)&filt->theFilt);
-    }
+    // if (filt->filtType == FiltTypeLowpass) {
+    //     tSVF_free((tSVF**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeHighpass) {
+    //     tSVF_free((tSVF**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeBandpass) {
+    //     tSVF_free((tSVF**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeDiodeLowpass) {
+    //     tDiodeFilter_free((tDiodeFilter**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypePeak) {
+    //     tVZFilterBell_free((tVZFilterBell**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeLowShelf) {
+    //     tVZFilterLS_free((tVZFilterLS**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeHighShelf) {
+    //     tVZFilterHS_free((tVZFilterHS**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeNotch) {
+    //     tVZFilterBR_free((tVZFilterBR**)&filt->theFilt);
+    // }
+    // else if (filt->filtType == FiltTypeLadderLowpass) {
+    //     tLadderFilter_free((tLadderFilter**)&filt->theFilt);
+    // }
 
     filt->filtType = input;
-    switch(filt->filtType)
-    {
-        case FiltTypeLowpass:
-            tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
-            tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeLowpass,10000.0f, 0.5f);
-            break;
-
-        case FiltTypeHighpass:
-            tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
-            tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeHighpass,100.0f, 0.5f);
-            break;
-
-        case FiltTypeBandpass:
-            tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
-            tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeBandpass,100.0f, 0.5f);
-            break;
-
-        case FiltTypeDiodeLowpass:
-            tDiodeFilter_create (&filt->mempool, (tDiodeFilter**)filt->theFilt);
-            tDiodeFilter_init   (filt->mempool->leaf, (tDiodeFilter*)filt->theFilt, 10000.0f, 0.5f);
-            break;
-
-        case FiltTypePeak:
-            tVZFilterBell_create (&filt->mempool, (tVZFilterBell**)filt->theFilt);
-            tVZFilterBell_init   (filt->mempool->leaf, (tVZFilterBell*)filt->theFilt, 100.0f, 0.5f, 1.0f);
-            break;
-
-        case FiltTypeHighShelf:
-            tVZFilterHS_create (&filt->mempool, (tVZFilterHS**)filt->theFilt);
-            tVZFilterHS_init   (filt->mempool->leaf, (tVZFilterHS*)filt->theFilt, 100.0f, 0.5f, 1.0f);
-            break;
-
-        case FiltTypeLowShelf:
-            tVZFilterLS_create (&filt->mempool, (tVZFilterLS**)filt->theFilt);
-            tVZFilterLS_init   (filt->mempool->leaf, (tVZFilterLS*)filt->theFilt, 100.0f, 0.5f, 1.0f);
-            break;
-
-        case FiltTypeNotch:
-            tVZFilterBR_create (&filt->mempool, (tVZFilterBR**)filt->theFilt);
-            tVZFilterBR_init   (filt->mempool->leaf, (tVZFilterBR*)filt->theFilt, 100.0f, 0.5f);
-            break;
-
-        case FiltTypeLadderLowpass:
-            tLadderFilter_create (&filt->mempool, (tLadderFilter**)filt->theFilt);
-            tLadderFilter_init   (filt->mempool->leaf, (tLadderFilter*)filt->theFilt, 100.0f, 0.5f);
-            break;
-        default:
-            break;
-    }
+    // switch(filt->filtType)
+    // {
+    //     case FiltTypeLowpass:
+    //         tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
+    //         tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeLowpass,10000.0f, 0.5f);
+    //         break;
+    //
+    //     case FiltTypeHighpass:
+    //         tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
+    //         tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeHighpass,100.0f, 0.5f);
+    //         break;
+    //
+    //     case FiltTypeBandpass:
+    //         tSVF_create(&filt->mempool, (tSVF**)filt->theFilt);
+    //         tSVF_init(filt->mempool->leaf, (tSVF*)filt->theFilt, SVFTypeBandpass,100.0f, 0.5f);
+    //         break;
+    //
+    //     case FiltTypeDiodeLowpass:
+    //         tDiodeFilter_create (&filt->mempool, (tDiodeFilter**)filt->theFilt);
+    //         tDiodeFilter_init   (filt->mempool->leaf, (tDiodeFilter*)filt->theFilt, 10000.0f, 0.5f);
+    //         break;
+    //
+    //     case FiltTypePeak:
+    //         tVZFilterBell_create (&filt->mempool, (tVZFilterBell**)filt->theFilt);
+    //         tVZFilterBell_init   (filt->mempool->leaf, (tVZFilterBell*)filt->theFilt, 100.0f, 0.5f, 1.0f);
+    //         break;
+    //
+    //     case FiltTypeHighShelf:
+    //         tVZFilterHS_create (&filt->mempool, (tVZFilterHS**)filt->theFilt);
+    //         tVZFilterHS_init   (filt->mempool->leaf, (tVZFilterHS*)filt->theFilt, 100.0f, 0.5f, 1.0f);
+    //         break;
+    //
+    //     case FiltTypeLowShelf:
+    //         tVZFilterLS_create (&filt->mempool, (tVZFilterLS**)filt->theFilt);
+    //         tVZFilterLS_init   (filt->mempool->leaf, (tVZFilterLS*)filt->theFilt, 100.0f, 0.5f, 1.0f);
+    //         break;
+    //
+    //     case FiltTypeNotch:
+    //         tVZFilterBR_create (&filt->mempool, (tVZFilterBR**)filt->theFilt);
+    //         tVZFilterBR_init   (filt->mempool->leaf, (tVZFilterBR*)filt->theFilt, 100.0f, 0.5f);
+    //         break;
+    //
+    //     case FiltTypeLadderLowpass:
+    //         tLadderFilter_create (&filt->mempool, (tLadderFilter**)filt->theFilt);
+    //         tLadderFilter_init   (filt->mempool->leaf, (tLadderFilter*)filt->theFilt, 100.0f, 0.5f);
+    //         break;
+    //     default:
+    //         break;
+    // }
 }
 
 // Non-modulatable setters

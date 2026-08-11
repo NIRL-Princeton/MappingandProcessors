@@ -23,10 +23,10 @@ typedef struct _tPerlNoiseModule
 {
     ModuleHeader header;
 
-    tPerlinNoise* thePerlNoise;
+    tPerlinNoise thePerlNoise;
 
     float gain;
-    tSlopeRamp* gainSmoother;
+    tSlopeRamp gainSmoother;
     float inputRateHz;
     float rateHz;
     float energy;

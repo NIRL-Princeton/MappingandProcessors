@@ -32,8 +32,8 @@ void tSimpNoiseModule_initToPool(void** const simpNoise, float* const param, flo
 
     SimpNoiseModule->mempool = m;
 
-    tNoise_create (&SimpNoiseModule->mempool, (tNoise**)&SimpNoiseModule->theSimpNoise);
-    tNoise_init (SimpNoiseModule->mempool->leaf, (tNoise*)SimpNoiseModule->theSimpNoise, WhiteNoise);
+    //tNoise_create (&SimpNoiseModule->mempool, (tNoise**)&SimpNoiseModule->theSimpNoise);
+    tNoise_init (SimpNoiseModule->mempool->leaf, &SimpNoiseModule->theSimpNoise, WhiteNoise);
 
     SimpNoiseModule->header.moduleType = ModuleTypeSimpNoiseModule;
 
@@ -50,12 +50,12 @@ void tSimpNoiseModule_initToPool(void** const simpNoise, float* const param, flo
 void tSimpNoiseModule_free(void** const simpNoise)
 {
     _tSimpNoiseModule* SimpNoiseModule = (_tSimpNoiseModule*) (*simpNoise);
-    tNoise_free((tNoise**)&SimpNoiseModule->theSimpNoise);
+    //tNoise_free((tNoise**)&SimpNoiseModule->theSimpNoise);
     mpool_free((char*)SimpNoiseModule, SimpNoiseModule->mempool);
 }
 
 // tick function
 void tSimpNoiseModule_tick (tSimpNoiseModule const simpNoise)
 {
-    simpNoise->header.outputs[0] = tNoise_tick((tNoise*)simpNoise->theSimpNoise) * simpNoise->gain;
+    simpNoise->header.outputs[0] = tNoise_tick(&simpNoise->theSimpNoise) * simpNoise->gain;
 }

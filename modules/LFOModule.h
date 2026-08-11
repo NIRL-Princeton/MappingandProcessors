@@ -35,14 +35,13 @@ typedef enum {
 
 typedef struct _tLFOModule {
     ModuleHeader header;
-    void* theLFO;
 
-    tSineTriLFO* sineTriLFO;
-    tSawSquareLFO* sawSquareLFO;
-    tCycle* sineLFO;
-    tTriLFO* triLFO;
-    tIntPhasor* sawLFO;
-    tSquareLFO* squareLFO;
+    tSineTriLFO sineTriLFO;
+    tSawSquareLFO sawSquareLFO;
+    tCycle sineLFO;
+    tTriLFO triLFO;
+    tIntPhasor sawLFO;
+    tSquareLFO squareLFO;
 
     uint32_t lfo_type;
 
@@ -60,7 +59,7 @@ typedef struct _tLFOModule {
     uint8_t counter;
 
     float shape;
-    tSlopeRamp* shapeSmoother;
+    tSlopeRamp shapeSmoother;
     //tSetter shapeSetter;
 
     uint8_t syncNoteOn;

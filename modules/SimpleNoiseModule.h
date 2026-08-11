@@ -20,7 +20,7 @@ typedef struct _tSimpNoiseModule
 {
     ModuleHeader header;
 
-    void* theSimpNoise;
+    tNoise theSimpNoise;
 
     float gain;
 

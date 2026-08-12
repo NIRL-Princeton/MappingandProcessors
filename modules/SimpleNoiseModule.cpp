@@ -12,8 +12,8 @@ void tSimpNoiseModule_init(void** const simpNoise, float* params, float id, LEAF
 void tSimpNoiseModule_setParameter(tSimpNoiseModule const simpNoise, const SimpNosParams param_type, float input)
 {
     switch (param_type) {
-        case SimpNoiseGain:
-            simpNoise->gain = input;
+        case SimpNoiseAmp:
+            simpNoise->amp = input;
             break;
         default:
             break;
@@ -57,5 +57,5 @@ void tSimpNoiseModule_free(void** const simpNoise)
 // tick function
 void tSimpNoiseModule_tick (tSimpNoiseModule const simpNoise)
 {
-    simpNoise->header.outputs[0] = tNoise_tick(&simpNoise->theSimpNoise) * simpNoise->gain;
+    simpNoise->header.outputs[0] = tNoise_tick(&simpNoise->theSimpNoise) * simpNoise->amp;
 }

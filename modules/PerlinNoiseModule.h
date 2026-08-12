@@ -13,7 +13,7 @@
 typedef enum
 {
     PerlNoiseEventWatchFlag,
-    PerlNoiseGain,
+    PerlNoiseAmp,
     PerlNoiseRate,
     PerlNoiseEnergy
 
@@ -25,13 +25,13 @@ typedef struct _tPerlNoiseModule
 
     tPerlinNoise thePerlNoise;
 
-    float gain;
+    float amp;
     tSlopeRamp gainSmoother;
     float inputRateHz;
     float rateHz;
     float energy;
 
-    tLookupTable* table;
+    tLookupTable* lfoRateTable;
 
     tMempool* mempool;
 
@@ -49,6 +49,6 @@ void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise);
 
 void tPerlNoiseModule_setRate(tPerlNoiseModule const perlNoise, float rate);
 void tPerlNoiseModule_setEnergy(tPerlNoiseModule const perlNoise, float energy);
-void tPerlNoiseModule_setGain(tPerlNoiseModule const perlNoise, float gain);
+void tPerlNoiseModule_setAmp(tPerlNoiseModule const perlNoise, float gain);
 
 #endif // ELECTORSYNTH_PERLINNOISEMODULE_H

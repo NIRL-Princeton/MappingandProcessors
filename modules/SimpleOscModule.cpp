@@ -80,7 +80,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    }
 	    case OscAmpParam:
 	    {
-	        tSlopeRamp_setDest(&osc->ampSmoother, input * 3.1623); // 10 dB = 3.1623 amp
+	        tSlopeRamp_setDest(&osc->ampSmoother, input * TEN_DB_AMPLITUDE);
 	        break;
 	    }
 	    case OscGlide:

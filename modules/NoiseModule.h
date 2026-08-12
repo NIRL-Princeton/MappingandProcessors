@@ -44,10 +44,12 @@ typedef struct _tNoiseModule
     float peakGain;
     float peakBandwidth;
 
-    float inputMIDINote;
+    float inputMIDINote; // raw MIDI input from keyboard
+    float inputFreq; // inputMIDINote converted to frequency (hz)
     float keyFollow;
-    float freqKnob;
-    float peakFreq;
+    float freqKnob; // raw input 0->1 from cutoff knob
+    float cutoffFreq; // freqKnob converted to frequency (hz)
+    float peakFreq; // final frequency sent to tVZFilterBell (hz)
     float glide;
     float portaType;
     tRamp pitchSmoother;
@@ -58,8 +60,10 @@ typedef struct _tNoiseModule
     tVZFilterBell theBellter;
 
     tMempool* mempool;
-    //float(*rand)(void);
-    //tLookupTable* table;
+
+    tLookupTable* resTable;
+    tLookupTable* mtofTable;
+    tLookupTable* skewFreqTable;
 } _tNoiseModule;
 
 typedef _tNoiseModule* tNoiseModule;

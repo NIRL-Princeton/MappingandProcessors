@@ -20,6 +20,7 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
 {
     switch (param_type) {
         case NoiseGain:
+            input *= TEN_DB_AMPLITUDE;
             if (noise->gain != input)
             {
                 noise->gain = input;
@@ -37,14 +38,15 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
             if (noise->peakGain != input)
             {
                 noise->peakGain = input;
-                tVZFilterBell_setGain(&noise->theBellter, input * 90.f + 1.f); // < 1 causes a dip at the target frequency - might add later
+                tVZFilterBell_setGain(&noise->theBellter, input * 199.f + 1.f); // < 1 causes a dip at the target frequency - might add later
             }
             break;
         case NoiseFreqKnob:
-            input = input * 137.5f;
             if (noise->freqKnob != input)
             {
                 noise->freqKnob = input;
+                int index =(int)(input * 16387);
+                noise->cutoffFreq = noise->skewFreqTable->table[index];
             }
             break;
         case NoisePeakBandwidth:
@@ -79,7 +81,9 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
             if (noise->inputMIDINote != input * 127.0)
             {
                 noise->inputMIDINote = input * 127.0;
-                tRamp_setDest(&noise->pitchSmoother, noise->inputMIDINote);
+                int index = (int)((noise->inputMIDINote/127)*16387);
+                noise->inputFreq = noise->mtofTable->table[index];
+                tRamp_setDest(&noise->pitchSmoother, noise->inputFreq);
             }
             break;
         default:
@@ -107,6 +111,14 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
     //tVZFilterBell_setSampleRate((tVZFilterBell*)&NoiseModule->theBellter, NoiseModule->mempool->leaf->sampleRate * 2.f);
     tRamp_init (NoiseModule->mempool->leaf, &NoiseModule->pitchSmoother, 1.0f, 1);
 
+    NoiseModule->resTable = resTable;
+
+    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->mtofTable);
+    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->mtofTable, 0.f, 0.f, 0.f, 16384);
+    LEAF_generate_mtof (NoiseModule->mtofTable->table, 0., 127, 16384);
+
+    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->skewFreqTable);
+    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->skewFreqTable, 0.1f, 20000.f, 1000.f, 16384);
 #ifndef __cplusplus
     for (int i = 0; i < NoiseNumParams; i++)
     {
@@ -143,13 +155,13 @@ void tNoiseModule_setGlideOrigin (tNoiseModule const noise, float originNote)
 void tNoiseModule_setPeakFreq (tNoiseModule const noise, float inputFreq)
 {
     noise->peakFreq = inputFreq;
-    tVZFilterBell_setFreqFast(&noise->theBellter, noise->peakFreq);
+    tVZFilterBell_setFreq(&noise->theBellter, noise->peakFreq);
 }
 
 // tick function
 void tNoiseModule_tick (tNoiseModule const noise,float* buffer)
 {
-    tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->freqKnob);
+    tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->cutoffFreq);
 
     *buffer = tNoise_tick(&noise->theNoise);
     *buffer = tTiltFilter_tick(&noise->theTilter, *buffer);

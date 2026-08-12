@@ -6,6 +6,7 @@
 #include "EnvModule.h"
 #include "StringModule.h"
 #include "LFOModule.h"
+#include "SimpleOscModule.h"
 
 void callNoteOn(ModuleHeader* const module,  float velocity)
 {
@@ -20,7 +21,7 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             {
                 // tOscModule* osc = (tOscModule*)module;
                 // call osc-specific function, e.g.,
-                // tOscModule_onNoteOn(osc, velocity);
+                tOscModule_onNoteOn((tOscModule)module);
                 break;
             }
             case ModuleTypeLFOModule:

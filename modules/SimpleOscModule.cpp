@@ -80,7 +80,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    }
 	    case OscAmpParam:
 	    {
-	        tSlopeRamp_setDest(&osc->ampSmoother, input * 3);
+	        tSlopeRamp_setDest(&osc->ampSmoother, input * 3.1623); // 10 dB = 3.1623 amp
 	        break;
 	    }
 	    case OscGlide:
@@ -139,9 +139,18 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     OscModule->header.uniqueID = id;
 
     OscModule->oscType = OscTypeSawSquare;
+    OscModule->harmonicMultiplier = 0;
+    OscModule->oscShape = 0;
+    OscModule->fine = 0;
+    OscModule->freqOffset = 0;
+    OscModule->inputGlideTime = 0;
+    OscModule->amp = 1.f;
+    OscModule->pitchOffset = 0;
+
     OscModule->mempool = m;
     OscModule->invSr = m->leaf->invSampleRate;
     OscModule->sr = m->leaf->sampleRate;
+    OscModule->counter = 0;
 
     //tRamp_create(mempool, &OscModule->pitchSmooth);
     tRamp_init(OscModule->mempool->leaf, &OscModule->pitchSmooth, 1.0f, 1);
@@ -219,18 +228,6 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 void tOscModule_free(void** const osc)
 {
     _tOscModule* OscModule = (_tOscModule*) (*osc);
-
-    // tPBSawSquare_free(&OscModule->sawSquareOsc);
-    // tPBSineTriangle_free(&OscModule->sineTriangleOsc);
-    // tPBSaw_free(&OscModule->sawOsc);
-    // tPBPulse_free(&OscModule->squareOsc);
-    // tCycle_free(&OscModule->sineOsc);
-    // tPBTriangle_free(&OscModule->triOsc);
-
-    // tRamp_free(&OscModule->pitchSmooth);
-    // tSlopeRamp_free(&OscModule->ampSmoother);
-    // tSlopeRamp_free(&OscModule->shapeSmoother);
-
     mpool_free((char*)OscModule, OscModule->mempool);
 }
 
@@ -243,10 +240,25 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 // tick function
 void tOscModule_tick (tOscModule const osc, float* buffer)
 {
-    tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
-    osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
+    if (osc->oscShape != osc->shapeSmoother.dest)
+    {
+        //tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
+        osc->oscShape = tSlopeRamp_tick(&osc->shapeSmoother);
+    }
 
-    float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    if (osc->amp != osc->ampSmoother.dest)
+    {
+        osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
+    }
+
+    float tempMIDI;
+    if (osc->pitchSmooth.curr != osc->inputNote)
+    {
+        tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    } else
+    {
+        tempMIDI = osc->inputNote + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    }
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
 	//    int tempIndexI = (int)tempIndexF;
@@ -261,11 +273,13 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq(&osc->sawSquareOsc,finalFreq);
+	        tPBSawSquare_setShape(&osc->sawSquareOsc,osc->oscShape);
 		    *buffer = tPBSawSquare_tick(&osc->sawSquareOsc)* osc->amp;
 		    break;
 	    }
 	    case OscTypeSineTri: {
 		    tPBSineTriangle_setFreq(&osc->sineTriangleOsc,finalFreq);
+	        tPBSineTriangle_setShape(&osc->sineTriangleOsc,osc->oscShape);
 		    *buffer = tPBSineTriangle_tick(&osc->sineTriangleOsc)* osc->amp;
 		    break;
 	    }
@@ -276,6 +290,7 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
 	    }
 	    case OscTypePulse: {
 		    tPBPulse_setFreq(&osc->squareOsc,finalFreq);
+	        tPBPulse_setWidth(&osc->squareOsc,osc->oscShape);
 		    *buffer = tPBPulse_tick(&osc->squareOsc)* osc->amp;
 		    break;
 	    }
@@ -286,6 +301,7 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
 	    }
 	    case OscTypeTri: {
 		    tPBTriangle_setFreq(&osc->triOsc,finalFreq);
+	        tPBTriangle_setSkew(&osc->triOsc,osc->oscShape);
 		    *buffer = tPBTriangle_tick(&osc->triOsc)* osc->amp;
 		    break;
 	    }
@@ -330,4 +346,21 @@ void tOscModule_setOctave (tOscModule const osc, float const oct)
 // {
 //     //osc->mtofTable = tableAddress;
 // }
+
+void tOscModule_onNoteOn (tOscModule const osc)
+{
+    if (osc->counter == 0)
+    {
+        osc->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+
+        osc->ampSmoother.curr = osc->ampSmoother.dest;
+        osc->amp = osc->ampSmoother.dest;
+
+        osc->shapeSmoother.curr = osc->shapeSmoother.dest;
+        osc->oscShape = osc->shapeSmoother.dest;
+    } else
+    {
+        osc->counter = 0;
+    }
+}
 

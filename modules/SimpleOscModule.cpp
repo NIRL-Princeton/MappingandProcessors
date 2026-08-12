@@ -3,8 +3,9 @@
 //
 
 #include "SimpleOscModule.h"
-#include <iostream>
+//#include "../../../source/synthesis/framework/utils.h"
 #include "defs.h"
+#include <iostream>
 
 #include <assert.h>
 void tOscModule_init(void** const osc, float* params, float id, LEAF* const leaf)
@@ -14,124 +15,86 @@ void tOscModule_init(void** const osc, float* params, float id, LEAF* const leaf
 
 void tOscModule_setType (tOscModule const osc, int type)
 {
-//destroy current oscillator object
-    //int type = osc->osctype;
- //    switch(osc->osctype)
- //    {
-	// 	case OscTypeSawSquare:
-	// 		tPBSawSquare_free((tPBSawSquare**)&osc->theOsc);
-	// 		break;
-	// 	case OscTypeSineTri:
-	// 		tPBSineTriangle_free((tPBSineTriangle**)&osc->theOsc);
-	// 		break;
-	// 	case OscTypeSaw:
-	// 		tPBSaw_free((tPBSaw**)&osc->theOsc);
-	// 		break;
-	// 	case OscTypePulse:
-	// 		tPBPulse_free((tPBPulse**)&osc->theOsc);
-	// 		break;
-	// 	case OscTypeSine:
-	// 		//tCycle_free((tCycle**)&osc->theOsc);
- //            tPBSineTriangle_free((tPBSineTriangle**)&osc->theOsc);
-	// 		break;
-	// 	case OscTypeTri:
-	// 		tPBTriangle_free((tPBTriangle**)&osc->theOsc);
-	// 		break;
-	// 	default:
-	// 		break;
- //    }
- //
- //    //set new oscillator type
- //    //type = round(typefloat * (float)OscNumTypes);
- //    //create new oscillator object
-	// switch (type)
-	// {
-	// 	case OscTypeSawSquare:
-	// 		tPBSawSquare_create (&osc->mempool, (tPBSawSquare**)&osc->theOsc);
-	// 		tPBSawSquare_init   (osc->mempool->leaf, (tPBSawSquare*)osc->theOsc);
-	// 		break;
- //
-	// 	case OscTypeSineTri:
-	// 		tPBSineTriangle_create (&osc->mempool, (tPBSineTriangle**)&osc->theOsc);
-	// 		tPBSineTriangle_init   (osc->mempool->leaf, (tPBSineTriangle*)osc->theOsc);
-	// 		break;
- //
-	// 	case OscTypeSaw:
-	// 		tPBSaw_create (&osc->mempool, (tPBSaw**)&osc->theOsc);
-	// 		tPBSaw_init   (osc->mempool->leaf, (tPBSaw*)osc->theOsc);
-	// 		break;
- //
-	// 	case OscTypePulse:
-	// 		tPBPulse_create (&osc->mempool, (tPBPulse**)&osc->theOsc);
-	// 		tPBPulse_init   (osc->mempool->leaf, (tPBPulse*)osc->theOsc);
-	// 		break;
- //
-	// 	case OscTypeSine:
-	// 		// tCycle_create (&osc->mempool, (tCycle**)&osc->theOsc);
-	// 		// tCycle_init   (osc->mempool->leaf, (tCycle*)osc->theOsc);
-	//         tPBSineTriangle_create (&osc->mempool, (tPBSineTriangle**)&osc->theOsc);
-	//         tPBSineTriangle_init   (osc->mempool->leaf, (tPBSineTriangle*)osc->theOsc);
-	// 		break;
- //
-	// 	case OscTypeTri:
-	// 		tPBTriangle_create (&osc->mempool, (tPBTriangle**)&osc->theOsc);
-	// 		tPBTriangle_init   (osc->mempool->leaf, (tPBTriangle*)osc->theOsc);
-	// 		break;
- //
-	// 	default:
-	// 		break;
-	// }
     osc->oscType = type;
 }
+
 void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float input)
 {
-	float factor;
 	switch (param_type) {
 	    case OscEventWatchFlag:
 		    break;
 	    case OscMidiPitch:
-	        tOscModule_setInputNote (osc, input * 127.f);
-		    //osc->inputNote = input * 127.0f;
+	        tOscModule_setInputNote (osc, 127*input);
+	        //printf("note: %f\n", input);
 		    break;
 	    case OscHarmonic:
-		    input -= 0.5f;
-		    input *= 2.f;
-		    input *= 15.0f;
-		    if (osc->hStepped) {
-			    input = roundf(input);
-		    }
+	    {
+	        input = (input - .5f) * 30.f;
 
-		    if (input >= 0.0f) {
-			    osc->harmonicMultiplier = (input + 1.0f);
-		    } else {
-			    osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
-		    }
-		    break;
+	        if (osc->hStepped) {
+	            input = roundf(input);
+	        }
+
+	        if (input >= 0.0f) {
+	            osc->harmonicMultiplier = (input + 1.0f);
+	        } else {
+	            osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
+	        }
+
+	        //printf("Harm: %f\n", input);
+	        break;
+	    }
 	    case OscPitchOffset:
-		    input -= 0.5f;
-		    input *= 24.0f;
-		    if (osc->pStepped) {
-			    input = roundf(input);
-		    }
-		    osc->pitchOffset = input;
-		    break;
+	    {
+	        input = (input - .5f) * 24.f;
+	        if (osc->pitchOffset != input)
+	        {
+	            if (osc->pStepped) {
+	                input = roundf(input);
+	            }
+	            osc->pitchOffset = input;
+	        }
+	        break;
+	    }
 	    case OscPitchFine:
-		    osc->fine = (input - 0.5f) * 2.f;
-		    break;
+	    {
+	        input = (input - 0.5f) * 2.f;
+	        osc->fine = input;
+	        //printf("FINE\n");
+	        break;
+	    }
 	    case OscFreqOffset:
-		    osc->freqOffset = (input * 4000.0f) - 2000.f;
-		    break;
+	    {
+	        input = (input * 4000.0f) - 2000.f;
+	        osc->freqOffset = input;
+	        //printf("OFFSET\n");
+	        break;
+	    }
 	    case OscShapeParam:
-            //tRamp_setDest(&osc->shapeSmooth, input);
-	        tSlopeRamp_setDest(&osc->shapeSmoother, input);
-		    break;
+	    {
+	        if (osc->shapeSmoother.dest != input)
+	        {
+	            tSlopeRamp_setDest(&osc->shapeSmoother, input);
+	        }
+	        break;
+	    }
 	    case OscAmpParam:
-		    //tRamp_setDest(&osc->ampSmooth, input);
-	        tSlopeRamp_setDest(&osc->ampSmoother, input);
-		    break;
+	    {
+	        tSlopeRamp_setDest(&osc->ampSmoother, input * 3);
+	        break;
+	    }
 	    case OscGlide:
-	        tRamp_setTime(&osc->pitchSmooth, input);
-		    break;
+	    {
+	        if (osc->inputGlideTime != input)
+	        {
+	            osc->inputGlideTime = input;
+	            input = roundf(input * 2047);
+	            input = osc->glideTimeTable->table[(uint16_t)input];
+	            tRamp_setTime(&osc->pitchSmooth, input);
+	            //printf("glideTime: %f\n", input);
+	        }
+	        break;
+	    }
 	    case OscSteppedHarmonic:
 		    osc->hStepped = roundf(input);
 		    break;
@@ -139,21 +102,27 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		    osc->pStepped = roundf(input);
 		    break;
 	    case OscSyncMode:
-		    osc->syncMode = roundf(input);
+	        osc->syncMode = roundf(input);
 		    break;
 	    case OscSyncIn:
 		    break;
 	    case OscType:
 	    {
-	        uint8_t inp = (uint8_t)(input * (OscNumTypes - 1));
-	        if (inp != osc->oscType)
+	        input = powf(2, (uint8_t)(5.4 * input));
+	        if ((uint8_t)input != osc->oscType)
 	        {
-	            tOscModule_setType(osc, inp);
+	            tOscModule_setType(osc, (uint8_t)input);
 	        }
 	        break;
 	    }
         case OscPortaType:
-	        osc->portaType = input;
+	    {
+	        if (osc->portaType != (uint8_t)input)
+	        {
+	            osc->portaType = (uint8_t)input;
+	        }
+	        break;
+	    }
 	    default:
 		    break;
 	}
@@ -169,27 +138,15 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 #endif __cplusplus
     OscModule->header.uniqueID = id;
 
-    int type = OscTypeSawSquare;
     OscModule->oscType = OscTypeSawSquare;
     OscModule->mempool = m;
     OscModule->invSr = m->leaf->invSampleRate;
     OscModule->sr = m->leaf->sampleRate;
 
-	//float val = 64.f;
-	//float factor = 0.05f;
-    //tRamp_create(mempool, (tRamp**)&OscModule->theOsc);
-    //OscModule->pitchSmooth.curr = val;
-    //OscModule->pitchSmooth.dest = val;
-	//if (factor < 0.0f) factor = 0.0f;
-	//if (factor > 1.0f) factor = 1.0f;
-	//smooth->baseFactor = factor;
-    //OscModule->pitchSmoother.factor = factor;
-	//OscModule->pitchSmoother.oneminusfactor = 1.0f - factor;
-
     //tRamp_create(mempool, &OscModule->pitchSmooth);
     tRamp_init(OscModule->mempool->leaf, &OscModule->pitchSmooth, 1.0f, 1);
     //tSlopeRamp_create(mempool, &OscModule->ampSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER * 3, 1.f);
     //tSlopeRamp_create(mempool, &OscModule->shapeSmoother);
     tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
 
@@ -207,6 +164,48 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     tPBTriangle_init   (OscModule->mempool->leaf, &OscModule->triOsc);
 
     OscModule->header.moduleType = ModuleTypeOscModule;
+
+    // if (dbtoaTable == NULL)
+    // {
+    //     tLookupTable_create(&OscModule->mempool, &dbtoaTable);
+    //     tLookupTable_init (OscModule->mempool->leaf, dbtoaTable, 0.f, 0.f, 0.f, 2048);
+    //     LEAF_generate_dbtoa (dbtoaTable->table, 2048, -80.f, 9.542f);
+    // }
+
+    // if (atodbTable == NULL)
+    // {
+    //     tLookupTable_create(&OscModule->mempool, &atodbTable);
+    //     tLookupTable_init (OscModule->mempool->leaf, atodbTable, 0.f, 0.f, 0.f, 2048);
+    //     LEAF_generate_atodb (atodbTable->table, 2048, 0.f, 3.f);
+    // }
+
+    // if (mtofTable == NULL)
+    // {
+    //     tLookupTable_create(&OscModule->mempool, &mtofTable);
+    //     tLookupTable_init (OscModule->mempool->leaf, mtofTable, 0.f, 0.f, 0.f, 32768);
+    //     LEAF_generate_mtof (mtofTable->table, -160, 135.5, 32768);
+    // }
+    //
+    // if (ftomTable == NULL)
+    // {
+    //     tLookupTable_create(&OscModule->mempool, &ftomTable);
+    //     tLookupTable_init (OscModule->mempool->leaf, ftomTable, 0.f, 0.f, 0.f, 32768);
+    //     LEAF_generate_ftom (ftomTable->table, 0.02535f, 20500.f, 32768);
+    // }
+
+    // if (glideTimeTable == NULL)
+    // {
+    //     tLookupTable_create(&OscModule->mempool, &glideTimeTable);
+    //     tLookupTable_init (OscModule->mempool->leaf, glideTimeTable, 0.f, 8000.f, 500.f, 2048);
+    // }
+
+    tLookupTable_create(&OscModule->mempool, &OscModule->glideTimeTable);
+    tLookupTable_init (OscModule->mempool->leaf, OscModule->glideTimeTable, 0.f, 8000.f, 500.f, 2048);
+
+    tLookupTable_create(&OscModule->mempool, &OscModule->mtofTable);
+    tLookupTable_init (OscModule->mempool->leaf, OscModule->mtofTable, 0.f, 0.f, 0.f, 16384);
+    LEAF_generate_mtof (OscModule->mtofTable->table, 0, 127, 16384);
+
 #ifndef __cplusplus
     for (int i = 0; i < OscNumParams; i++)
     {
@@ -237,29 +236,17 @@ void tOscModule_free(void** const osc)
 
 void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 {
-    if (osc->inputNote != inputNote)
-    {
-        osc->inputNote = inputNote;
-        float freqToSmooth = (osc->inputNote);
-        tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
-        //printf("hello\n");
-    }
+    osc->inputNote = inputNote;
+    tRamp_setDest(&osc->pitchSmooth, osc->inputNote);
 }
 
 // tick function
-void tOscModule_tick (tOscModule const osc,float* buffer)
+void tOscModule_tick (tOscModule const osc, float* buffer)
 {
-    //tOscModule_setShape(osc, tRamp_tick(&osc->shapeSmooth));
     tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
-    //osc->amp = tRamp_tick(&osc->ampSmooth);
     osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
-	//float freqToSmooth = (osc->inputNote + (osc->fine));
-	    //tExpSmooth_setDest(&osc->pitchSmoother, mtof(freqToSmooth));
-        //tRamp_setDest(&osc->pitchSmooth, freqToSmooth);
 
-	    //float nowFreq =  mtof(ftom(tExpSmooth_tick(&osc->pitchSmoother)) + osc->pitchOffset + osc->octaveOffset);
     float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
-    //std::cout << freqToSmooth << std::endl;
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
 	//    int tempIndexI = (int)tempIndexF;
@@ -268,8 +255,9 @@ void tOscModule_tick (tOscModule const osc,float* buffer)
 	//    float freqToSmooth2 = osc->mtofTable[(tempIndexI + 1) & 32767];
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
-    float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
-        //printf("HM: %f", osc->harmonicMultiplier);
+    // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
+    float finalFreq = osc->mtofTable->table[(int)((tempMIDI)/(127) * 16383)] * osc->harmonicMultiplier + osc->freqOffset;
+    //printf("freq: %f\n", finalFreq);
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq(&osc->sawSquareOsc,finalFreq);
@@ -338,8 +326,8 @@ void tOscModule_setOctave (tOscModule const osc, float const oct)
 }
 
 // Non-modulatable setters
-void tOscModule_setMTOFTableLocation (tOscModule const osc, float* const tableAddress)
-{
-    osc->mtofTable = tableAddress;
-}
+// void tOscModule_setMTOFTableLocation (tOscModule const osc, float* const tableAddress)
+// {
+//     //osc->mtofTable = tableAddress;
+// }
 

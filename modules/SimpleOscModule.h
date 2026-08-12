@@ -10,6 +10,7 @@
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
 #include "leaf-envelopes.h"
+
 typedef enum {
     OscEventWatchFlag,
     OscMidiPitch,
@@ -29,15 +30,24 @@ typedef enum {
     OscNumParams
 } OscParams;
 
-typedef enum {
-    OscTypeSawSquare,
-    OscTypeSineTri,
-    OscTypeSaw,
-    OscTypePulse,
-    OscTypeSine,
-    OscTypeTri,
-    OscNumTypes
-} OscTypes;
+// typedef enum {
+//     OscTypeSawSquare,
+//     OscTypeSineTri,
+//     OscTypeSaw,
+//     OscTypePulse,
+//     OscTypeSine,
+//     OscTypeTri,
+//     OscNumTypes
+// } OscTypes;
+
+typedef enum FlagOscTypes{
+    OscTypeSawSquare = 1,
+    OscTypeSineTri = 2,
+    OscTypeSaw = 4,
+    OscTypePulse = 8,
+    OscTypeSine = 16,
+    OscTypeTri = 32
+};
 
 typedef struct _tOscModule {
     ModuleHeader header;
@@ -48,20 +58,19 @@ typedef struct _tOscModule {
     tPBPulse squareOsc;
     tCycle sineOsc;
     tPBTriangle triOsc;
-    uint32_t oscType;
+    uint8_t oscType;
 
     float fine;
     float harmonicMultiplier;
     float pitchOffset;
     float freqOffset;
-    //tExpSmooth pitchSmoother;
     tRamp pitchSmooth;
+    float inputGlideTime;
     float octaveOffset;
     float inputNote;
     float finalFreq;
     float amp;
     tSlopeRamp ampSmoother;
-    float* mtofTable;
     float sr;
     float invSr;
     int hStepped;
@@ -69,9 +78,16 @@ typedef struct _tOscModule {
     int syncMode;
     float oscShape;
     tSlopeRamp shapeSmoother;
-    int portaType;
+    uint8_t portaType;
 
     tMempool* mempool;
+
+    tLookupTable* mtofTable;
+    //tLookupTable* ftomTable;
+    //tLookupTable* dbtoaTable;
+    //tLookupTable* atodbTable;
+
+    tLookupTable* glideTimeTable;
 } _tOscModule;
 
 typedef _tOscModule* tOscModule;

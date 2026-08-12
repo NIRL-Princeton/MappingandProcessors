@@ -42,8 +42,6 @@ typedef float (*tTickFuncReturningFloat)(void*); //used inside modules to wrap i
 // Defines `_tParameter` to be the name of a new function pointer type
 typedef void (*tSetter)(void*, float);
 
-inline tSetter blankSetter;// {};
-
 typedef enum {
     ModuleTypeOscModule,
     ModuleTypeLFOModule,

@@ -32,24 +32,24 @@ typedef enum {
 } DelayTypes;
 
 //the actual frequency setter function
-typedef void (*tDelayInternalParamSetFunc)(void*, float);
+// typedef void (*tDelayInternalParamSetFunc)(void*, float);
 
 typedef struct _tDelayModule {
     ModuleHeader header;
     void* theDelay;
+    uint32_t delayType;
+
+    float amp;
+    float sr;
+    float invSr;
 
     float* dbTableAddress;
     uint32_t dbTableScalar;
     float dbTableOffset;
     float dbTableSizeMinusOne;
 
-    uint32_t delayType;
-
-    float amp;
-    float sr;
-    float invSr;
-    tMempool* mempool;
     tLookupTable* table;
+    tMempool* mempool;
 } _tDelayModule;
 
 typedef _tDelayModule* tDelayModule;

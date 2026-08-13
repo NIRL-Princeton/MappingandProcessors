@@ -19,29 +19,40 @@ typedef enum {
     FiltResonance,
     FiltKeyfollow,
     FiltType,
+    FiltMix,
     FiltNumParams
 } FiltParams;
 
-typedef enum {
-    FiltTypeLowpass,
-    FiltTypeHighpass,
-    FiltTypeBandpass,
-    FiltTypeDiodeLowpass,
-    FiltTypePeak,
-    FiltTypeHighShelf,
-    FiltTypeLowShelf,
-    FiltTypeNotch,
-    FiltTypeLadderLowpass,
+typedef enum FlagFiltTypes{
+    FiltTypeLowpass = 1,
+    FiltTypeHighpass = 2,
+    FiltTypeBandpass = 4,
+    FiltTypeDiodeLowpass = 8,
+    FiltTypePeak = 16,
+    FiltTypeHighShelf = 32,
+    FiltTypeLowShelf = 64,
+    FiltTypeNotch = 128,
+    FiltTypeLadderLowpass = 256,
     FiltNumTypes
-} FiltTypes;
+};
 
 //the actual frequency setter function
-typedef void (*tFiltInternalParamSetFunc)(void*, float);
+//typedef void (*tFiltInternalParamSetFunc)(void*, float);
 
 typedef struct _tFiltModule {
     ModuleHeader header;
     //void* theFilt;
-    void* filters[FiltNumTypes];
+    //void* filters[FiltNumTypes];
+
+    tSVF lowPassFilter;
+    tSVF highPassFilter;
+    tSVF bandPassFilter;
+    tDiodeFilter diodeFilter;
+    tVZFilterBell bellFilter;
+    tVZFilterHS highShelfFilter;
+    tVZFilterLS lowShelfFilter;
+    tVZFilterBR notchFilter;
+    tLadderFilter ladderFilter;
 
     float* dbTableAddress;
     uint32_t dbTableScalar;
@@ -52,8 +63,8 @@ typedef struct _tFiltModule {
     uint32_t filtType;
 
     float gainKnob; // from Gabe
-    float amp;
-    tSlopeRamp ampSmoother;
+    float gain;
+    tSlopeRamp gainSmoother;
 
     float keyFollow;
     tSlopeRamp keyFollowSmoother;
@@ -67,11 +78,16 @@ typedef struct _tFiltModule {
     float resonanceKnob; // from Gave
     tSlopeRamp qSmoother;
 
+    float mix;
+    tSlopeRamp mixSmoother;
+
     float sr;
     float invSr;
 
     tMempool* mempool;
-    tLookupTable* table;
+    tLookupTable* resTable;
+    tLookupTable* mtofTable;
+    tLookupTable* skewFreqTable;
 } _tFiltModule;
 
 typedef _tFiltModule* tFiltModule;
@@ -96,6 +112,7 @@ void tFiltModule_setFreq(tFiltModule const filt, float freqInput);
 void tFiltModule_setType(tFiltModule const filt, int filtType);
 void tFiltModule_setGain(tFiltModule const filt, float gain);
 void tFiltModule_setKeyFollow(tFiltModule const filt, float keyFollow);
+void tFiltModule_setMix(tFiltModule const filt, float mix);
 
 // Non-modulatable setters
 

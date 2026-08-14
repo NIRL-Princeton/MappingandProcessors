@@ -8,7 +8,6 @@
 #include "FilterModule.h"
 #include <cstdio>
 
-
 #include <assert.h>
 
 void tFiltModule_init(void** const filt, float* params, float id, LEAF* const leaf) {
@@ -20,17 +19,17 @@ void tFiltModule_init(void** const filt, float* params, float id, LEAF* const le
     tFiltModule_initToPool(filt, params, id, &leaf->mempool, leaf->resTable);
 }
 
-float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* const tableAddress)
-{
-    uint32_t inDBIndex = (uint32_t) in;
-    uint32_t inDBIndexPlusOne = inDBIndex + 1;
-    if (inDBIndexPlusOne > sizeMinusOne)
-    {
-        inDBIndexPlusOne = sizeMinusOne;
-    }
-    float alpha = in - (float)inDBIndex;
-    return ((tableAddress[inDBIndex] * (1.0f - alpha)) + (tableAddress[inDBIndexPlusOne] * alpha));
-}
+// float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* const tableAddress)
+// {
+//     uint32_t inDBIndex = (uint32_t) in;
+//     uint32_t inDBIndexPlusOne = inDBIndex + 1;
+//     if (inDBIndexPlusOne > sizeMinusOne)
+//     {
+//         inDBIndexPlusOne = sizeMinusOne;
+//     }
+//     float alpha = in - (float)inDBIndex;
+//     return ((tableAddress[inDBIndex] * (1.0f - alpha)) + (tableAddress[inDBIndexPlusOne] * alpha));
+// }
 
 
 float resTableLookupFunction (float input, float* resTableAddress, float resTableSizeMinusOne)
@@ -130,7 +129,7 @@ void tFiltModule_setRes(tFiltModule const filt, float const res)
             // Also I never got it to self-oscillate in my old version of FilterModule -Matt
             break;
         case FiltTypePeak:
-            tVZFilterBell_setBandwidth(&filt->bellFilter, q * 20.f); // i feel like something else should be done here, or maybe nothing -Matt
+            tVZFilterBell_setBandwidth(&filt->bellFilter, q * 4.f); // i feel like something else should be done here, or maybe nothing -Matt
             break;
         case FiltTypeHighShelf:
             tVZFilterHS_setResonance(&filt->highShelfFilter, q);
@@ -223,7 +222,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     FiltModule->gain = 1.0f;
     FiltModule->gainKnob = 1.0f;
     FiltModule->resonanceKnob = 0.5f;
-    FiltModule->cutoffKnob = 60.0f;
+    FiltModule->cutoffKnob = 1000.0f;
     FiltModule->keyFollow = 0.0f;
     FiltModule->inputNote = 0.0f;
     FiltModule->invSr = m->leaf->invSampleRate;
@@ -234,7 +233,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     //     FiltModule->filters[type] = NULL;
 
     tSlopeRamp_init(m->leaf, &FiltModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
-    tSlopeRamp_init(m->leaf, &FiltModule->cutoffSmoother, SMOOTH_SLOPE_MULTIPLIER * 125.0f, 10000.0f);
+    tSlopeRamp_init(m->leaf, &FiltModule->cutoffSmoother, SMOOTH_SLOPE_MULTIPLIER * 20000.f, 1000.0f);
     tSlopeRamp_init(m->leaf, &FiltModule->keyFollowSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     tSlopeRamp_init(m->leaf, &FiltModule->qSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
     tSlopeRamp_init(m->leaf, &FiltModule->mixSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.0f);
@@ -266,7 +265,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     tDiodeFilter_init(m->leaf, &FiltModule->diodeFilter, 10000.0f, 0.5f);
     tFiltModule_resetNonlinearState(FiltModule, FiltTypeDiodeLowpass);
 
-    tVZFilterBell_init(m->leaf, &FiltModule->bellFilter, 100.0f, 0.5f, 1.0f);
+    tVZFilterBell_init(m->leaf, &FiltModule->bellFilter, 100.0f, 25.f, 1.0f);
     tVZFilterHS_init(m->leaf, &FiltModule->highShelfFilter, 100.0f, 0.5f, 1.0f);
     tVZFilterLS_init(m->leaf, &FiltModule->lowShelfFilter, 100.0f, 0.5f, 1.0f);
     tVZFilterBR_init(m->leaf, &FiltModule->notchFilter, 100.0f, 0.5f);
@@ -360,66 +359,67 @@ void tFiltModule_free(void** const filt)
 // tick function
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
+    //printf("hello!? %f\n", filt->currFreq);
     tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));
     tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->gainSmoother));
     tFiltModule_setRes(filt, tSlopeRamp_tick(&filt->qSmoother));
 
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
-    filt->cutoffKnob = tSlopeRamp_tick(&filt->cutoffSmoother);
-    tFiltModule_setFreq(filt, filt->cutoffKnob + filt->keyFollow * filt->inputNote);
-    //printf("Freq: %f", filt->currFreq);
+    tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    float input = buffer[0];
-    float output;
+    float output = filt->keyFollow * filt->mtofTable->table[(int)(((filt->inputNote)/127)*16383)];
+    tFiltModule_setFreq(filt, filt->cutoffSmoother.curr + output);
+    //printf("Freq: %f\n", filt->currFreq);
+    //printf("Keyfloow: %f\n", output);
+
     switch (filt->filtType)
     {
         case FiltTypeLowpass:
             tSVF_setFreq(&filt->lowPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->lowPassFilter, input) * filt->gain;
+            output = tSVF_tick(&filt->lowPassFilter, buffer[0]) * filt->gain;
             break;
         case FiltTypeHighpass:
             tSVF_setFreq(&filt->highPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->highPassFilter, input) * filt->gain;
+            output = tSVF_tick(&filt->highPassFilter, buffer[0]) * filt->gain;
             break;
         case FiltTypeBandpass:
             tSVF_setFreq(&filt->bandPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->bandPassFilter, input) * filt->gain;
+            output = tSVF_tick(&filt->bandPassFilter, buffer[0]) * filt->gain;
             break;
         case FiltTypeDiodeLowpass:
             tDiodeFilter_setFreq(&filt->diodeFilter, filt->currFreq);
-            output = tDiodeFilter_tickEfficient(&filt->diodeFilter, input) * filt->gain;
+            output = tDiodeFilter_tickEfficient(&filt->diodeFilter, buffer[0]) * filt->gain;
             break;
         case FiltTypePeak:
             tVZFilterBell_setFreq(&filt->bellFilter, filt->currFreq);
-            output = tVZFilterBell_tick(&filt->bellFilter, input);
+            output = tVZFilterBell_tick(&filt->bellFilter, buffer[0]) * 0.01f; // bell filter is extremely loud some reason
             break;
         case FiltTypeHighShelf:
             tVZFilterHS_setFreq(&filt->highShelfFilter, filt->currFreq);
-            output = tVZFilterHS_tick(&filt->highShelfFilter, input);
+            output = tVZFilterHS_tick(&filt->highShelfFilter, buffer[0]) * 0.01f; // this one is also incredibly loud
             break;
         case FiltTypeLowShelf:
             tVZFilterLS_setFreq(&filt->lowShelfFilter, filt->currFreq);
-            output = tVZFilterLS_tick(&filt->lowShelfFilter, input);
+            output = tVZFilterLS_tick(&filt->lowShelfFilter, buffer[0]) * 0.0075f;
             break;
         case FiltTypeNotch:
             tVZFilterBR_setFreq(&filt->notchFilter, filt->currFreq);
-            output = tVZFilterBR_tick(&filt->notchFilter, input) * filt->gain;
+            output = tVZFilterBR_tick(&filt->notchFilter, buffer[0]) * filt->gain;
             break;
         case FiltTypeLadderLowpass:
             tLadderFilter_setFreq(&filt->ladderFilter, filt->currFreq);
             // LEAF's ladder adds a fixed 0.015 bias internally. Cancel it here so a
             // filter module cannot become an audio source when its input is silent.
-            output = tLadderFilter_tick(&filt->ladderFilter, input - 0.015f) * filt->gain;
+            output = tLadderFilter_tick(&filt->ladderFilter, buffer[0] - 0.015f) * filt->gain;
             break;
         default:
-            output = input;
+            output = buffer[0];
             break;
     }
-    buffer[0] = filt->header.outputs[0] = input * (1.f - filt->mix) + filt->mix * output;
+    buffer[0] = filt->header.outputs[0] = buffer[0] * (1.f - filt->mix) + filt->mix * output;
 }
 
 // Modulatable setters
-
 
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, float input)
 {
@@ -427,53 +427,28 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 	    case FiltEventWatchFlag:
 	        break;
 	    case FiltMidiPitch:
-		    input = input * 127.f;
-	        if (filt->inputNote != input)
-		    {
-                filt->inputNote = input;
-	            tFiltModule_setFreq(filt, filt->mtofTable->table[(int)((input/127)*16383)]);
-		    }
+	        filt->inputNote = input * 127.f;
+	        //tFiltModule_setFreq(filt, filt->mtofTable->table[(int)((input/127)*16383)]);
 		    break;
 	    case FiltCutoff:
-	        input = input * 20000.f; // 135.5 to allow for about 21000hz
-	        if (filt->cutoffKnob!= input)
-	        {
-	            filt->cutoffKnob = input;
-	            //tSlopeRamp_setDest(&filt->freqSmoother, filt->inputNote * filt->keyFollow + filt->cutoffKnob);
-	            tSlopeRamp_setDest(&filt->cutoffSmoother, filt->cutoffKnob);
-	        }
+	        filt->cutoffKnob = input;
+	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->skewFreqTable->table[(int)(input*16383)]);
 		    break;
 	    case FiltGain:
-		    if (filt->gainKnob != input)
-		    {
-		        filt->gainKnob = input;
-		        tSlopeRamp_setDest(&filt->gainSmoother, input);
-		    }
+	        filt->gainKnob = input;
+	        tSlopeRamp_setDest(&filt->gainSmoother, input * TEN_DB_AMPLITUDE);
 		    break;
 	    case FiltResonance:
-		    if (filt->qSmoother.dest != input)
-		    {
-		        tSlopeRamp_setDest(&filt->qSmoother, input);
-		    }
+	        tSlopeRamp_setDest(&filt->qSmoother, input);
 		    break;
 	    case FiltKeyfollow:
-		    if (filt->keyFollowSmoother.dest != input)
-		    {
-		        tSlopeRamp_setDest(&filt->keyFollowSmoother, input);
-		    }
+	        tSlopeRamp_setDest(&filt->keyFollowSmoother, input);
 		    break;
 	    case FiltType:
-	        input = roundf(input * 8.f);
-	        if (filt->filtType != (int)input)
-	        {
-	            tFiltModule_setType(filt, (int)input);
-	        }
+	        tFiltModule_setType(filt, (int)(input*8.5));
 		    break;
 	    case FiltMix:
-	        if (filt->mixSmoother.dest != input)
-	        {
-	            filt->mixSmoother.dest = input;
-	        }
+	        filt->mixSmoother.dest = input;
 	    default:
 		    break;
 	}
@@ -521,9 +496,9 @@ void tFiltModule_setMix (tFiltModule const filt, float mix)
     filt->mix = mix;
 }
 
-void tFiltModule_setType(tFiltModule const filt, int const input)
+void tFiltModule_setType(tFiltModule const filt, uint16_t const input)
 {
-    filt->filtType = input;
+    filt->filtType = powf(2, input);
 
     //tFiltModule_free(&filt->theFilt);
     //int type = FiltModule->filtType;
@@ -609,15 +584,13 @@ void tFiltModule_setType(tFiltModule const filt, int const input)
 
 // Non-modulatable setters
 
-void tFiltModule_setDBtoATableLocation (tFiltModule const filt, float* const tableAddress, uint32_t const tableSize)
-{
-    filt->dbTableAddress = tableAddress;
-    filt->dbTableSizeMinusOne = (float)(tableSize - 1);
-    filt->dbTableScalar = filt->dbTableSizeMinusOne/(4.0f-0.00001f);
-    filt->dbTableOffset = 0.00001f * filt->dbTableScalar;
-}
-
-
+// void tFiltModule_setDBtoATableLocation (tFiltModule const filt, float* const tableAddress, uint32_t const tableSize)
+// {
+//     filt->dbTableAddress = tableAddress;
+//     filt->dbTableSizeMinusOne = (float)(tableSize - 1);
+//     filt->dbTableScalar = filt->dbTableSizeMinusOne/(4.0f-0.00001f);
+//     filt->dbTableOffset = 0.00001f * filt->dbTableScalar;
+// }
 
 void tFiltModule_setSampleRate (tFiltModule const filt, float const sr)
 {

@@ -32,8 +32,7 @@ typedef enum FlagFiltTypes{
     FiltTypeHighShelf = 32,
     FiltTypeLowShelf = 64,
     FiltTypeNotch = 128,
-    FiltTypeLadderLowpass = 256,
-    FiltNumTypes
+    FiltTypeLadderLowpass = 256
 };
 
 //the actual frequency setter function
@@ -60,7 +59,7 @@ typedef struct _tFiltModule {
     float dbTableSizeMinusOne;
     float* resTableAddress;
     float resTableSizeMinusOne;
-    uint32_t filtType;
+    uint16_t filtType;
 
     float gainKnob; // from Gabe
     float gain;
@@ -70,9 +69,9 @@ typedef struct _tFiltModule {
     tSlopeRamp keyFollowSmoother;
 
     float cutoffKnob; // from Gabe
-    float inputNote;
-    float currFreq;
     tSlopeRamp cutoffSmoother;
+    float inputNote; // raw midi input
+    float currFreq;
 
     float qValue;
     float resonanceKnob; // from Gave
@@ -102,21 +101,19 @@ float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* 
 // tick
 void tFiltModule_tick (tFiltModule const filt, float*);
 
-
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input);
-void tFiltModule_setType(tFiltModule const filt, uint32_t type);
+void tFiltModule_setType(tFiltModule const filt, uint16_t type);
 
 //Modulatable setters
 //void tFiltModule_setMIDIPitch (tFiltModule const filt, float const input);
 void tFiltModule_setFreq(tFiltModule const filt, float freqInput);
-void tFiltModule_setType(tFiltModule const filt, int filtType);
 void tFiltModule_setGain(tFiltModule const filt, float gain);
 void tFiltModule_setKeyFollow(tFiltModule const filt, float keyFollow);
 void tFiltModule_setMix(tFiltModule const filt, float mix);
 
 // Non-modulatable setters
 
-void tFiltModule_setDBtoATableLocation (tFiltModule const filt, float* tableAddress, uint32_t tableSize);
+//void tFiltModule_setDBtoATableLocation (tFiltModule const filt, float* tableAddress, uint32_t tableSize);
 void tFiltModule_setResTableLocation (tFiltModule const filt, float* tableAddress, uint32_t tableSize);
 void tFiltModule_setSampleRate (tFiltModule const filt, float sr);
 

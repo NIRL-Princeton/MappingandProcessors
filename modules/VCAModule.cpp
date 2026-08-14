@@ -31,14 +31,15 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
 #endif
     VCAModule->header.uniqueID = id;
     //CPPDEREF VCAModule->params[VCAAudioInput] = 0.0f;
-    int type = 0.0f;//roundf(VCAModule->params[VCAType]);
+    //int type = 0.0f;//roundf(VCAModule->params[VCAType]);
     VCAModule->mempool = m;
     VCAModule->amp = 1.0f;
     VCAModule->header.moduleType = ModuleTypeVCAModule;
     VCAModule->external_input = 0;
-    VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
-    VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
+    //VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
+    //VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
 
+    tSlopeRamp_init(VCAModule->mempool->leaf, &VCAModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER*TEN_DB_AMPLITUDE,1.f);
 }
 
 
@@ -48,16 +49,41 @@ void tVCAModule_free(void** const VCA)
     mpool_free((char*)VCAModule, VCAModule->mempool);
 }
 
-void tVCAModule_setAudio(tVCAModule const VCA, float audio) {
+void tVCAModule_setAudio(tVCAModule const VCA, float audio)
+{
     VCA->external_input = audio;
 }
-void tVCAModule_setGain(tVCAModule const VCA, float gain) {
-    VCA->amp = gain;
+void tVCAModule_setGain(tVCAModule const VCA, float gain)
+{
+    tSlopeRamp_setDest(&VCA->ampSmoother, gain * TEN_DB_AMPLITUDE);
 }
+
+void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input)
+{
+    switch (param_type)
+    {
+        case VCAEventWatchFlag:
+            break;
+        case VCAGain:
+            tVCAModule_setGain(VCA, input);
+            break;
+        case VCARouting:
+            break;
+        case VCAAudioInput:
+            tVCAModule_setAudio(VCA, input);
+            break;
+        default:
+            break;
+    }
+
+}
+
+
 
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
+    VCA->amp = tSlopeRamp_tick(&VCA->ampSmoother);
     buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
 }
 

@@ -7,7 +7,7 @@
 #include "leaf.h"
 #include "defs.h"
 #include "leaf-mempool.h"
-
+#include "leaf-envelopes.h"
 
 
 typedef enum {
@@ -19,13 +19,11 @@ typedef enum {
 } VCAParams;
 
 
-
-
-
 typedef struct _tVCAModule {
     ModuleHeader header;
-    void* theVCA;
+    //void* theVCA;
 
+    tSlopeRamp ampSmoother;
     float amp;
     float external_input;
 
@@ -41,6 +39,8 @@ void tVCAModule_free(void** const VCA);
 
 // tick
 void tVCAModule_tick (tVCAModule const VCA, float*);
+
+void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input);
 
 void tVCAModule_setAudio(tVCAModule const VCA, float audio);
 void tVCAModule_setGain(tVCAModule const VCA, float gain);

@@ -88,6 +88,10 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             tSineModule_setParameter ((tSineModule) module, (SineParams) paramID, value);
             break;
 
+        case ModuleTypeVCAModule:
+            tVCAModule_setParameter ((tVCAModule) module, (VCAParams) paramID, value);
+            break;
+
         default:
             // handle invalid type
             break;

@@ -232,7 +232,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     // for (int type = 0; type < FiltNumTypes; ++type)
     //     FiltModule->filters[type] = NULL;
 
-    tSlopeRamp_init(m->leaf, &FiltModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
+    tSlopeRamp_init(m->leaf, &FiltModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER * TEN_DB_AMPLITUDE, 1.f);
     tSlopeRamp_init(m->leaf, &FiltModule->cutoffSmoother, SMOOTH_SLOPE_MULTIPLIER * 20000.f, 1000.0f);
     tSlopeRamp_init(m->leaf, &FiltModule->keyFollowSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     tSlopeRamp_init(m->leaf, &FiltModule->qSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);

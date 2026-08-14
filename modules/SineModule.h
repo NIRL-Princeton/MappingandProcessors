@@ -34,7 +34,7 @@ typedef struct _tSineModule {
     float note;
     float amp;
     tSlopeRamp ampSmoother;
-    float* mtofTable;
+    tLookupTable* mtofTable;
     float sr;
     float invSr;
     // int hStepped;

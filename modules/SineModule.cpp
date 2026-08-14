@@ -19,10 +19,12 @@ void tSineModule_setParameter(tSineModule osc, SineParams param_type, float inpu
 		    break;
 	    case SinePitch:
 	        //tOscModule_setInputNote (osc, input * 127.f);
-	        tCycle_setFreq(&osc->theSine, mtof(input * 127.f));
+	        osc->note = input * 127;
+	        input = osc->mtofTable->table[(int)(input*16383)];
+	        tCycle_setFreq(&osc->theSine, input);
 		    break;
 	    case SineGain:
-	        tSlopeRamp_setDest(&osc->ampSmoother, input);
+	        tSlopeRamp_setDest(&osc->ampSmoother, input*TEN_DB_AMPLITUDE);
 		    break;
 	    default:
 		    break;
@@ -45,10 +47,14 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
 
     //tRamp_init(SineModule->mempool->leaf, (tRamp*)&SineModule->pitchSmooth, 1.0f, 1);
 
-    tSlopeRamp_init(SineModule->mempool->leaf, (tSlopeRamp*)&SineModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
+    tSlopeRamp_init(SineModule->mempool->leaf, &SineModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER * TEN_DB_AMPLITUDE, 1.f);
 
     //tCycle_create (mempool, &SineModule->theSine);
     tCycle_init   (SineModule->mempool->leaf, &SineModule->theSine);
+
+    tLookupTable_create(&SineModule->mempool, &SineModule->mtofTable);
+    tLookupTable_init (SineModule->mempool->leaf, SineModule->mtofTable, 0.f, 0.f, 0.f, 16384);
+    LEAF_generate_mtof (SineModule->mtofTable->table, 0, 127, 16384);
 
     SineModule->header.moduleType = ModuleTypeSineModule;
 #ifndef __cplusplus
@@ -85,12 +91,9 @@ void tSineModule_tick (tSineModule const osc,float* buffer)
 {
     osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
-    //float tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
-
-    //tCycle_setFreq((tCycle*)osc->theOsc,osc->note);
     *buffer = tCycle_tick(&osc->theSine)* osc->amp;
 
-    //float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
+
     //printf("%f",osc->amp);
     osc->header.outputs[0] = *buffer;
 }
@@ -101,7 +104,14 @@ void tSineModule_tick (tSineModule const osc,float* buffer)
 // }
 
 // Non-modulatable setters
-void tOscModule_setMTOFTableLocation (tSineModule const osc, float* const tableAddress)
+// void tOscModule_setMTOFTableLocation (tSineModule const osc, float* const tableAddress)
+// {
+//     osc->mtofTable = tableAddress;
+// }
+
+void tSineModule_setSampleRate (tSineModule const osc, float sr)
 {
-    osc->mtofTable = tableAddress;
+    osc->sr = sr;
+    osc->invSr = 1.0f / sr;
+    tCycle_setSampleRate(&osc->theSine, sr);
 }

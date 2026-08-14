@@ -155,7 +155,7 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     //tRamp_create(mempool, &OscModule->pitchSmooth);
     tRamp_init(OscModule->mempool->leaf, &OscModule->pitchSmooth, 1.0f, 1);
     //tSlopeRamp_create(mempool, &OscModule->ampSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER * 3, 1.f);
+    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER * TEN_DB_AMPLITUDE, 1.f);
     //tSlopeRamp_create(mempool, &OscModule->shapeSmoother);
     tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
 

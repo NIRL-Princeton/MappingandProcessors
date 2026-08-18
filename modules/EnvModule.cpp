@@ -3,6 +3,7 @@
 //
 
 #include "EnvModule.h"
+#include <cstdio>
 
 #include <assert.h>
 
@@ -103,6 +104,8 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
             tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
+
+            //printf("Env set to: %f\n", theValue + 0.001f);
             break;
         }
 

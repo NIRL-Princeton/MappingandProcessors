@@ -19,25 +19,14 @@ void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, const PerlN
 {
     switch (param_type) {
         case PerlNoiseAmp:
-            input *= 5;
-            if (perlNoise->gainSmoother.dest != input)
-            {
-                tSlopeRamp_setDest(&perlNoise->gainSmoother, input);
-            }
+            tSlopeRamp_setDest(&perlNoise->gainSmoother, input * 5.f);
             break;
         case PerlNoiseRate:
-            if (perlNoise->inputRateHz != input)
-            {
-                perlNoise->inputRateHz = input;
-
-                tPerlNoiseModule_setRate (perlNoise, perlNoise->lfoRateTable->table[(int)roundf(input * 2047)]);
-            }
+            perlNoise->inputRateHz = input;
+            tPerlNoiseModule_setRate (perlNoise, perlNoise->lfoRateTable->table[(int)roundf(input * 2047)]);
             break;
         case PerlNoiseEnergy:
-            if (perlNoise->energy != input)
-            {
-                tPerlNoiseModule_setEnergy(perlNoise, input);
-            }
+            tPerlNoiseModule_setEnergy(perlNoise, input);
             break;
         default:
             break;

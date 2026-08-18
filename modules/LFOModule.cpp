@@ -259,56 +259,32 @@ void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float i
 
         case LFOType:
         {
-            int temp = (int)roundf(5.4f * input);
-            if (temp != lfo->lfo_type)
-            {
-                tLFOModule_setType(lfo, temp);
-            }
+            tLFOModule_setType(lfo, (int)roundf(5.4f * input));
             break;
         }
 
         case LFORateParam:
         {
-            if (lfo->inputRate != input)
-            {
-                lfo->inputRate = input;
-                // Interpolate lookup table and set frequency
-                // input *= (float)lfo->table->tableSize;
-                // int inputInt = (int)input;
-                // float inputFloat = (float)inputInt - input;
-                // int nextPos = LEAF_clip(0, inputInt + 1, lfo->table->tableSize);
-                // float tempRate = (lfo->table->table[inputInt] * (1.0f - inputFloat))
-                //                + (lfo->table->table[nextPos] * inputFloat);
-
-                tLFOModule_setRate (lfo, lfo->table->table[(int)roundf(input * 2047)]);
-                //printf("%f\n", tempRate);
-                break;
-            }
+            lfo->inputRate = input;
+            tLFOModule_setRate (lfo, lfo->table->table[(int)roundf(input * 2047)]);
+            //printf("%f\n", tempRate);
+            break;
         }
 
         case LFOShapeParam:
-            if (input != lfo->shapeSmoother.dest)
-            {
-                tSlopeRamp_setDest(&lfo->shapeSmoother, input);
-                //printf("Always?!?!?\n");
-            }
+            tSlopeRamp_setDest(&lfo->shapeSmoother, input);
+            //printf("Always?!?!?\n");
             break;
 
         case LFOPhaseParam:
-            if (input != lfo->phase)
-            {
-                lfo->phase = input;
-                //tLFOModule_setPhase (lfo, input);
-                //printf("Normal param!!!\n");
-            }
+            lfo->phase = input;
+            //tLFOModule_setPhase (lfo, input);
+            //printf("Normal param!!!\n");
             break;
 
         case LFOSyncNoteOnParam:
-            if ((uint8_t)input != lfo->syncNoteOn)
-            {
-                lfo->syncNoteOn = (uint8_t)input;
-                //printf("changed sync!!!");
-            }
+            lfo->syncNoteOn = (uint8_t)input;
+            //printf("changed sync!!!");
             break;
         default:
             break;

@@ -20,72 +20,47 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
 {
     switch (param_type) {
         case NoiseGain:
-            input *= TEN_DB_AMPLITUDE;
-            if (noise->gain != input)
-            {
-                noise->gain = input;
-            }
+            noise->gain = input * TEN_DB_AMPLITUDE;
             break;
         case NoiseTilt:
-            input = (20.f * input) - 10.f;
-            if (noise->tilt != input)
-            {
-                noise->tilt = input;
-                tTiltFilter_setTilt(&noise->theTilter, input);
-            }
+            noise->tilt = (20.f*input)-10.f;
+            tTiltFilter_setTilt(&noise->theTilter, noise->tilt);
             break;
         case NoisePeakGain:
-            if (noise->peakGain != input)
-            {
-                noise->peakGain = input;
-                tVZFilterBell_setGain(&noise->theBellter, input * 199.f + 1.f); // < 1 causes a dip at the target frequency - might add later
-            }
+            noise->peakGain = input;
+            tVZFilterBell_setGain(&noise->theBellter, input * 199.f + 1.f); // < 1 causes a dip at the target frequency - might add later
             break;
         case NoiseFreqKnob:
-            if (noise->freqKnob != input)
-            {
-                noise->freqKnob = input;
-                int index =(int)(input * 16387);
-                noise->cutoffFreq = noise->skewFreqTable->table[index];
-            }
+        {
+            noise->freqKnob = input;
+            int index =(int)(input * 16383);
+            noise->cutoffFreq = noise->skewFreqTable->table[index];
             break;
+        }
         case NoisePeakBandwidth:
-            if (noise->peakBandwidth != input)
-            {
-                noise->peakBandwidth = input;
-                tVZFilterBell_setBandwidth(&noise->theBellter, input * 5.f);
-            }
+            noise->peakBandwidth = input;
+            tVZFilterBell_setBandwidth(&noise->theBellter, input * 5.f);
             break;
         case NoiseKeyFollow:
-            if (noise->keyFollow != input)
-            {
-                noise->keyFollow = input;
-            }
+            noise->keyFollow = input;
             break;
         case NoiseGlide:
-            if (noise->glide != input)
-            {
-                noise->glide = input;
-                tRamp_setTime(&noise->pitchSmoother, input);
-            }
+            noise->glide = input;
+            tRamp_setTime(&noise->pitchSmoother, input);
             break;
         case NoisePortaType:
-            if (noise->portaType != input)
-            {
-                noise->portaType = input;
-            }
+            noise->portaType = input;
             break;
         case NoiseMIDIPitch:
+        {
             //noise->inputMIDINote = input * 127.0;
             //tNoiseModule_setInputNote(noise, input * 127.0);
-            if (noise->inputMIDINote != input * 127.0)
-            {
-                noise->inputMIDINote = input * 127.0;
-                int index = (int)((noise->inputMIDINote/127)*16387);
-                noise->inputFreq = noise->mtofTable->table[index];
-                tRamp_setDest(&noise->pitchSmoother, noise->inputFreq);
-            }
+            noise->inputMIDINote = input * 127.0;
+            int index = (int)((noise->inputMIDINote/127)*16383);
+            noise->inputFreq = noise->mtofTable->table[index];
+            tRamp_setDest(&noise->pitchSmoother, noise->inputFreq);
             break;
+        }
         default:
             break;
     }

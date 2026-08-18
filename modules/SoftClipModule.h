@@ -14,6 +14,7 @@
 // #include "processor.h"
 #include "leaf-mempool.h"
 #include "leaf-filters.h"
+#include "leaf-envelopes.h"
 
 
 
@@ -24,6 +25,7 @@ typedef enum {
     SoftClipOffset,
     SoftClipShape,
     SoftClipOutputGain,
+    SoftClipMix,
     SoftClipNumParams
 } SoftClipModuleParams;
 
@@ -32,9 +34,15 @@ typedef enum {
 typedef struct _tSoftClipModule {
     ModuleHeader header;
     float shapeDivider;
+    tSlopeRamp shapeDividerSmoother;
     float inputGain;
+    tSlopeRamp inputGainSmoother;
     float outputGain;
+    tSlopeRamp outputGainSmoother;
     float offset;
+    tSlopeRamp offsetSmoother;
+    float mix;
+    tSlopeRamp mixSmoother;
     tHighpass highpass;
 
     tMempool* mempool;

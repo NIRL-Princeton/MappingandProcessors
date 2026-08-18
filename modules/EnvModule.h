@@ -33,6 +33,8 @@ typedef struct _tEnvModule {
     tADSRT theEnv;
     //end boilerplate  - processor represents all of these///
     //specific other variables
+    //float velocitySense;
+    tSlopeRamp velSenseSmoother;
     const float* envTimeTableAddress;
     float envTimeTableSizeMinusOne;
     uint32_t tableSize;

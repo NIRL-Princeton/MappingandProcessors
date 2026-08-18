@@ -115,21 +115,25 @@ void tLFOModule_tick (tLFOModule const lfo)
 }
 
 //special noteOnFunction
-void tLFOModule_onNoteOn(tLFOModule const lfo)
+void tLFOModule_onNoteOn(tLFOModule const lfo, float vel)
 {
     //printf("Note on!!");
     // lfo->setterFunctions[LFOPhaseParam](lfo->theLFO, CPPDEREF lfo->params[LFOPhaseParam]); //call actual function
 
-    if (lfo->counter == 0 && lfo->syncNoteOn == 1)
+    // if (lfo->counter == 0 && lfo->syncNoteOn == 1)
+    // {
+    //     lfo->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+    //     //printf("really on\n");
+    //     tLFOModule_setPhase(lfo, lfo->phase);
+    //     //printf("Cuz note offff!!!!\n");
+    // } else
+    // {
+    //     lfo->counter = 0;
+    //     //printf("really off\n");
+    // }
+    if (vel > 0.0001f)
     {
-        lfo->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
-        //printf("really on\n");
         tLFOModule_setPhase(lfo, lfo->phase);
-        //printf("Cuz note offff!!!!\n");
-    } else
-    {
-        lfo->counter = 0;
-        //printf("really off\n");
     }
 }
 

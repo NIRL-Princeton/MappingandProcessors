@@ -76,7 +76,7 @@ void tLFOModule_free(void** const lfo);
 
 //note on action
 //void tLFOModule_onNoteOn(tLFOModule const lfo, float pitch, float velocity);
-void tLFOModule_onNoteOn(tLFOModule const lfo);
+void tLFOModule_onNoteOn(tLFOModule const lfo, float vel);
 
 // Modulatable setters
 void tLFOModule_setRate (tLFOModule const lfo, float rate);

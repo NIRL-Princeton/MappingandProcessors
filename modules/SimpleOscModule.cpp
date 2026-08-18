@@ -336,20 +336,30 @@ void tOscModule_setOctave (tOscModule const osc, float const oct)
 //     //osc->mtofTable = tableAddress;
 // }
 
-void tOscModule_onNoteOn (tOscModule const osc)
+void tOscModule_onNoteOn (tOscModule const osc, float vel)
 {
-    if (osc->counter == 0)
-    {
-        osc->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+    //printf("Noted");
+    // if (osc->counter == 0)
+    // {
+    //     osc->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+    //
+    //     osc->ampSmoother.curr = osc->ampSmoother.dest;
+    //     osc->amp = osc->ampSmoother.dest;
+    //
+    //     osc->shapeSmoother.curr = osc->shapeSmoother.dest;
+    //     osc->oscShape = osc->shapeSmoother.dest;
+    // } else
+    // {
+    //     osc->counter = 0;
+    // }
 
+    if (vel > 0.0001f)
+    {
         osc->ampSmoother.curr = osc->ampSmoother.dest;
         osc->amp = osc->ampSmoother.dest;
 
         osc->shapeSmoother.curr = osc->shapeSmoother.dest;
         osc->oscShape = osc->shapeSmoother.dest;
-    } else
-    {
-        osc->counter = 0;
     }
 }
 

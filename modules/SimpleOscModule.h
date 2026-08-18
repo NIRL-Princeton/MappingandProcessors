@@ -109,7 +109,7 @@ void tOscModule_setSampleRate (tOscModule const osc, float sr);
 void tOscModule_setType (tOscModule const osc, int type);
 void tOscModule_setShape (tOscModule const osc, float shape);
 void tOscModule_setGlideOrigin (tOscModule const osc, float originNote);
-void tOscModule_onNoteOn (tOscModule const osc);
+void tOscModule_onNoteOn (tOscModule const osc, float vel);
 
 
 

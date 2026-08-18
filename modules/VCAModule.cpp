@@ -78,8 +78,6 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
 
 }
 
-
-
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
@@ -92,9 +90,6 @@ void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 
 // Modulatable setters
 
-
-
-
 // Non-modulatable setters
 
-//be sure to set the tables before initing the processor
+// be sure to set the tables before initing the processor

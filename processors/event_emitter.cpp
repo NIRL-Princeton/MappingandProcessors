@@ -21,13 +21,13 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             {
                 // tOscModule* osc = (tOscModule*)module;
                 // call osc-specific function, e.g.,
-                tOscModule_onNoteOn((tOscModule)module);
+                tOscModule_onNoteOn((tOscModule)module, velocity);
                 break;
             }
             case ModuleTypeLFOModule:
             {
                 // tLFOModule* lfo = (tLFOModule*)module;
-                tLFOModule_onNoteOn((tLFOModule)module);
+                tLFOModule_onNoteOn((tLFOModule)module, velocity);
                 break;
             }
             case ModuleTypeEnvModule:

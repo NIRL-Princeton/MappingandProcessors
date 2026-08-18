@@ -30,7 +30,6 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    case OscHarmonic:
 	    {
 	        input = (input - .5f) * 30.f;
-
 	        if (osc->hStepped) {
 	            input = roundf(input);
 	        }
@@ -47,35 +46,28 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    case OscPitchOffset:
 	    {
 	        input = (input - .5f) * 24.f;
-	        if (osc->pitchOffset != input)
-	        {
-	            if (osc->pStepped) {
-	                input = roundf(input);
-	            }
-	            osc->pitchOffset = input;
+	        if (osc->pStepped) {
+	            input = roundf(input);
 	        }
+	        osc->pitchOffset = input;
 	        break;
 	    }
 	    case OscPitchFine:
 	    {
-	        input = (input - 0.5f) * 2.f;
-	        osc->fine = input;
+	        osc->fine = (input - 0.5f) * 2.f;
 	        //printf("FINE\n");
 	        break;
 	    }
 	    case OscFreqOffset:
 	    {
-	        input = (input * 4000.0f) - 2000.f;
-	        osc->freqOffset = input;
-	        //printf("OFFSET\n");
+	        osc->freqOffset = (input * 4000.f - 2000.f);
+	        //printf("input: %f.  ", input);
+	        //printf("Output: %f\n", osc->freqOffset);
 	        break;
 	    }
 	    case OscShapeParam:
 	    {
-	        if (osc->shapeSmoother.dest != input)
-	        {
-	            tSlopeRamp_setDest(&osc->shapeSmoother, input);
-	        }
+	        tSlopeRamp_setDest(&osc->shapeSmoother, input);
 	        break;
 	    }
 	    case OscAmpParam:
@@ -85,14 +77,11 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    }
 	    case OscGlide:
 	    {
-	        if (osc->inputGlideTime != input)
-	        {
-	            osc->inputGlideTime = input;
-	            input = roundf(input * 2047);
-	            input = osc->glideTimeTable->table[(uint16_t)input];
-	            tRamp_setTime(&osc->pitchSmooth, input);
-	            //printf("glideTime: %f\n", input);
-	        }
+	        osc->inputGlideTime = input;
+	        input = roundf(input * 2047);
+	        input = osc->glideTimeTable->table[(uint16_t)input];
+	        tRamp_setTime(&osc->pitchSmooth, input);
+	        //printf("glideTime: %f\n", input);
 	        break;
 	    }
 	    case OscSteppedHarmonic:
@@ -271,7 +260,7 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
-    float finalFreq = osc->mtofTable->table[(int)((tempMIDI)/(127) * 16383)] * osc->harmonicMultiplier + osc->freqOffset;
+    float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)((tempMIDI)/(127) * 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
     //printf("freq: %f\n", finalFreq);
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
@@ -350,20 +339,30 @@ void tOscModule_setOctave (tOscModule const osc, float const oct)
 //     //osc->mtofTable = tableAddress;
 // }
 
-void tOscModule_onNoteOn (tOscModule const osc)
+void tOscModule_onNoteOn (tOscModule const osc, float vel)
 {
-    if (osc->counter == 0)
-    {
-        osc->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+    //printf("Noted");
+    // if (osc->counter == 0)
+    // {
+    //     osc->counter = 1; // counter is a band-aid fix for issue in SoundEngine, where noteOn is called for both the actual noteOn and noteOff events
+    //
+    //     osc->ampSmoother.curr = osc->ampSmoother.dest;
+    //     osc->amp = osc->ampSmoother.dest;
+    //
+    //     osc->shapeSmoother.curr = osc->shapeSmoother.dest;
+    //     osc->oscShape = osc->shapeSmoother.dest;
+    // } else
+    // {
+    //     osc->counter = 0;
+    // }
 
+    if (vel > 0.0001f)
+    {
         osc->ampSmoother.curr = osc->ampSmoother.dest;
         osc->amp = osc->ampSmoother.dest;
 
         osc->shapeSmoother.curr = osc->shapeSmoother.dest;
         osc->oscShape = osc->shapeSmoother.dest;
-    } else
-    {
-        osc->counter = 0;
     }
 }
 

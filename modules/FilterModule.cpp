@@ -360,6 +360,9 @@ void tFiltModule_free(void** const filt)
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
     //printf("hello!? %f\n", filt->currFreq);
+    const float input = filt->header.summedInput + buffer[0];
+    filt->header.summedInput = 0.0f;
+
     tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));
     tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->gainSmoother));
     tFiltModule_setRes(filt, tSlopeRamp_tick(&filt->qSmoother));
@@ -376,47 +379,47 @@ void tFiltModule_tick (tFiltModule const filt, float* buffer)
     {
         case FiltTypeLowpass:
             tSVF_setFreq(&filt->lowPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->lowPassFilter, buffer[0]) * filt->gain;
+            output = tSVF_tick(&filt->lowPassFilter, input) * filt->gain;
             break;
         case FiltTypeHighpass:
             tSVF_setFreq(&filt->highPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->highPassFilter, buffer[0]) * filt->gain;
+            output = tSVF_tick(&filt->highPassFilter, input) * filt->gain;
             break;
         case FiltTypeBandpass:
             tSVF_setFreq(&filt->bandPassFilter, filt->currFreq);
-            output = tSVF_tick(&filt->bandPassFilter, buffer[0]) * filt->gain;
+            output = tSVF_tick(&filt->bandPassFilter, input) * filt->gain;
             break;
         case FiltTypeDiodeLowpass:
             tDiodeFilter_setFreq(&filt->diodeFilter, filt->currFreq);
-            output = tDiodeFilter_tickEfficient(&filt->diodeFilter, buffer[0]) * filt->gain;
+            output = tDiodeFilter_tickEfficient(&filt->diodeFilter, input) * filt->gain;
             break;
         case FiltTypePeak:
             tVZFilterBell_setFreq(&filt->bellFilter, filt->currFreq);
-            output = tVZFilterBell_tick(&filt->bellFilter, buffer[0]) * 0.01f; // bell filter is extremely loud some reason
+            output = tVZFilterBell_tick(&filt->bellFilter, input) * 0.01f; // bell filter is extremely loud some reason
             break;
         case FiltTypeHighShelf:
             tVZFilterHS_setFreq(&filt->highShelfFilter, filt->currFreq);
-            output = tVZFilterHS_tick(&filt->highShelfFilter, buffer[0]) * 0.01f; // this one is also incredibly loud
+            output = tVZFilterHS_tick(&filt->highShelfFilter, input) * 0.01f; // this one is also incredibly loud
             break;
         case FiltTypeLowShelf:
             tVZFilterLS_setFreq(&filt->lowShelfFilter, filt->currFreq);
-            output = tVZFilterLS_tick(&filt->lowShelfFilter, buffer[0]) * 0.0075f;
+            output = tVZFilterLS_tick(&filt->lowShelfFilter, input) * 0.0075f;
             break;
         case FiltTypeNotch:
             tVZFilterBR_setFreq(&filt->notchFilter, filt->currFreq);
-            output = tVZFilterBR_tick(&filt->notchFilter, buffer[0]) * filt->gain;
+            output = tVZFilterBR_tick(&filt->notchFilter, input) * filt->gain;
             break;
         case FiltTypeLadderLowpass:
             tLadderFilter_setFreq(&filt->ladderFilter, filt->currFreq);
             // LEAF's ladder adds a fixed 0.015 bias internally. Cancel it here so a
             // filter module cannot become an audio source when its input is silent.
-            output = tLadderFilter_tick(&filt->ladderFilter, buffer[0] - 0.015f) * filt->gain;
+            output = tLadderFilter_tick(&filt->ladderFilter, input - 0.015f) * filt->gain;
             break;
         default:
-            output = buffer[0];
+            output = input;
             break;
     }
-    buffer[0] = filt->header.outputs[0] = buffer[0] * (1.f - filt->mix) + filt->mix * output;
+    buffer[0] = filt->header.outputs[0] = input * (1.f - filt->mix) + filt->mix * output;
 }
 
 // Modulatable setters

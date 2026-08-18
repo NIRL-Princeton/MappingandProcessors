@@ -83,8 +83,11 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
+    const float input = VCA->header.summedInput + buffer[0];
+    VCA->header.summedInput = 0.0f;
+
     VCA->amp = tSlopeRamp_tick(&VCA->ampSmoother);
-    buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
+    buffer[0] = VCA->header.outputs[0] = (input  + VCA->external_input) * VCA->amp;
 }
 
 // Modulatable setters

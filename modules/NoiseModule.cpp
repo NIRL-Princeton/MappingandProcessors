@@ -159,8 +159,11 @@ void tNoiseModule_setPeakFreq (tNoiseModule const noise, float inputFreq)
 }
 
 // tick function
-void tNoiseModule_tick (tNoiseModule const noise,float* buffer)
+void tNoiseModule_tick (tNoiseModule const noise, float* buffer)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    noise->header.summedInput = 0.0f;
+
     tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->cutoffFreq);
 
     *buffer = tNoise_tick(&noise->theNoise);

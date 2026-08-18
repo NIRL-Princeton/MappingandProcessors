@@ -73,7 +73,10 @@ void tDelayModule_free(void** const delay)
  * module*/
 void tTemplateModule_tick (tTemplateModule const template_, float* buffer)
 {
-    buffer[0] = template_->header.outputs[0] = tTemplate_tick((tTemplate*)template_->theTemplate,  buffer[0]) * template_->amp + buffer[0];
+    const float input = template_->header.summedInput + buffer[0];
+    template_->header.summedInput = 0.0f;
+
+    buffer[0] = template_->header.outputs[0] = tTemplate_tick((tTemplate*)template_->theTemplate,  input) * template_->amp + input;
 }
 
 /* private helper function for setting a parameter */

@@ -70,6 +70,7 @@ typedef enum {
         tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
         ATOMIC_FLOAT inputs[1];
         ATOMIC_FLOAT outputs[1];
+        float summedInput;
     }ModuleHeader;
 #ifdef __cplusplus
 }

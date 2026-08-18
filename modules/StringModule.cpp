@@ -36,11 +36,12 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
 }
 
-void tStringModule_tick(tStringModule const s,float* buffer)
-    {
-        buffer[0] = tSimpleLivingString3_tick(s->theString, buffer[0]);
-
-    }
+void tStringModule_tick(tStringModule const s, float* buffer)
+{
+    const float input = s->header.summedInput + buffer[0];
+    s->header.summedInput = 0.0f;
+    buffer[0] = tSimpleLivingString3_tick(s->theString, input);
+}
 
 void tStringModule_onNoteOn(tStringModule const s, float velocity)
 {

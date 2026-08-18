@@ -89,6 +89,9 @@ void tSineModule_free(void** const osc)
 // tick function
 void tSineModule_tick (tSineModule const osc,float* buffer)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    osc->header.summedInput = 0.0f;
+
     osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
     *buffer = tCycle_tick(&osc->theSine)* osc->amp;

@@ -85,6 +85,8 @@ void tPerlNoiseModule_free(void** const perlNoise)
 // tick function
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    perlNoise->header.summedInput = 0.0f;
     tPerlNoiseModule_setAmp(perlNoise, tSlopeRamp_tick(&perlNoise->gainSmoother));
 
     perlNoise->header.outputs[0] = tPerlinNoise_tick(&perlNoise->thePerlNoise) * perlNoise->amp;

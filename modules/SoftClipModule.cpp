@@ -23,7 +23,10 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
-    float sample = buffer[0];
+    const float input = c->header.summedInput + buffer[0];
+    c->header.summedInput = 0.0f;
+
+    float sample = input;
     sample = sample * c->inputGain * 5.0f;
     sample = sample + (c->offset * 2.0f) - 1.0f;
 
@@ -40,7 +43,7 @@ void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
     }
 
     sample = tHighpass_tick(&c->highpass, sample);
-    buffer[0] = sample;
+    buffer[0] = c->header.outputs[0] = sample;
 
 }
 

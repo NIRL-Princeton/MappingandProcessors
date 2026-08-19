@@ -24,7 +24,7 @@ void tSineModule_setParameter(tSineModule osc, SineParams param_type, float inpu
 	        tCycle_setFreq(&osc->theSine, input);
 		    break;
 	    case SineGain:
-	        tSlopeRamp_setDest(&osc->ampSmoother, input*TEN_DB_AMPLITUDE);
+	        tSlopeRamp_setDest(&osc->ampSmoother, input);
 		    break;
 	    default:
 		    break;
@@ -55,6 +55,9 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
     tLookupTable_create(&SineModule->mempool, &SineModule->mtofTable);
     tLookupTable_init (SineModule->mempool->leaf, SineModule->mtofTable, 0.f, 0.f, 0.f, 16384);
     LEAF_generate_mtof (SineModule->mtofTable->table, 0, 127, 16384);
+
+    tLookupTable_create(&SineModule->mempool, &SineModule->gainAmpTable);
+    tLookupTable_init (SineModule->mempool->leaf, SineModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
 
     SineModule->header.moduleType = ModuleTypeSineModule;
 #ifndef __cplusplus
@@ -89,7 +92,7 @@ void tSineModule_free(void** const osc)
 // tick function
 void tSineModule_tick (tSineModule const osc,float* buffer)
 {
-    osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
+    osc->amp = osc->gainAmpTable->table[(int)(tSlopeRamp_tick(&osc->ampSmoother)*2047.f)];
 
     *buffer = tCycle_tick(&osc->theSine)* osc->amp;
 

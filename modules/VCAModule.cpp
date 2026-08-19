@@ -39,7 +39,10 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
     //VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
     //VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
 
-    tSlopeRamp_init(VCAModule->mempool->leaf, &VCAModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER*TEN_DB_AMPLITUDE,1.f);
+    tSlopeRamp_init(VCAModule->mempool->leaf, &VCAModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER,0.5);
+
+    tLookupTable_create(&VCAModule->mempool, &VCAModule->gainAmpTable);
+    tLookupTable_init (VCAModule->mempool->leaf, VCAModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
 }
 
 
@@ -55,7 +58,7 @@ void tVCAModule_setAudio(tVCAModule const VCA, float audio)
 }
 void tVCAModule_setGain(tVCAModule const VCA, float gain)
 {
-    tSlopeRamp_setDest(&VCA->ampSmoother, gain * TEN_DB_AMPLITUDE);
+    VCA->gainAmpTable->table[(int)(gain*2047)];
 }
 
 void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input)
@@ -65,7 +68,7 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
         case VCAEventWatchFlag:
             break;
         case VCAGain:
-            tVCAModule_setGain(VCA, input);
+            tSlopeRamp_setDest(&VCA->ampSmoother, input);
             break;
         case VCARouting:
             break;
@@ -83,7 +86,7 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
-    VCA->amp = tSlopeRamp_tick(&VCA->ampSmoother);
+    tVCAModule_setGain(VCA,tSlopeRamp_tick(&VCA->ampSmoother));
     buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
 }
 

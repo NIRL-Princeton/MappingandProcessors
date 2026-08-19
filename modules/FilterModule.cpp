@@ -44,8 +44,9 @@ float resTableLookupFunction (float input, float* resTableAddress, float resTabl
 
 void tFiltModule_setGain(tFiltModule const filt, float const gain)
 {
+    filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
     // I think there should be two separate gain parameters. One master, and one for the filters with internal gain parameters -Matt
-    filt->gain = gain; // Also unsure if it's a good thing to have the master gain and internal gain to be set simultaneously -Matt
+    //filt->gain = gain; // Also unsure if it's a good thing to have the master gain and internal gain to be set simultaneously -Matt
     const float eqGain = powf(10.0f, ((gain * 50.0f) - 25.0f) / 20.0f);
 	switch (filt->filtType)
 	{
@@ -279,6 +280,9 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     tLookupTable_create(&FiltModule->mempool, &FiltModule->skewFreqTable);
     tLookupTable_init (FiltModule->mempool->leaf, FiltModule->skewFreqTable, 0.1f, 20000.f, 1000.f, 16384);
 
+    tLookupTable_create(&FiltModule->mempool, &FiltModule->gainAmpTable);
+    tLookupTable_init (FiltModule->mempool->leaf, FiltModule->gainAmpTable, 0.f, 4.f, 1.f, 2048);
+
     FiltModule->filtType = FiltTypeLowpass;
 
     FiltModule->header.moduleType = ModuleTypeFilterModule;
@@ -436,7 +440,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltGain:
 	        filt->gainKnob = input;
-	        tSlopeRamp_setDest(&filt->gainSmoother, input * TEN_DB_AMPLITUDE);
+	        tSlopeRamp_setDest(&filt->gainSmoother, input);
 		    break;
 	    case FiltResonance:
 	        tSlopeRamp_setDest(&filt->qSmoother, input);

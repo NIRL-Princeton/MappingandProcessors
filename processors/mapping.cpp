@@ -94,7 +94,7 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             break;
 
         case ModuleTypeSampleAndHoldModule:
-            tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampleAndHoldParams) paramID, value);
+            tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampHoldParams) paramID, value);
             break;
 
         default:

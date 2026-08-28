@@ -3,6 +3,9 @@
 //
 
 #include "SampleAndHoldModule.h"
+
+#include "leaf-envelopes.h"
+
 #include <cstdio>
 
 void tSampleAndHoldModule_init(void** const sampHold, float* params, float id, LEAF* const leaf)
@@ -56,8 +59,12 @@ void tSampleAndHoldModule_free(void** const sampHold)
 }
 
 // tick function
-void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold)
+void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float* buffer)
 {
-    sampHold->header.outputs[0] = 0.f;
+    sampHold->mix = tSlopeRamp_tick(&sampHold->mixSmoother);
+    sampHold->gain = tSlopeRamp_tick(&sampHold->gainSmoother);
+
+    float output = 0.f;
+    buffer[0] = sampHold->header.outputs[0] = buffer[0] * (1.f - sampHold->mix) + sampHold->mix * output;
 }
 

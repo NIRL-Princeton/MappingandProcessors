@@ -9,6 +9,7 @@
 #include "defs.h"
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
+#include "leaf-envelopes.h"
 
 typedef enum
 {
@@ -22,9 +23,16 @@ typedef struct _tSampleAndHoldModule
 {
     ModuleHeader header;
 
-    float inputSample;
+    float currSample;
+    tRamp sampleSmoother;
+
     float threshold;
     float frequency;
+
+    float gain;
+    tSlopeRamp gainSmoother;
+    float mix;
+    tSlopeRamp mixSmoother;
 
     tMempool* mempool;
 
@@ -37,7 +45,14 @@ void tSampleAndHoldModule_init(void** const sampHold, float* const params, float
 void tSampleAndHoldModule_initToPool(void** const sampHold, float* const params, float id, tMempool** const mempool);
 void tSampleAndHoldModule_free(void** const sampHold);
 void tSampleAndHoldModule_setParameter(tSampleAndHoldModule const sampHold, SampHoldParams param_type, float input);
+
 // Modulatable setters
-void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold);
+void tSampleAndHoldModule_setMix(tSampleAndHoldModule const sampHold, float mix);
+void tSampleAndHoldModule_setInputGain(tSampleAndHoldModule const sampHold, float gain);
+void tSampleAndHoldModule_setOutputGain(tSampleAndHoldModule const sampHold, float gain);
+
+void tSampleAndHoldModule_onNoteOn(tSampleAndHoldModule const sampHold, float note, float velocity);
+
+void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float*);
 
 #endif // ELECTORSYNTH_SAMPLEANDHOLDMODULE_H

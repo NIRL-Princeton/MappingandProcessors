@@ -19,6 +19,7 @@
 #include "SimpleNoiseModule.h"
 #include "PerlinNoiseModule.h"
 #include "SineModule.h"
+#include "SampleAndHoldModule.h"
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -90,6 +91,10 @@ void tMapping_setParameter(void* module, int paramID, float value) {
 
         case ModuleTypeVCAModule:
             tVCAModule_setParameter ((tVCAModule) module, (VCAParams) paramID, value);
+            break;
+
+        case ModuleTypeSampleAndHoldModule:
+            tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampleAndHoldParams) paramID, value);
             break;
 
         default:

@@ -33,6 +33,7 @@ namespace leaf
         (createModuleFunc) tSimpNoiseModule_init,
         (createModuleFunc) tPerlNoiseModule_init,
         (createModuleFunc) tSineModule_init,
+        (createModuleFunc) tSampleAndHoldModule_init,
     };
 //
 //void createProcessor(float *params, tProcessor* proc,LEAF* leaf)

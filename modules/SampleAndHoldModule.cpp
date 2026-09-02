@@ -18,15 +18,19 @@ void tSampleAndHoldModule_setParameter(tSampleAndHoldModule const sampHold, cons
         case SampHoldEventWatchFlag:
             break;
         case SampHoldThreshold:
+            input = sampHold->gainAmpTable->table[(int)(input*2047)];
             sampHold->threshold = input;
             break;
         case SampHoldFrequency:
-            sampHold->frequency = input;
+            sampHold->frequency = sampHold->skewFreqTable->table[(int)(input*16383)];
+            tSampleAndHoldModule_setBinLength(sampHold);
             break;
         case SampHoldDurRand:
             sampHold->durRand = input;
+            tSampleAndHoldModule_setBinLength(sampHold);
             break;
         case SampHoldGain:
+            input = sampHold->gainAmpTable->table[(int)(input*2047)];
             tSlopeRamp_setDest(&sampHold->gainSmoother, input);
             break;
         case SampHoldMix:
@@ -46,12 +50,22 @@ void tSampleAndHoldModule_initToPool(void** const sampHold, float* const param, 
     SampleAndHoldModule->mempool = m;
     SampleAndHoldModule->header.moduleType = ModuleTypeSampleAndHoldModule;
 
-    tRamp_init(m->leaf, &SampleAndHoldModule->sampleSmoother, 10.f, 1);
+    SampleAndHoldModule->frequency = 10.f;
+    SampleAndHoldModule->binLength = 1/10.f*44100.f;
+    SampleAndHoldModule->counter = 0;
+    SampleAndHoldModule->currSample = 0.f;
+
     tSlopeRamp_init(m->leaf, &SampleAndHoldModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER * 4.f, 1.f);
     tSlopeRamp_init(m->leaf, &SampleAndHoldModule->mixSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
 
     SampleAndHoldModule->sampleRate = m->leaf->sampleRate;
     SampleAndHoldModule->invSampleRate = m->leaf->invSampleRate;
+
+    tLookupTable_create(&SampleAndHoldModule->mempool, &SampleAndHoldModule->skewFreqTable);
+    tLookupTable_init (SampleAndHoldModule->mempool->leaf, SampleAndHoldModule->skewFreqTable, 0.01f, 20000.f, 10.f, 16384);
+
+    tLookupTable_create(&SampleAndHoldModule->mempool, &SampleAndHoldModule->gainAmpTable);
+    tLookupTable_init (SampleAndHoldModule->mempool->leaf, SampleAndHoldModule->gainAmpTable, 0.f, 4.f, 1.f, 2048);
 
 }
 
@@ -64,6 +78,7 @@ void tSampleAndHoldModule_free(void** const sampHold)
 void tSampleAndHoldModule_setBinLength(tSampleAndHoldModule const sampHold)
 {
     sampHold->binLength = (1.f/sampHold->frequency*sampHold->sampleRate) * (1 + 2*(sampHold->mempool->leaf->random() - 0.5)*sampHold->durRand);
+    //sampHold->binLength = 1.f/sampHold->frequency*sampHold->sampleRate;
 }
 
 // tick function
@@ -73,15 +88,19 @@ void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float* buff
     sampHold->gain = tSlopeRamp_tick(&sampHold->gainSmoother);
 
     sampHold->counter++;
+    //printf("%f\n", buffer[0]);
 
-    if (sampHold->counter >= sampHold->binLength && buffer[0] >= sampHold->threshold) {
+    if (sampHold->counter >= sampHold->binLength && buffer[0] >= sampHold->threshold){
         sampHold->counter = 0;
-        tRamp_setDest(&sampHold->sampleSmoother, buffer[0]);
-
+        sampHold->currSample = buffer[0] * sampHold->gain;
         tSampleAndHoldModule_setBinLength(sampHold);
+
     }
-    sampHold->currSample = tRamp_tick(&sampHold->sampleSmoother);
+    //sampHold->currSample = tRamp_tick(&sampHold->sampleSmoother) * sampHold->gain;
 
     buffer[0] = sampHold->header.outputs[0] = buffer[0] * (1.f - sampHold->mix) + sampHold->mix * sampHold->currSample;
+    //buffer[0] = sampHold->header.outputs[0] = buffer[0];
+    //buffer[0] = sampHold->header.outputs[0] = sampHold->currSample;
+    //printf("%f\n",sampHold->currSample);
 }
 

@@ -27,14 +27,13 @@ typedef struct _tSampleAndHoldModule
     ModuleHeader header;
 
     float currSample;
-    tRamp sampleSmoother;
 
     float threshold;
     float frequency;
     float durRand;
-    float counter;
+    int counter;
 
-    float binLength;
+    int binLength;
 
     float gain;
     tSlopeRamp gainSmoother;
@@ -43,6 +42,9 @@ typedef struct _tSampleAndHoldModule
 
     float sampleRate;
     float invSampleRate;
+
+    tLookupTable* skewFreqTable;
+    tLookupTable* gainAmpTable;
 
     tMempool* mempool;
 

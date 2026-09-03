@@ -7,6 +7,7 @@
 #include "StringModule.h"
 #include "LFOModule.h"
 #include "SimpleOscModule.h"
+#include "SampleAndHoldModule.h"
 
 void callNoteOn(ModuleHeader* const module,  float velocity)
 {
@@ -55,6 +56,8 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
                 // tVCAModule_onNoteOn(vca, velocity);
                 break;
             }
+            case ModuleTypeSampleAndHoldModule:
+                tSampleAndHoldModule_onNoteOn((tSampleAndHoldModule)module, velocity);
             default:
                 // unknown module type
                 break;

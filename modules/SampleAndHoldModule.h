@@ -19,6 +19,9 @@ typedef enum
     SampHoldDurRand,
     SampHoldGain,
     SampHoldMix,
+    SampHoldMidiPitch,
+    SampHoldKeyFollow,
+    SampHoldHarmonic,
 
 } SampHoldParams;
 
@@ -29,22 +32,31 @@ typedef struct _tSampleAndHoldModule
     float currSample;
 
     float threshold;
-    float frequency;
     float durRand;
     int counter;
 
     int binLength;
+    uint8_t hold;
 
     float gain;
     tSlopeRamp gainSmoother;
     float mix;
     tSlopeRamp mixSmoother;
 
+    uint8_t noteOn;
+
+    float frequency;
+    float pitch;
+    float keyFollow;
+    float harmonicMultiplier;
+    float finalFreq;
+
     float sampleRate;
     float invSampleRate;
 
     tLookupTable* skewFreqTable;
     tLookupTable* gainAmpTable;
+    tLookupTable* mtofTable;
 
     tMempool* mempool;
 
@@ -61,7 +73,7 @@ void tSampleAndHoldModule_setParameter(tSampleAndHoldModule const sampHold, Samp
 // Modulatable setters
 void tSampleAndHoldModule_setBinLength(tSampleAndHoldModule const sampHold);
 
-void tSampleAndHoldModule_onNoteOn(tSampleAndHoldModule const sampHold, float note, float velocity);
+void tSampleAndHoldModule_onNoteOn(tSampleAndHoldModule const sampHold, float velocity);
 
 void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float*);
 

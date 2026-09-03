@@ -127,7 +127,7 @@ void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float* buff
     sampHold->counter++;
     //printf("%f\n", buffer[0]);
 
-    if (sampHold->counter > sampHold->binLength && buffer[0] >= sampHold->threshold && sampHold->hold == 0){ //&& sampHold->hold == 0
+    if (sampHold->counter > sampHold->binLength && buffer[0] >= sampHold->threshold && sampHold->hold == 0){
         sampHold->counter = 0;
         sampHold->currSample = buffer[0] * sampHold->gain;
         tSampleAndHoldModule_setBinLength(sampHold);

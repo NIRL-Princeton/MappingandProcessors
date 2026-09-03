@@ -35,6 +35,7 @@ add_library(procUtils
         modules/PerlinNoiseModule.cpp
         modules/SineModule.cpp
         modules/SampleAndHoldModule.cpp
+        modules/SimpleEnvModule.cpp
 )
 
 # Include directories for procUtils

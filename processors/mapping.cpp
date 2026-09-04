@@ -98,7 +98,7 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampHoldParams) paramID, value);
             break;
 
-        case SimpleEnvModule:
+        case ModuleTypeSimpleEnvModule:
             tSimpleEnvModule_setParameter ((tSimpleEnvModule) module, (SimpEnvParams) paramID, value);
             break;
 

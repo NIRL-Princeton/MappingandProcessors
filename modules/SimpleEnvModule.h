@@ -31,7 +31,7 @@ typedef struct _tSimpleEnvModule {
     //start boilerplate  - processor represents all of these///
     ModuleHeader header;
     //if its a combo/multi object put them all here
-    tADSRT theEnv;
+    tADSR theEnv;
     //end boilerplate  - processor represents all of these///
     //specific other variables
     //float velocitySense;

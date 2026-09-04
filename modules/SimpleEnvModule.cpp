@@ -21,8 +21,8 @@ void tSimpleEnvModule_free (void** const env)
 //tick function
 void tSimpleEnvModule_tick (tSimpleEnvModule const env)
 {
-    CPPDEREF env->header.params[EnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
-    env->header.outputs[0] = tADSRT_tick (&env->theEnv);
+    CPPDEREF env->header.params[SimpEnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
+    env->header.outputs[0] = tADSR_tick (&env->theEnv);
 }
 
 //special noteOnFunction
@@ -31,13 +31,13 @@ void tSimpleEnvModule_onNoteOn (tSimpleEnvModule const env, float velocity)
     float envVel = velocity;
     if (velocity > 0.0001f)
     {
-        float velSense = CPPDEREF env->header.params[EnvVelocitySense];
+        float velSense = CPPDEREF env->header.params[SimpEnvVelocitySense];
         envVel = envVel * velSense + (1.0f - velSense);
-        tADSRT_on (&env->theEnv, envVel);
+        tADSR_on (&env->theEnv, envVel);
     }
     else
     {
-        tADSRT_off (&env->theEnv);
+        tADSR_off (&env->theEnv);
     }
 }
 
@@ -46,8 +46,6 @@ void tSimpleEnvModule_setExpTableLocation (tSimpleEnvModule const env, const flo
 {
     env->theEnv.exp_buff = tableAddress;
     env->theEnv.buff_size = tableSize;
-    env->theEnv.buff_sizeMinusOne = tableSize - 1;
-    env->theEnv.bufferSizeDividedBySampleRateInMs = env->theEnv.buff_size / (env->theEnv.sampleRate * 0.001f);
 }
 
 void tSimpleEnvModule_setTimeScalingTableLocation (tSimpleEnvModule const env, const float* tableAddress, uint32_t const tableSize)
@@ -64,56 +62,56 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
 {
     switch (parameter_id)
     {
-        case EnvEventWatchFlag:
+        case SimpEnvEventWatchFlag:
         {
             // handled by onnoteon listener
             break;
         }
 
-        case EnvAttack:
+        case SimpEnvAttack:
         {
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float)inputInt;
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setAttack (&env->theEnv, theValue + 0.001f);
+            tADSR_setAttack (&env->theEnv, theValue + 0.001f);
             break;
         }
 
-        case EnvDecay:
+        case SimpEnvDecay:
         {
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float) inputInt;
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
+            tADSR_setDecay (&env->theEnv, theValue + 0.001f);
             break;
         }
 
-        case EnvSustain:
+        case SimpEnvSustain:
         {
-            tADSRT_setSustain (&env->theEnv, input);
+            tADSR_setSustain (&env->theEnv, input);
             break;
         }
 
-        case EnvRelease:
+        case SimpEnvRelease:
         {
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float) inputInt;
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
+            tADSR_setRelease (&env->theEnv, theValue + 0.001f);
 
             //printf("Env set to: %f\n", theValue + 0.001f);
             break;
         }
 
-        case EnvLeak:
+        case SimpEnvLeak:
         {
-            tADSRT_setLeakFactor (&env->theEnv, 0.99995f + 0.00005f * (1.f - input));
+            tADSR_setLeakFactor (&env->theEnv, 0.99995f + 0.00005f * (1.f - input));
             break;
         }
 
@@ -123,7 +121,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
         //     break;
         // }
 
-        case EnvVelocitySense:
+        case SimpEnvVelocitySense:
         {
             tSlopeRamp_setDest (&env->velSenseSmoother, input);
             break;
@@ -148,9 +146,10 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
     SimpleEnvModule->expBufferSizeMinusOne = EXP_BUFFER_SIZE - 1;
 
     SimpleEnvModule->decayExpBufferSizeMinusOne = DECAY_EXP_BUFFER_SIZE - 1;
-    tADSRT_set (&SimpleEnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
-    tADSRT_setSampleRate (&SimpleEnvModule->theEnv, m->leaf->sampleRate);
-    SimpleEnvModule->header.setterFunctions[EnvEventWatchFlag] = (tSetter) &tSimpleEnvModule_onNoteOn;
+    //tADSR_set (&SimpleEnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
+    tADSR_init(m->leaf, &SimpleEnvModule->theEnv, 1.0f, 1000.f, 1.f, 1000.f);
+    tADSR_setSampleRate (&SimpleEnvModule->theEnv, m->leaf->sampleRate);
+    SimpleEnvModule->header.setterFunctions[SimpEnvEventWatchFlag] = (tSetter) &tSimpleEnvModule_onNoteOn;
 
     tSimpleEnvModule_setExpTableLocation (SimpleEnvModule, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE);
     if ((*mempool)->leaf->envTimeTable == NULL)
@@ -161,6 +160,6 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
     tSimpleEnvModule_setTimeScalingTableLocation (SimpleEnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
 
     tSlopeRamp_init(m->leaf, &SimpleEnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
-    SimpleEnvModule->header.moduleType = ModuleTypeEnvModule;
+    SimpleEnvModule->header.moduleType = ModuleTypeSimpleEnvModule;
 }
 

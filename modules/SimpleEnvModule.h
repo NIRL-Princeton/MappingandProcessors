@@ -39,11 +39,11 @@ typedef struct _tSimpleEnvModule {
     const float* envTimeTableAddress;
     float envTimeTableSizeMinusOne;
     uint32_t tableSize;
-    float expBuffer[EXP_BUFFER_SIZE];
-    float expBufferSizeMinusOne;
-
-    float decayExpBuffer[DECAY_EXP_BUFFER_SIZE];
-    float decayExpBufferSizeMinusOne;
+    // float expBuffer[EXP_BUFFER_SIZE];
+    // float expBufferSizeMinusOne;
+    //
+    // float decayExpBuffer[DECAY_EXP_BUFFER_SIZE];
+    // float decayExpBufferSizeMinusOne;
     //mempool
     tMempool* mempool;
 } _tSimpleEnvModule;
@@ -63,7 +63,6 @@ void tSimpleEnvModule_onNoteOn(tSimpleEnvModule const env, float vel);
 void tSimpleEnvModule_setParameter(tSimpleEnvModule const env, int parameter_id, float input);
 
 // Non-modulatable setters
-void tSimpleEnvModule_setRateTableLocation (tSimpleEnvModule const env, float* tableAddress);
 void tSimpleEnvModule_setSampleRate (tSimpleEnvModule const env, float sr);
 
 #endif // ELECTORSYNTH_SIMPLEENVMODULE_H

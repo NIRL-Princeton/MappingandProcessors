@@ -268,7 +268,7 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
-    float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)((tempMIDI)/(127) * 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
+    float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
     //printf("freq: %f\n", finalFreq);
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {

@@ -15,14 +15,16 @@ void tSimpleEnvModule_init (void** const env, float* params, float id, LEAF* con
 
 void tSimpleEnvModule_free (void** const env)
 {
-    _tSimpleEnvModule* SimpleEnvModule = static_cast<_tSimpleEnvModule*> (*env);
+    _tSimpleEnvModule* SimpleEnvModule = (_tSimpleEnvModule*) (*env);
     mpool_free ((char*) SimpleEnvModule, SimpleEnvModule->mempool);
 }
 //tick function
 void tSimpleEnvModule_tick (tSimpleEnvModule const env)
 {
     CPPDEREF env->header.params[SimpEnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
-    env->header.outputs[0] = tADSR_tick (&env->theEnv);
+    float out = tADSR_tick (&env->theEnv);
+    env->header.outputs[0] = LEAF_clip(0, out, 1);
+    //printf("%f\n", out);
 }
 
 //special noteOnFunction
@@ -34,18 +36,13 @@ void tSimpleEnvModule_onNoteOn (tSimpleEnvModule const env, float velocity)
         float velSense = CPPDEREF env->header.params[SimpEnvVelocitySense];
         envVel = envVel * velSense + (1.0f - velSense);
         tADSR_on (&env->theEnv, envVel);
+        //printf("On\n");
     }
     else
     {
         tADSR_off (&env->theEnv);
+        //printf("off\n\n");
     }
-}
-
-// Non-modulatable setters
-void tSimpleEnvModule_setExpTableLocation (tSimpleEnvModule const env, const float* tableAddress, uint32_t const tableSize)
-{
-    env->theEnv.exp_buff = tableAddress;
-    env->theEnv.buff_size = tableSize;
 }
 
 void tSimpleEnvModule_setTimeScalingTableLocation (tSimpleEnvModule const env, const float* tableAddress, uint32_t const tableSize)
@@ -76,6 +73,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
             tADSR_setAttack (&env->theEnv, theValue + 0.001f);
+            //printf("Attack: %f\n", theValue + 0.001f);
             break;
         }
 
@@ -87,12 +85,14 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
             tADSR_setDecay (&env->theEnv, theValue + 0.001f);
+            //printf("Decay: %f\n", theValue + 0.001f);
             break;
         }
 
         case SimpEnvSustain:
         {
             tADSR_setSustain (&env->theEnv, input);
+            //printf("Sustain: %f\n", input);
             break;
         }
 
@@ -105,13 +105,14 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
             float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
             tADSR_setRelease (&env->theEnv, theValue + 0.001f);
 
-            //printf("Env set to: %f\n", theValue + 0.001f);
+            //printf("Release: %f\n", theValue + 0.001f);
             break;
         }
 
         case SimpEnvLeak:
         {
             tADSR_setLeakFactor (&env->theEnv, 0.99995f + 0.00005f * (1.f - input));
+            //printf("Leak: %f\n", 0.99995f + 0.00005f * (1.f - input));
             break;
         }
 
@@ -142,16 +143,16 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
     SimpleEnvModule->header.uniqueID = id;
 
     // exponential decay buffer falling from 1 to
-    LEAF_generate_exp (SimpleEnvModule->decayExpBuffer, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
-    SimpleEnvModule->expBufferSizeMinusOne = EXP_BUFFER_SIZE - 1;
+    //LEAF_generate_exp (SimpleEnvModule->decayExpBuffer, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
+    //SimpleEnvModule->expBufferSizeMinusOne = EXP_BUFFER_SIZE - 1;
 
-    SimpleEnvModule->decayExpBufferSizeMinusOne = DECAY_EXP_BUFFER_SIZE - 1;
+    //SimpleEnvModule->decayExpBufferSizeMinusOne = DECAY_EXP_BUFFER_SIZE - 1;
     //tADSR_set (&SimpleEnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
     tADSR_init(m->leaf, &SimpleEnvModule->theEnv, 1.0f, 1000.f, 1.f, 1000.f);
     tADSR_setSampleRate (&SimpleEnvModule->theEnv, m->leaf->sampleRate);
-    SimpleEnvModule->header.setterFunctions[SimpEnvEventWatchFlag] = (tSetter) &tSimpleEnvModule_onNoteOn;
+    //SimpleEnvModule->header.setterFunctions[SimpEnvEventWatchFlag] = (tSetter) &tSimpleEnvModule_onNoteOn;
 
-    tSimpleEnvModule_setExpTableLocation (SimpleEnvModule, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE);
+    //tSimpleEnvModule_setExpTableLocation (SimpleEnvModule, SimpleEnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE);
     if ((*mempool)->leaf->envTimeTable == NULL)
     {
         tLookupTable_create (&m, &(*mempool)->leaf->envTimeTable);

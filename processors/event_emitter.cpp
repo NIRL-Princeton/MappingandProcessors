@@ -2,12 +2,13 @@
 // Created by Davis Polito on 9/1/25.
 //
 #include "event_emitter.h"
-#include "defs.h"
 #include "EnvModule.h"
-#include "StringModule.h"
 #include "LFOModule.h"
-#include "SimpleOscModule.h"
 #include "SampleAndHoldModule.h"
+#include "SimpleEnvModule.h"
+#include "SimpleOscModule.h"
+#include "StringModule.h"
+#include "defs.h"
 
 void callNoteOn(ModuleHeader* const module,  float velocity)
 {
@@ -33,11 +34,13 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             }
             case ModuleTypeEnvModule:
             {
-
                 // call the function pointer stored in setterFunctions
                 tEnvModule_onNoteOn((tEnvModule)module,velocity);
                 break;
             }
+            case ModuleTypeSimpleEnvModule:
+                tSimpleEnvModule_onNoteOn((tSimpleEnvModule)module, velocity);
+                break;
             case ModuleTypeFilterModule:
             {
                 // tFilterModule* filter = (tFilterModule*)module;
@@ -58,6 +61,7 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             }
             case ModuleTypeSampleAndHoldModule:
                 tSampleAndHoldModule_onNoteOn((tSampleAndHoldModule)module, velocity);
+                break;
             default:
                 // unknown module type
                 break;

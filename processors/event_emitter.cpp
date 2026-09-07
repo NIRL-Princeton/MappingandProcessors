@@ -6,6 +6,7 @@
 #include "LFOModule.h"
 #include "SampleAndHoldModule.h"
 #include "SimpleEnvModule.h"
+#include "ADEnvModule.h"
 #include "SimpleOscModule.h"
 #include "StringModule.h"
 #include "defs.h"
@@ -40,6 +41,9 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             }
             case ModuleTypeSimpleEnvModule:
                 tSimpleEnvModule_onNoteOn((tSimpleEnvModule)module, velocity);
+                break;
+            case ModuleTypeADEnvModule:
+                tADEnvModule_onNoteOn((tADEnvModule)module, velocity);
                 break;
             case ModuleTypeFilterModule:
             {

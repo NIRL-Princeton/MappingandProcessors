@@ -36,6 +36,7 @@ add_library(procUtils
         modules/SineModule.cpp
         modules/SampleAndHoldModule.cpp
         modules/SimpleEnvModule.cpp
+        modules/ADEnvModule.cpp
 )
 
 # Include directories for procUtils

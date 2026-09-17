@@ -76,6 +76,8 @@ typedef struct ModuleHeader {
     ATOMIC_FLOAT inputs[1];
     ATOMIC_FLOAT outputs[1];
     float summedInput;
+    float previousInput;
+    float previousOutput;
 } ModuleHeader;
 
 #ifdef __cplusplus

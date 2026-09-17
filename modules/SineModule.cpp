@@ -93,6 +93,10 @@ void tSineModule_free(void** const osc)
 void tSineModule_tick (tSineModule const osc,float* buffer)
 {
     osc->amp = osc->gainAmpTable->table[(int)(tSlopeRamp_tick(&osc->ampSmoother)*2047.f)];
+    //const float input = noise->header.summedInput + buffer[0];
+    osc->header.summedInput = 0.0f;
+
+    //osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
     *buffer = tCycle_tick(&osc->theSine)* osc->amp;
 

@@ -75,6 +75,9 @@ void tLFOModule_free(void** const lfo)
 //tick function
 void tLFOModule_tick (tLFOModule const lfo)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    lfo->header.summedInput = 0.0f;
+
     lfo->shape = tSlopeRamp_tick(&lfo->shapeSmoother);
 
     switch (lfo->lfo_type)

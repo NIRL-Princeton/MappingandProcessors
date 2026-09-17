@@ -239,6 +239,9 @@ void tOscModule_setGain (tOscModule const osc, float inputGain)
 // tick function
 void tOscModule_tick (tOscModule const osc, float* buffer)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    osc->header.summedInput = 0.0f;
+
     if (osc->oscShape != osc->shapeSmoother.dest)
     {
         //tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));

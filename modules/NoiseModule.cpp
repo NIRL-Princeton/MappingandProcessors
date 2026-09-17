@@ -20,7 +20,7 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
 {
     switch (param_type) {
         case NoiseGain:
-            noise->gain = input * TEN_DB_AMPLITUDE;
+            noise->gain = noise->gainAmpTable->table[(int)(input * 2047.f)];
             break;
         case NoiseTilt:
             noise->tilt = (20.f*input)-10.f;
@@ -94,6 +94,9 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
 
     tLookupTable_create(&NoiseModule->mempool, &NoiseModule->skewFreqTable);
     tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->skewFreqTable, 0.1f, 20000.f, 1000.f, 16384);
+
+    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->gainAmpTable);
+    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
 #ifndef __cplusplus
     for (int i = 0; i < NoiseNumParams; i++)
     {

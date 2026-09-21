@@ -23,7 +23,8 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
-    const float input = c->header.summedInput + buffer[0];
+    const float input = c->header.summedInput + c->header.previousInput;
+    c->header.previousInput = buffer[0];
     c->header.summedInput = 0.0f;
 
     float sample = input;
@@ -124,5 +125,4 @@ void tSoftClipModule_initToPool(void** const c, float* const params, float id, t
 
     SoftClipModule->header.moduleType = ModuleTypeSoftClipModule;
 }
-
 

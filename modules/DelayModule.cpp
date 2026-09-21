@@ -173,7 +173,8 @@ void tDelayModule_free(void** const delay)
 // tick function
 void tDelayModule_tick (tDelayModule const delay, float* buffer)
 {
-    const float input = delay->header.summedInput + buffer[0];
+    const float input = delay->header.summedInput + delay->header.previousInput;
+    delay->header.previousInput = buffer[0];
     delay->header.summedInput = 0.0f;
     buffer[0] = delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp + input;
     // switch(delay->delayType)

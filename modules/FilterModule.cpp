@@ -360,7 +360,8 @@ void tFiltModule_free(void** const filt)
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
     //printf("hello!? %f\n", filt->currFreq);
-    const float input = filt->header.summedInput + buffer[0];
+    const float input = filt->header.summedInput + filt->header.previousInput; // use previous input here?
+    filt->header.previousInput = buffer[0];
     filt->header.summedInput = 0.0f;
 
     tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));

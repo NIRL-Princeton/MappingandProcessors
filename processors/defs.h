@@ -71,7 +71,7 @@ typedef struct ModuleHeader {
     tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
     ATOMIC_FLOAT inputs[1];
     ATOMIC_FLOAT outputs[1];
-    float previousInput;
+    //float previousInput;
     float previousOutput;
     float summedInput;
 } ModuleHeader;

@@ -107,7 +107,7 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     DelayModule->sr = m->leaf->sampleRate;
 
     tDelay_create(mempool, (tDelay**)&DelayModule->theDelay);
-    tDelay_init(m->leaf,(tDelay*)DelayModule->theDelay, 500.0f, 50000.f);
+    tDelay_init(m->leaf,(tDelay*)DelayModule->theDelay, 0.0f, 100000.f);
 
     // switch(type)
     // {
@@ -173,10 +173,9 @@ void tDelayModule_free(void** const delay)
 // tick function
 void tDelayModule_tick (tDelayModule const delay, float* buffer)
 {
-    const float input = delay->header.summedInput + delay->header.previousInput;
-    delay->header.previousInput = buffer[0];
+    const float input = delay->header.summedInput;
     delay->header.summedInput = 0.0f;
-    buffer[0] = delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp + input;
+    delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp;
     // switch(delay->delayType)
     // {
     //     case DelayTypeDelay:
@@ -208,7 +207,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input);
+            tDelayModule_setDelay(delay, input / 1000.f);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);

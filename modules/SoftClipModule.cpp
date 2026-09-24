@@ -23,8 +23,7 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
-    const float input = c->header.summedInput + c->header.previousInput;
-    c->header.previousInput = buffer[0];
+    const float input = c->header.summedInput;
     c->header.summedInput = 0.0f;
 
     float sample = input;

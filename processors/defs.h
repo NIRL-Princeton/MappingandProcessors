@@ -60,6 +60,7 @@ typedef enum {
     ModuleTypeSampleAndHoldModule,
     ModuleTypeSimpleEnvModule,
     ModuleTypeADEnvModule,
+    ModuleTypeRandAndHoldModule,
 
 } ModuleType;
 

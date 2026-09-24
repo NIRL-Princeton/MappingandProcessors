@@ -37,6 +37,7 @@ add_library(procUtils
         modules/SampleAndHoldModule.cpp
         modules/SimpleEnvModule.cpp
         modules/ADEnvModule.cpp
+        modules/RandAndHoldModule.cpp
 )
 
 # Include directories for procUtils

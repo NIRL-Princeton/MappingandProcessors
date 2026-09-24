@@ -20,6 +20,7 @@
 #include "PerlinNoiseModule.h"
 #include "SineModule.h"
 #include "SampleAndHoldModule.h"
+#include "RandAndHoldModule.h"
 #include "SimpleEnvModule.h"
 #include "ADEnvModule.h"
 // Process mapping function
@@ -99,12 +100,18 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampHoldParams) paramID, value);
             break;
 
+        case ModuleTypeRandAndHoldModule:
+            tRandAndHoldModule_setParameter ((tRandAndHoldModule) module, (RandHoldParams) paramID, value);
+            break;
+
         case ModuleTypeSimpleEnvModule:
             tSimpleEnvModule_setParameter ((tSimpleEnvModule) module, (SimpEnvParams) paramID, value);
             break;
 
         case ModuleTypeADEnvModule:
             tADEnvModule_setParameter ((tADEnvModule) module, (ADEnvParams) paramID, value);
+            break;
+
 
         default:
             // handle invalid type

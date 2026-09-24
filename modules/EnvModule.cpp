@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include <assert.h>
+#include <iostream>
 
 void tEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)
 {
@@ -73,23 +74,24 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvAttack:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float)inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setAttack (&env->theEnv, theValue + 0.001f);
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float)inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            tADSRT_setAttack (&env->theEnv, input);
             break;
         }
 
         case EnvDecay:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float) inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float) inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            // tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
+            tADSRT_setDecay (&env->theEnv, input);
             break;
         }
 
@@ -101,14 +103,15 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvRelease:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float) inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
-
-            //printf("Env set to: %f\n", theValue + 0.001f);
+            // std::cout << "input: " << input;
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float) inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            // tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
+            // std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
+            tADSRT_setRelease (&env->theEnv, input);
             break;
         }
 

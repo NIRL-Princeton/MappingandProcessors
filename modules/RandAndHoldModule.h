@@ -14,11 +14,9 @@
 typedef enum
 {
     RandHoldEventWatchFlag,
-    RandHoldThreshold,
-    RandHoldFrequency,
-    RandHoldDurRand,
-    RandHoldGain,
-    RandHoldMix,
+    //RandHoldTriggerToggle,
+    //RandHoldThreshold,
+    RandHoldAmp
 
 } RandHoldParams;
 
@@ -27,33 +25,13 @@ typedef struct _tRandAndHoldModule
     ModuleHeader header;
 
     float currRand;
+    //float threshold;
 
-    float threshold;
-    float durRand;
-    int counter;
-
-    int binLength;
-    uint8_t hold;
-
-    float gain;
-    tSlopeRamp gainSmoother;
-    float mix;
-    tSlopeRamp mixSmoother;
-
+    //uint8_t triggerToggle;
     uint8_t noteOn;
 
-    float frequency;
-    float pitch;
-    float keyFollow;
-    float harmonicMultiplier;
-    float finalFreq;
-
-    float RandRate;
-    float invRandRate;
-
-    tLookupTable* skewFreqTable;
-    tLookupTable* gainAmpTable;
-    tLookupTable* mtofTable;
+    float amp;
+    tSlopeRamp ampSmoother;
 
     tMempool* mempool;
 
@@ -68,10 +46,8 @@ void tRandAndHoldModule_free(void** const randHold);
 void tRandAndHoldModule_setParameter(tRandAndHoldModule const randHold, RandHoldParams param_type, float input);
 
 // Modulatable setters
-void tRandAndHoldModule_setBinLength(tRandAndHoldModule const randHold);
-
 void tRandAndHoldModule_onNoteOn(tRandAndHoldModule const randHold, float velocity);
 
-void tRandAndHoldModule_tick (tRandAndHoldModule const randHold, float*);
+void tRandAndHoldModule_tick (tRandAndHoldModule const randHold);
 
 #endif // ELECTORSYNTH_RANDANDHOLDMODULE_H

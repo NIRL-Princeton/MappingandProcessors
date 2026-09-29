@@ -5,6 +5,7 @@
 #include "EnvModule.h"
 #include "LFOModule.h"
 #include "SampleAndHoldModule.h"
+#include "RandAndHoldModule.h"
 #include "SimpleEnvModule.h"
 #include "ADEnvModule.h"
 #include "SimpleOscModule.h"
@@ -65,6 +66,9 @@ void callNoteOn(ModuleHeader* const module,  float velocity)
             }
             case ModuleTypeSampleAndHoldModule:
                 tSampleAndHoldModule_onNoteOn((tSampleAndHoldModule)module, velocity);
+                break;
+            case ModuleTypeRandAndHoldModule:
+                tRandAndHoldModule_onNoteOn((tRandAndHoldModule)module, velocity);
                 break;
             default:
                 // unknown module type

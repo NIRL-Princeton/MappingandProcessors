@@ -23,8 +23,8 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
-    const float input = c->header.summedInput;
-    c->header.summedInput = 0.0f;
+    const float input = c->header.inputs[0];
+    c->header.inputs[0] = 0.0f;
 
     float sample = input;
     c->inputGain = tSlopeRamp_tick(&c->inputGainSmoother);

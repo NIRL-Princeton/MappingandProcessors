@@ -90,7 +90,7 @@ void tSineModule_free(void** const osc)
 void tSineModule_tick (tSineModule const osc,float* buffer)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    osc->header.summedInput = 0.0f;
+    osc->header.inputs[0] = 0.0f;
 
     osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 

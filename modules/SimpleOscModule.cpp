@@ -230,7 +230,7 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 void tOscModule_tick (tOscModule const osc, float* buffer)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    osc->header.summedInput = 0.0f;
+    osc->header.inputs[0] = 0.0f;
 
     if (osc->oscShape != osc->shapeSmoother.dest)
     {

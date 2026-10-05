@@ -38,8 +38,8 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
 
 void tStringModule_tick(tStringModule const s, float* buffer)
 {
-    const float input = s->header.summedInput;
-    s->header.summedInput = 0.0f;
+    const float input = s->header.inputs[0];
+    s->header.inputs[0] = 0.0f;
     buffer[0] = tSimpleLivingString3_tick(s->theString, input);
 }
 

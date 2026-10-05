@@ -22,7 +22,7 @@ void tEnvModule_free (void** const env)
 void tEnvModule_tick (tEnvModule const env)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    env->header.summedInput = 0.0f;
+    env->header.inputs[0] = 0.0f;
     CPPDEREF env->header.params[EnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
     env->header.outputs[0] = tADSRT_tick (&env->theEnv);
 }

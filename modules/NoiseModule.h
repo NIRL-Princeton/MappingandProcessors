@@ -64,6 +64,7 @@ typedef struct _tNoiseModule
     tLookupTable* resTable;
     tLookupTable* mtofTable;
     tLookupTable* skewFreqTable;
+    tLookupTable* gainAmpTable;
 } _tNoiseModule;
 
 typedef _tNoiseModule* tNoiseModule;

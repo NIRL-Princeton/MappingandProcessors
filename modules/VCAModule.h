@@ -27,6 +27,8 @@ typedef struct _tVCAModule {
     float amp;
     float external_input;
 
+    tLookupTable* gainAmpTable;
+
     tMempool* mempool;
 } _tVCAModule;
 

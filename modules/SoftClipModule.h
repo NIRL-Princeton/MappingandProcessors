@@ -45,6 +45,8 @@ typedef struct _tSoftClipModule {
     tSlopeRamp mixSmoother;
     tHighpass highpass;
 
+    tLookupTable* gainAmpTable;
+
     tMempool* mempool;
 } _tSoftClipModule;
 

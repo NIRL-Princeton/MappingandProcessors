@@ -19,7 +19,7 @@ typedef enum {
     OscPitchFine,
     OscFreqOffset,
     OscShapeParam,
-    OscAmpParam,
+    OscGainParam,
     OscGlide,
     OscSteppedHarmonic,
     OscSteppedPitch,
@@ -69,8 +69,8 @@ typedef struct _tOscModule {
     float octaveOffset;
     float inputNote;
     float finalFreq;
-    float amp;
-    tSlopeRamp ampSmoother;
+    float gain;
+    tSlopeRamp gainSmoother;
     float sr;
     float invSr;
     int hStepped;
@@ -89,6 +89,7 @@ typedef struct _tOscModule {
     //tLookupTable* atodbTable;
 
     tLookupTable* glideTimeTable;
+    tLookupTable* gainAmpTable;
 } _tOscModule;
 
 typedef _tOscModule* tOscModule;
@@ -109,6 +110,7 @@ void tOscModule_setSampleRate (tOscModule const osc, float sr);
 void tOscModule_setType (tOscModule const osc, int type);
 void tOscModule_setShape (tOscModule const osc, float shape);
 void tOscModule_setGlideOrigin (tOscModule const osc, float originNote);
+void tOscModule_setGain (tOscModule const osc, float inputGain);
 void tOscModule_onNoteOn (tOscModule const osc, float vel);
 
 

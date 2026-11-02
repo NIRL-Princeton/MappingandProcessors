@@ -363,10 +363,8 @@ void tFiltModule_free(void** const filt)
 // tick function
 void tFiltModule_tick (tFiltModule const filt, float* buffer)
 {
-    //printf("hello!? %f\n", filt->currFreq);
-    const float input = filt->header.summedInput + filt->header.previousInput; // use previous input here?
-    filt->header.previousInput = buffer[0];
-    filt->header.summedInput = 0.0f;
+    const float input = filt->header.inputs[0]; // use previous input here?
+    filt->header.inputs[0] = 0.0f; // VERY IMPORTANT ! for all LEAFModules in ES
 
     tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));
     tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->gainSmoother));
@@ -424,7 +422,8 @@ void tFiltModule_tick (tFiltModule const filt, float* buffer)
             output = input;
             break;
     }
-    buffer[0] = filt->header.outputs[0] = input * (1.f - filt->mix) + filt->mix * output;
+
+    filt->header.outputs[0] = input * (1.f - filt->mix) + filt->mix * output;
 }
 
 // Modulatable setters

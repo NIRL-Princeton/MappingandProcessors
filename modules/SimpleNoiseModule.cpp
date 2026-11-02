@@ -58,6 +58,6 @@ void tSimpNoiseModule_free(void** const simpNoise)
 void tSimpNoiseModule_tick (tSimpNoiseModule const simpNoise)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    simpNoise->header.summedInput = 0.0f;
+    simpNoise->header.inputs[0] = 0.0f;
     simpNoise->header.outputs[0] = tNoise_tick(&simpNoise->theSimpNoise) * simpNoise->amp;
 }

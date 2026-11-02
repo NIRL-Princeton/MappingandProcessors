@@ -25,12 +25,10 @@ void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
 {
     c->inputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->inputGainSmoother)*2047.f)];
     c->outputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->outputGainSmoother)*2047.f)];
-    const float input = c->header.summedInput + buffer[0];
-    c->header.summedInput = 0.0f;
+    const float input = c->header.inputs[0];
+    c->header.inputs[0] = 0.0f;
 
     float sample = input;
-    //c->inputGain = tSlopeRamp_tick(&c->inputGainSmoother);
-    //c->outputGain = tSlopeRamp_tick(&c->outputGainSmoother);
     c->shapeDivider = tSlopeRamp_tick(&c->shapeDividerSmoother);
     c->offset = tSlopeRamp_tick(&c->offsetSmoother);
     c->mix = tSlopeRamp_tick(&c->mixSmoother);

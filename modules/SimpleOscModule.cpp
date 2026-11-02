@@ -72,8 +72,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    }
 	    case OscGainParam:
 	    {
-	        tSlopeRamp_setDest(&osc->gainSmoother, input);
-	        //printf("paranm called\n");
+	        tSlopeRamp_setDest(&osc->gainSmoother, input); // * TEN_DB_AMPLITUDE
 	        break;
 	    }
 	    case OscGlide:
@@ -240,7 +239,7 @@ void tOscModule_setGain (tOscModule const osc, float inputGain)
 void tOscModule_tick (tOscModule const osc, float* buffer)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    osc->header.summedInput = 0.0f;
+    osc->header.inputs[0] = 0.0f;
 
     if (osc->oscShape != osc->shapeSmoother.dest)
     {
@@ -248,11 +247,7 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
         osc->oscShape = tSlopeRamp_tick(&osc->shapeSmoother);
     }
 
-    //if (osc->gainSmoother.curr != osc->gainSmoother.dest)
-    //{
     tOscModule_setGain(osc, tSlopeRamp_tick(&osc->gainSmoother));
-        //printf("Call set gain...\n");
-    //}
 
     float tempMIDI;
     if (osc->pitchSmooth.curr != osc->inputNote)

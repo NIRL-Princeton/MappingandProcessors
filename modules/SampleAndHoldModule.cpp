@@ -121,20 +121,20 @@ void tSampleAndHoldModule_setBinLength(tSampleAndHoldModule const sampHold)
 // tick function
 void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float* buffer)
 {
+    const float input = sampHold->header.inputs[0];
+    sampHold->header.inputs[0] = 0.0f;
+
     sampHold->mix = tSlopeRamp_tick(&sampHold->mixSmoother);
     sampHold->gain = tSlopeRamp_tick(&sampHold->gainSmoother);
 
     sampHold->counter++;
     //printf("%f\n", buffer[0]);
 
-    if (sampHold->counter > sampHold->binLength && buffer[0] >= sampHold->threshold && sampHold->hold == 0){
+    if (sampHold->counter > sampHold->binLength && input >= sampHold->threshold && sampHold->hold == 0){
         sampHold->counter = 0;
-        sampHold->currSample = buffer[0] * sampHold->gain;
+        sampHold->currSample = input * sampHold->gain;
         tSampleAndHoldModule_setBinLength(sampHold);
     }
     //sampHold->currSample = tRamp_tick(&sampHold->sampleSmoother) * sampHold->gain;
 
-    buffer[0] = sampHold->header.outputs[0] = buffer[0] * (1.f - sampHold->mix) + sampHold->mix * sampHold->currSample;
-    //buffer[0] = sampHold->header.outputs[0] = buffer[0];
-    //buffer[0] = sampHold->header.outputs[0] = sampHold->currSample;
 }

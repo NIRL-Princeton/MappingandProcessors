@@ -9,6 +9,7 @@
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
 #include "leaf-filters.h"
+#include "leaf-envelopes.h"
 
 typedef enum
 {
@@ -16,8 +17,12 @@ typedef enum
     NoiseGain,
     NoiseTilt,
     NoisePeakGain,
-    NoisePeakFreq,
-    NoisePeakBandwidth
+    NoiseFreqKnob,
+    NoisePeakBandwidth,
+    NoiseKeyFollow,
+    NoiseGlide,
+    NoisePortaType,
+    NoiseMIDIPitch
 
 } NosParams;
 
@@ -25,7 +30,7 @@ typedef struct _tNoiseModule
 {
     ModuleHeader header;
 
-    void* theNoise;
+    tNoise theNoise;
 
     // float* dbTableAddress;
     // uint32_t dbTableScalar;
@@ -37,16 +42,29 @@ typedef struct _tNoiseModule
     float gain;
     float tilt;
     float peakGain;
-    float peakFreq;
     float peakBandwidth;
+
+    float inputMIDINote; // raw MIDI input from keyboard
+    float inputFreq; // inputMIDINote converted to frequency (hz)
+    float keyFollow;
+    float freqKnob; // raw input 0->1 from cutoff knob
+    float cutoffFreq; // freqKnob converted to frequency (hz)
+    float peakFreq; // final frequency sent to tVZFilterBell (hz)
+    float glide;
+    float portaType;
+    tRamp pitchSmoother;
+
     float sr;
     float invSr;
     tTiltFilter theTilter;
     tVZFilterBell theBellter;
 
     tMempool* mempool;
-    //float(*rand)(void);
-    //tLookupTable* table;
+
+    tLookupTable* resTable;
+    tLookupTable* mtofTable;
+    tLookupTable* skewFreqTable;
+    tLookupTable* gainAmpTable;
 } _tNoiseModule;
 
 typedef _tNoiseModule* tNoiseModule;
@@ -58,11 +76,14 @@ void tNoiseModule_free(void** const noise);
 void tNoiseModule_setParameter(tNoiseModule const noise, NosParams param_type,float input);
 // Modulatable setters
 void tNoiseModule_tick (tNoiseModule const noise, float*);
+void tNoiseModule_setPeakFreq(tNoiseModule const noise, float inputFreq);
 
 // Non-modulatable setters
-//void tNoiseModule_setSampleRate (tNoiseModule const noise, float sr);
-//void tNoiseModule_setMTOFTableLocation (tNoiseModule const noise, float* tableAddress);
-//void tNoiseModule_setDBtoATableLocation (tNoiseModule const noise, float* tableAddress, uint32_t tableSize);
-//float dbToATableLookupFunctionNos(float const in, float const sizeMinusOne, float* const tableAddress);
+void tNoiseModule_setSampleRate (tNoiseModule const noise, float sr);
+void tNoiseModule_setGlideOrigin (tNoiseModule const noise, float originNote);
+void tNoiseModule_setInputNote (tNoiseModule const noise, float inputNote);
+// void tNoiseModule_setMTOFTableLocation (tNoiseModule const noise, float* tableAddress);
+// void tNoiseModule_setDBtoATableLocation (tNoiseModule const noise, float* tableAddress, uint32_t tableSize);
+// float dbToATableLookupFunctionNos(float const in, float const sizeMinusOne, float* const tableAddress);
 
 #endif // ELECTORSYNTH_NOISEMODULE_H

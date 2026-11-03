@@ -3,8 +3,10 @@
 //
 
 #include "EnvModule.h"
+#include <cstdio>
 
 #include <assert.h>
+#include <iostream>
 
 void tEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)
 {
@@ -19,6 +21,9 @@ void tEnvModule_free (void** const env)
 //tick function
 void tEnvModule_tick (tEnvModule const env)
 {
+    //const float input = noise->header.summedInput + buffer[0];
+    env->header.inputs[0] = 0.0f;
+    CPPDEREF env->header.params[EnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
     env->header.outputs[0] = tADSRT_tick (&env->theEnv);
 }
 
@@ -69,57 +74,62 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvAttack:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float)inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setAttack (&env->theEnv, theValue + 0.001f);
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float)inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            tADSRT_setAttack (&env->theEnv, input);
             break;
         }
 
         case EnvDecay:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float) inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float) inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            // tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
+            tADSRT_setDecay (&env->theEnv, input);
             break;
         }
 
         case EnvSustain:
         {
-            tADSRT_setSustain (&env->theEnv, LEAF_clip (0.0f, input, 1.0));
+            tADSRT_setSustain (&env->theEnv, input);
             break;
         }
 
         case EnvRelease:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float) inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
+            // std::cout << "input: " << input;
+            // input *= env->envTimeTableSizeMinusOne;
+            // int const inputInt = (int) input;
+            // float const inputFloat = input - (float) inputInt;
+            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            // tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
+            // std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
+            tADSRT_setRelease (&env->theEnv, input);
             break;
         }
 
         case EnvLeak:
         {
-            tADSRT_setLeakFactor (&env->theEnv, 0.99995f + 0.00005f * (1.f - LEAF_clip (0.0f, input, 1.0)));
+            tADSRT_setLeakFactor (&env->theEnv, 0.99995f + 0.00005f * (1.f - input));
             break;
         }
 
         case EnvShape:
         {
-            tADSRT_setShape (&env->theEnv, LEAF_clip (0.0f, input, 1.0));
+            tADSRT_setShape (&env->theEnv, input);
             break;
         }
 
         case EnvVelocitySense:
         {
+            tSlopeRamp_setDest (&env->velSenseSmoother, input);
             break;
         }
 
@@ -155,6 +165,8 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
         tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->envTimeTable, 0.0001f, 20000.f, 4000.f, 2048);
     }
     tEnvModule_setTimeScalingTableLocation (EnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
+
+    tSlopeRamp_init(m->leaf, &EnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     EnvModule->header.moduleType = ModuleTypeEnvModule;
 }
 

@@ -28,9 +28,6 @@ typedef enum {
     StringNumParams
 } StringModelParams;
 
-
-
-
 typedef struct _tStringModule {
     ModuleHeader header;
     tSimpleLivingString3 *theString;

@@ -18,6 +18,10 @@
 #include "NoiseModule.h"
 #include "SimpleNoiseModule.h"
 #include "PerlinNoiseModule.h"
+#include "SineModule.h"
+#include "SampleAndHoldModule.h"
+#include "SimpleEnvModule.h"
+#include "ADEnvModule.h"
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -83,6 +87,25 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             tPerlNoiseModule_setParameter ((tPerlNoiseModule) module, (PerlNosParams) paramID, value);
             break;
 
+        case ModuleTypeSineModule:
+            tSineModule_setParameter ((tSineModule) module, (SineParams) paramID, value);
+            break;
+
+        case ModuleTypeVCAModule:
+            tVCAModule_setParameter ((tVCAModule) module, (VCAParams) paramID, value);
+            break;
+
+        case ModuleTypeSampleAndHoldModule:
+            tSampleAndHoldModule_setParameter ((tSampleAndHoldModule) module, (SampHoldParams) paramID, value);
+            break;
+
+        case ModuleTypeSimpleEnvModule:
+            tSimpleEnvModule_setParameter ((tSimpleEnvModule) module, (SimpEnvParams) paramID, value);
+            break;
+
+        case ModuleTypeADEnvModule:
+            tADEnvModule_setParameter ((tADEnvModule) module, (ADEnvParams) paramID, value);
+
         default:
             // handle invalid type
             break;
@@ -102,6 +125,7 @@ void processMapping (tMapping* mapping)
 
     // mapping->setter(mapping->destObject, sum);
 }
+
 void tMapping_free (tMapping** const mapping) {
    mpool_free((char*)*mapping, (*mapping)->mempool);
 }

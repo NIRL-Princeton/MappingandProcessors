@@ -20,7 +20,11 @@
 extern "C" {
 #endif
 
-
+// Universal smoothing time in ms for knobs
+#define SMOOTH_TIME_MS 15.f
+#define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample
+#define TEN_DB_AMPLITUDE 3.1623f
+#define TWELVE_DB_AMPLITUDE 3.981f
 
 // Maximum number of parameters for a processors object
 #define MAX_NUM_PARAMS 16
@@ -51,7 +55,11 @@ typedef enum {
     ModuleTypeDelayModule,
     ModuleTypeNoiseModule,
     ModuleTypeSimpNoiseModule,
-    ModuleTypePerlNoiseModule
+    ModuleTypePerlNoiseModule,
+    ModuleTypeSineModule,
+    ModuleTypeSampleAndHoldModule,
+    ModuleTypeSimpleEnvModule,
+    ModuleTypeADEnvModule,
 
 } ModuleType;
 
@@ -62,6 +70,7 @@ typedef enum {
 
 typedef enum {
     PROCTAG,
+<<<<<<< HEAD
     MAPTAG,
     PRESETNAMETAG,
     MACRONAMETAG,
@@ -75,6 +84,20 @@ typedef enum {
         ATOMIC_FLOAT inputs[1];
         ATOMIC_FLOAT outputs[1];
     }ModuleHeader;
+=======
+    MAPTAG
+} BYTETAGS;
+
+typedef struct ModuleHeader {
+    uint32_t moduleType;
+    uint32_t uniqueID;
+    ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];
+    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
+    ATOMIC_FLOAT inputs[1];
+    ATOMIC_FLOAT outputs[1];
+} ModuleHeader;
+
+>>>>>>> 518b62fdb25ef5ba82476486ce6f6129f703d271
 #ifdef __cplusplus
 }
 #endif

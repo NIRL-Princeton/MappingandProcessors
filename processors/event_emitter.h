@@ -14,5 +14,6 @@ typedef struct tEventEmitter {
 } tEventEmitter;
 
 void callNoteOn(ModuleHeader* const object, float velocity);
+void callNoteOff(ModuleHeader* const object, float velocity);
 
 #endif //NOTE_EMITTER_H

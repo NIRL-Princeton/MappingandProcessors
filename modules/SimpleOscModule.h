@@ -10,6 +10,7 @@
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
 #include "leaf-envelopes.h"
+
 typedef enum {
     OscEventWatchFlag,
     OscMidiPitch,
@@ -18,59 +19,77 @@ typedef enum {
     OscPitchFine,
     OscFreqOffset,
     OscShapeParam,
-    OscAmpParam,
+    OscGainParam,
     OscGlide,
     OscSteppedHarmonic,
     OscSteppedPitch,
     OscSyncMode,
     OscSyncIn,
     OscType,
+    OscPortaType,
     OscNumParams
 } OscParams;
 
-typedef enum {
-    OscTypeSawSquare,
-    OscTypeSineTri,
-    OscTypeSaw,
-    OscTypePulse,
-    OscTypeSine,
-    OscTypeTri,
-    OscNumTypes
-} OscTypes;
+// typedef enum {
+//     OscTypeSawSquare,
+//     OscTypeSineTri,
+//     OscTypeSaw,
+//     OscTypePulse,
+//     OscTypeSine,
+//     OscTypeTri,
+//     OscNumTypes
+// } OscTypes;
 
-//the actual frequency setter function
-typedef void (*tFreqSetFunc)(void*, float);
+typedef enum FlagOscTypes{
+    OscTypeSawSquare = 1,
+    OscTypeSineTri = 2,
+    OscTypeSaw = 4,
+    OscTypePulse = 8,
+    OscTypeSine = 16,
+    OscTypeTri = 32
+};
 
 typedef struct _tOscModule {
     ModuleHeader header;
 
-    void* theOsc;
-
-    uint32_t osctype;
-
-//    tTickFuncReturningFloat tick; // The object's tick function
-//    tFreqSetFunc freq_set_func;
-
-//    tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
+    tPBSawSquare sawSquareOsc;
+    tPBSineTriangle sineTriangleOsc;
+    tPBSaw sawOsc;
+    tPBPulse squareOsc;
+    tCycle sineOsc;
+    tPBTriangle triOsc;
+    uint8_t oscType;
 
     float fine;
     float harmonicMultiplier;
     float pitchOffset;
     float freqOffset;
-    tExpSmooth pitchSmoother;
+    tRamp pitchSmooth;
+    float inputGlideTime;
     float octaveOffset;
     float inputNote;
     float finalFreq;
-    float amp;
-    float* mtofTable;
+    float gain;
+    tSlopeRamp gainSmoother;
     float sr;
     float invSr;
     int hStepped;
     int pStepped;
     int syncMode;
     float oscShape;
+    tSlopeRamp shapeSmoother;
+    uint8_t portaType;
+    uint8_t counter;
 
     tMempool* mempool;
+
+    tLookupTable* mtofTable;
+    //tLookupTable* ftomTable;
+    //tLookupTable* dbtoaTable;
+    //tLookupTable* atodbTable;
+
+    tLookupTable* glideTimeTable;
+    tLookupTable* gainAmpTable;
 } _tOscModule;
 
 typedef _tOscModule* tOscModule;
@@ -79,8 +98,9 @@ typedef _tOscModule* tOscModule;
 void tOscModule_init(void** const osc, float* const params, float id, LEAF* const leaf);
 void tOscModule_initToPool(void** const osc, float* const params, float id, tMempool** const mempool);
 void tOscModule_free(void** const osc);
-void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float input);
+void tOscModule_setParameter(tOscModule const osc, OscParams param_type, float input);
 // Modulatable setters
+void tOscModule_setInputNote (tOscModule const osc, float inputNote);
 void tOscModule_tick (tOscModule const osc, float*);
 
 
@@ -90,6 +110,8 @@ void tOscModule_setSampleRate (tOscModule const osc, float sr);
 void tOscModule_setType (tOscModule const osc, int type);
 void tOscModule_setShape (tOscModule const osc, float shape);
 void tOscModule_setGlideOrigin (tOscModule const osc, float originNote);
+void tOscModule_setGain (tOscModule const osc, float inputGain);
+void tOscModule_onNoteOn (tOscModule const osc, float vel);
 
 
 

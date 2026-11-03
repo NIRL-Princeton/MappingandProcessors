@@ -8,11 +8,12 @@
 #include "defs.h"
 #include "leaf-mempool.h"
 #include "leaf-oscillators.h"
+#include "leaf-envelopes.h"
 
 typedef enum
 {
     PerlNoiseEventWatchFlag,
-    PerlNoiseGain,
+    PerlNoiseAmp,
     PerlNoiseRate,
     PerlNoiseEnergy
 
@@ -22,10 +23,15 @@ typedef struct _tPerlNoiseModule
 {
     ModuleHeader header;
 
-    void* thePerlNoise;
+    tPerlinNoise thePerlNoise;
 
-    float gain;
-    float rateMs;
+    float amp;
+    tSlopeRamp gainSmoother;
+    float inputRateHz;
+    float rateHz;
+    float energy;
+
+    tLookupTable* lfoRateTable;
 
     tMempool* mempool;
 
@@ -35,13 +41,14 @@ typedef _tPerlNoiseModule* tPerlNoiseModule;
 
 //init module
 void tPerlNoiseModule_init(void** const perlNoise, float* const params, float id, LEAF* const leaf);
-void tPerlNoiseModule_initToPool(void** const perlNoise, float* const params, float id, tMempool** const mempool);
+void tPerlNoiseModule_initToPool(void** const perlNoise, float* const params, float id, tMempool** const mempool, tLookupTable* const table);
 void tPerlNoiseModule_free(void** const perlNoise);
 void tPerlNoiseModule_setParameter(tPerlNoiseModule const perlNoise, PerlNosParams param_type, float input);
 // Modulatable setters
 void tPerlNoiseModule_tick (tPerlNoiseModule const perlNoise);
 
-void tPerlNoiseModule_setRate(LEAF* const leaf, tPerlNoiseModule const perlNoise, float rate);
-void tPerlNoiseModule_setEnergy(LEAF* const leaf, tPerlNoiseModule const perlNoise, float energy);
+void tPerlNoiseModule_setRate(tPerlNoiseModule const perlNoise, float rate);
+void tPerlNoiseModule_setEnergy(tPerlNoiseModule const perlNoise, float energy);
+void tPerlNoiseModule_setAmp(tPerlNoiseModule const perlNoise, float gain);
 
 #endif // ELECTORSYNTH_PERLINNOISEMODULE_H

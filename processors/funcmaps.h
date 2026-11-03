@@ -15,6 +15,10 @@
 #include "NoiseModule.h"
 #include "SimpleNoiseModule.h"
 #include "PerlinNoiseModule.h"
+#include "SineModule.h"
+#include "SampleAndHoldModule.h"
+#include "SimpleEnvModule.h"
+#include "ADEnvModule.h"
 typedef void (*createModuleFunc)(void** const module, float* const params, float id, LEAF* const leaf);
 
 #include "defs.h"

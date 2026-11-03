@@ -12,7 +12,7 @@
 typedef enum
 {
     SimpNoiseEventWatchFlag,
-    SimpNoiseGain,
+    SimpNoiseAmp,
 
 } SimpNosParams;
 
@@ -20,9 +20,9 @@ typedef struct _tSimpNoiseModule
 {
     ModuleHeader header;
 
-    void* theSimpNoise;
+    tNoise theSimpNoise;
 
-    float gain;
+    float amp;
 
     tMempool* mempool;
 

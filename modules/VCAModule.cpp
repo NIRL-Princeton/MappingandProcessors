@@ -31,14 +31,18 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
 #endif
     VCAModule->header.uniqueID = id;
     //CPPDEREF VCAModule->params[VCAAudioInput] = 0.0f;
-    int type = 0.0f;//roundf(VCAModule->params[VCAType]);
+    //int type = 0.0f;//roundf(VCAModule->params[VCAType]);
     VCAModule->mempool = m;
     VCAModule->amp = 1.0f;
     VCAModule->header.moduleType = ModuleTypeVCAModule;
     VCAModule->external_input = 0;
-    VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
-    VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
+    //VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
+    //VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
 
+    tSlopeRamp_init(VCAModule->mempool->leaf, &VCAModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER,0.5);
+
+    tLookupTable_create(&VCAModule->mempool, &VCAModule->gainAmpTable);
+    tLookupTable_init (VCAModule->mempool->leaf, VCAModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
 }
 
 
@@ -48,24 +52,49 @@ void tVCAModule_free(void** const VCA)
     mpool_free((char*)VCAModule, VCAModule->mempool);
 }
 
-void tVCAModule_setAudio(tVCAModule const VCA, float audio) {
+void tVCAModule_setAudio(tVCAModule const VCA, float audio)
+{
     VCA->external_input = audio;
 }
-void tVCAModule_setGain(tVCAModule const VCA, float gain) {
-    VCA->amp = gain;
+void tVCAModule_setGain(tVCAModule const VCA, float gain)
+{
+    VCA->gainAmpTable->table[(int)(gain*2047)];
+}
+
+void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input)
+{
+    switch (param_type)
+    {
+        case VCAEventWatchFlag:
+            break;
+        case VCAGain:
+            tSlopeRamp_setDest(&VCA->ampSmoother, input);
+            break;
+        case VCARouting:
+            break;
+        case VCAAudioInput:
+            tVCAModule_setAudio(VCA, input);
+            break;
+        default:
+            break;
+    }
+
 }
 
 // tick function
 void tVCAModule_tick (tVCAModule const VCA, float* buffer)
 {
-    buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
+
+    tVCAModule_setGain(VCA,tSlopeRamp_tick(&VCA->ampSmoother));
+    //buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
+    const float input = VCA->header.inputs[0];
+    VCA->header.inputs[0] = 0.0f;
+
+    buffer[0] = VCA->header.outputs[0] = (input  + VCA->external_input) * VCA->amp;
 }
 
 // Modulatable setters
 
-
-
-
 // Non-modulatable setters
 
-//be sure to set the tables before initing the processor
+// be sure to set the tables before initing the processor

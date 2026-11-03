@@ -56,9 +56,17 @@ typedef enum {
 } ModuleType;
 
 typedef enum {
+    PRESETSTARTTAG,
+    PRESETENDTAG
+} MESSAGEFORMAT_BYTETAGS;
+
+typedef enum {
     PROCTAG,
-    MAPTAG
-} BYTETAGS;
+    MAPTAG,
+    PRESETNAMETAG,
+    MACRONAMETAG,
+} OBJECTTYPE_BYTETAGS;
+
     typedef struct ModuleHeader {
         uint32_t moduleType;
         uint32_t uniqueID;

@@ -64,6 +64,11 @@ typedef enum {
 } ModuleType;
 
 typedef enum {
+    PRESETSTARTTAG,
+    PRESETENDTAG
+} MESSAGEFORMAT_BYTETAGS;
+
+typedef enum {
     PROCTAG,
     MAPTAG
 } BYTETAGS;

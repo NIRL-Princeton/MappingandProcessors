@@ -12,17 +12,36 @@ void splitUint8To7bit(uint8_t byte, uint8_t chunk[2]) {
     chunk[1] = (byte >> 7) & 0x01;       // Upper 1 bit
 }
  void splitFloatTo7bit (float val, uint8_t chunks[5]) {
-     // Split the 32-bit representation into 5 chunks of 7 bits
-     union FloatUnion floatUnion = {val};
+    // Split the 32-bit representation into 5 chunks of 7 bits
+    union FloatUnion floatUnion = {val};
 
-     chunks[0] = (floatUnion.u >> 0) & 0x7F;  // First 7 bits
-     chunks[1] = (floatUnion.u >> 7) & 0x7F;  // Next 7 bits
-     chunks[2] = (floatUnion.u >> 14) & 0x7F; // Next 7 bits
-     chunks[3] = (floatUnion.u >> 21) & 0x7F; // Next 7 bits
-     chunks[4] = (floatUnion.u >> 28) & 0xF; // Last 4 bits (padded with 3 zeros for 7 bits
+    chunks[0] = (floatUnion.u >> 0) & 0x7F;  // First 7 bits
+    chunks[1] = (floatUnion.u >> 7) & 0x7F;  // Next 7 bits
+    chunks[2] = (floatUnion.u >> 14) & 0x7F; // Next 7 bits
+    chunks[3] = (floatUnion.u >> 21) & 0x7F; // Next 7 bits
+    chunks[4] = (floatUnion.u >> 28) & 0xF; // Last 4 bits (padded with 3 zeros for 7 bits
  }
+
+void splitUint32To7bit (uint32_t val, uint8_t chunks[5]) {
+    // Split the 32-bit representation into 5 chunks of 7 bits
+    chunks[0] = (val >> 0) & 0x7F;  // First 7 bits
+    chunks[1] = (val >> 7) & 0x7F;  // Next 7 bits
+    chunks[2] = (val >> 14) & 0x7F; // Next 7 bits
+    chunks[3] = (val >> 21) & 0x7F; // Next 7 bits
+    chunks[4] = (val >> 28) & 0xF; // Last 4 bits (padded with 3 zeros for 7 bits
+}
+
+void splitInt32To7bit (int32_t val, uint8_t chunks[5]) {
+    // Split the 32-bit representation into 5 chunks of 7 bits
+    chunks[0] = (val >> 0) & 0x7F;  // First 7 bits
+    chunks[1] = (val >> 7) & 0x7F;  // Next 7 bits
+    chunks[2] = (val >> 14) & 0x7F; // Next 7 bits
+    chunks[3] = (val >> 21) & 0x7F; // Next 7 bits
+    chunks[4] = (val >> 28) & 0xF; // Last 4 bits (padded with 3 zeros for 7 bits
+}
+
 // Unsplit function for uint32_t
-uint32_t unsplitUint(const uint8_t chunks[5]) {
+uint32_t unsplitUint32(const uint8_t chunks[5]) {
     // Combine 5 chunks of 7 bits each into a 32-bit integer
     uint32_t result = 0;
     result |= (chunks[0] << 0);   // First 7 bits
@@ -30,13 +49,24 @@ uint32_t unsplitUint(const uint8_t chunks[5]) {
     result |= (chunks[2] << 14);  // Next 7 bits
     result |= (chunks[3] << 21);  // Next 7 bits
     result |= (chunks[4] << 28);  // Remaining 4 bits (3 bits padding in place)
+    return result;
+}
 
+// Unsplit function for int32_t
+int32_t unsplitInt32(const uint8_t chunks[5]) {
+    // Combine 5 chunks of 7 bits each into a 32-bit integer
+    uint32_t result = 0;
+    result |= (chunks[0] << 0);   // First 7 bits
+    result |= (chunks[1] << 7);   // Next 7 bits
+    result |= (chunks[2] << 14);  // Next 7 bits
+    result |= (chunks[3] << 21);  // Next 7 bits
+    result |= (chunks[4] << 28);  // Remaining 4 bits (3 bits padding in place)
     return result;
 }
 // Unsplit function for float (uses the unsplitUint function and a union)
 float unsplitFloat(const uint8_t chunks[5]) {
     // Reconstruct the 32-bit integer first
-    uint32_t uintVal = unsplitUint(chunks);
+    uint32_t uintVal = unsplitUint8(chunks);
 
     // Use a union to interpret the 32-bit uint as a float
     union {

@@ -64,27 +64,7 @@ typedef enum {
 } ModuleType;
 
 typedef enum {
-    PRESETSTARTTAG,
-    PRESETENDTAG
-} MESSAGEFORMAT_BYTETAGS;
-
-typedef enum {
     PROCTAG,
-<<<<<<< HEAD
-    MAPTAG,
-    PRESETNAMETAG,
-    MACRONAMETAG,
-} OBJECTTYPE_BYTETAGS;
-
-    typedef struct ModuleHeader {
-        uint32_t moduleType;
-        uint32_t uniqueID;
-        ATOMIC_FLOAT CPPDEREF params[MAX_NUM_PARAMS];
-        tSetter setterFunctions[MAX_NUM_PARAMS]; // Array containing setter functions
-        ATOMIC_FLOAT inputs[1];
-        ATOMIC_FLOAT outputs[1];
-    }ModuleHeader;
-=======
     MAPTAG
 } BYTETAGS;
 
@@ -97,7 +77,6 @@ typedef struct ModuleHeader {
     ATOMIC_FLOAT outputs[1];
 } ModuleHeader;
 
->>>>>>> 518b62fdb25ef5ba82476486ce6f6129f703d271
 #ifdef __cplusplus
 }
 #endif

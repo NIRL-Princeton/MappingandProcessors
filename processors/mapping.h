@@ -63,6 +63,23 @@ namespace leaf
         uint8_t bytes[sizeof (tMappingPreset)];
     } tMappingPresetUnion;
 
+//representation of full state of preset
+    typedef struct tFullPresetState {
+        uint8_t index[2];                        // 2 chunks of 7 bits
+        uint8_t uuid[2];                         // 2 chunks of 7 bits
+        uint8_t destinationUUID[2];              // 2 chunks of 7 bits
+        uint8_t destParamID[2];                  // 2 chunks of 7 bits
+        uint8_t numUsedSources[2];               // 2 chunks of 7 bits
+        uint8_t inUUIDs[MAX_NUM_SOURCES][2];     // Each UUID -> 2 chunks of 7 bits
+        uint8_t bipolarOffset[MAX_NUM_SOURCES][5]; // Each float -> 5 chunks of 7 bits
+        uint8_t scalingValues[MAX_NUM_SOURCES][5]; // Each float -> 5 chunks of 7 bits
+    } tFullPresetState;
+
+    typedef union {
+        tFullPresetState data;
+        uint8_t bytes[sizeof (tFullPresetState)];
+    } tFullPresetStateUnion;
+
 
 // 7-Bit representation of tMappingPreset
     typedef struct tMappingPreset7Bit {

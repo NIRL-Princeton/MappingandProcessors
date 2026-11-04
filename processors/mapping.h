@@ -65,16 +65,20 @@ namespace leaf
 
     typedef struct tModuleSmall
     {
+        uint32_t active;
         uint32_t type;
         uint32_t uuid;
         float params[MAX_NUM_PARAMS];
+
     }tModuleSmall;
 
     typedef struct tMappingSmall
     {
+        uint32_t active;
         uint32_t mapUuid;
         uint32_t sUuid;
         uint32_t dUuid;
+        uint32_t dParamId;
         float scalar;
         float bipolarOffset;
     }tMappingSmall;

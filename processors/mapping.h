@@ -68,6 +68,8 @@ namespace leaf
         uint32_t active;
         uint32_t type;
         uint32_t uuid;
+        uint32_t terminal;
+        uint32_t chainEnd;
         float params[MAX_NUM_PARAMS];
     } tModuleSmall;
 
@@ -92,6 +94,7 @@ namespace leaf
 
 //representation of full state of preset
     typedef struct tFullPresetState {
+        //modules
         tModuleSmall modules[MAX_NUM_MODULES];
         //how many modules total
             //for each
@@ -101,9 +104,9 @@ namespace leaf
         //mappings
         tMappingSmall mappings[MAX_NUM_MAPPINGS];
 
-        tAudioConnectionSmall routing[MAX_NUM_AUDIO_CONNECTIONS];
         //audioConnections
-            //
+        tAudioConnectionSmall routing[MAX_NUM_AUDIO_CONNECTIONS];
+
         //chainExitModulesList
             //
         //terminalAudio

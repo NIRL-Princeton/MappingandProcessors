@@ -82,6 +82,14 @@ namespace leaf
         float bipolarOffset;
     }tMappingSmall;
 
+    typedef struct tAudioConnectionSmall
+    {
+        uint32_t active;
+        uint32_t sUuid;
+        uint32_t dUuid;
+        float amount;
+    } tAudioConnectionSmall;
+
 //representation of full state of preset
     typedef struct tFullPresetState {
         tModuleSmall modules[MAX_NUM_MODULES];
@@ -92,6 +100,8 @@ namespace leaf
                 //params array
         //mappings
         tMappingSmall mappings[MAX_NUM_MAPPINGS];
+
+        tAudioConnectionSmall routing[MAX_NUM_AUDIO_CONNECTIONS];
         //audioConnections
             //
         //chainExitModulesList

@@ -95,6 +95,7 @@ namespace leaf
 //representation of full state of preset
     typedef struct tFullPresetState {
         //modules
+        tModuleSmall master;
         tModuleSmall modules[MAX_NUM_MODULES];
         //how many modules total
             //for each

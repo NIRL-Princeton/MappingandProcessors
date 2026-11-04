@@ -63,16 +63,30 @@ namespace leaf
         uint8_t bytes[sizeof (tMappingPreset)];
     } tMappingPresetUnion;
 
+    typedef struct tModuleSmall
+    {
+        uint32_t type;
+        uint32_t uuid;
+        float params[MAX_NUM_PARAMS];
+    }tModuleSmall;
+
 //representation of full state of preset
     typedef struct tFullPresetState {
-        uint8_t index[2];                        // 2 chunks of 7 bits
-        uint8_t uuid[2];                         // 2 chunks of 7 bits
-        uint8_t destinationUUID[2];              // 2 chunks of 7 bits
-        uint8_t destParamID[2];                  // 2 chunks of 7 bits
-        uint8_t numUsedSources[2];               // 2 chunks of 7 bits
-        uint8_t inUUIDs[MAX_NUM_SOURCES][2];     // Each UUID -> 2 chunks of 7 bits
-        uint8_t bipolarOffset[MAX_NUM_SOURCES][5]; // Each float -> 5 chunks of 7 bits
-        uint8_t scalingValues[MAX_NUM_SOURCES][5]; // Each float -> 5 chunks of 7 bits
+        tModuleSmall modules[MAX_NUM_MODULES];
+        //how many modules total
+            //for each
+                //module type
+                //module id
+                //params array
+        //mappings
+            //
+        //audioConnections
+            //
+        //chainExitModulesList
+            //
+        //terminalAudio
+            //
+
     } tFullPresetState;
 
     typedef union {

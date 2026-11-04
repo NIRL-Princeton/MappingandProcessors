@@ -29,6 +29,7 @@ extern "C" {
 // Maximum number of parameters for a processors object
 #define MAX_NUM_PARAMS 16
     #define MAX_NUM_MODULES 50
+    #define MAX_NUM_MAPPINGS 50
 
 // Maximum number of processors sources for a mapping object
 #define MAX_NUM_SOURCES 3

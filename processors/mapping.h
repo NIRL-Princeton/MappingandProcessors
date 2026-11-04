@@ -70,6 +70,15 @@ namespace leaf
         float params[MAX_NUM_PARAMS];
     }tModuleSmall;
 
+    typedef struct tMappingSmall
+    {
+        uint32_t mapUuid;
+        uint32_t sUuid;
+        uint32_t dUuid;
+        float scalar;
+        float bipolarOffset;
+    }tMappingSmall;
+
 //representation of full state of preset
     typedef struct tFullPresetState {
         tModuleSmall modules[MAX_NUM_MODULES];
@@ -79,7 +88,7 @@ namespace leaf
                 //module id
                 //params array
         //mappings
-            //
+        tMappingSmall mappings[MAX_NUM_MAPPINGS];
         //audioConnections
             //
         //chainExitModulesList

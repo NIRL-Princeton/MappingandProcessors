@@ -69,8 +69,7 @@ namespace leaf
         uint32_t type;
         uint32_t uuid;
         float params[MAX_NUM_PARAMS];
-
-    }tModuleSmall;
+    } tModuleSmall;
 
     typedef struct tMappingSmall
     {

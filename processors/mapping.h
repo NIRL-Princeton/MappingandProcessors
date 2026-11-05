@@ -45,6 +45,7 @@ namespace leaf
         tMempool *mempool;
     } tMapping;
 
+
     typedef struct MappingPreset
     {
         uint8_t index;
@@ -63,32 +64,33 @@ namespace leaf
         uint8_t bytes[sizeof (tMappingPreset)];
     } tMappingPresetUnion;
 
+
     typedef struct tModuleSmall
     {
-        uint32_t active;
-        uint32_t type;
-        uint32_t uuid;
-        uint32_t terminal;
-        uint32_t chainEnd;
+        uint8_t active;
+        uint8_t type;
+        uint16_t uuid;
+        uint8_t terminal;
+        uint8_t chainEnd;
         float params[MAX_NUM_PARAMS];
     } tModuleSmall;
 
     typedef struct tMappingSmall
     {
-        uint32_t active;
-        uint32_t mapUuid;
-        uint32_t sUuid;
-        uint32_t dUuid;
-        uint32_t dParamId;
+        uint8_t active;
+        uint16_t mapUuid;
+        uint16_t sUuid;
+        uint16_t dUuid;
+        uint8_t dParamId;
         float scalar;
         float bipolarOffset;
     }tMappingSmall;
 
     typedef struct tAudioConnectionSmall
     {
-        uint32_t active;
-        uint32_t sUuid;
-        uint32_t dUuid;
+        uint8_t active;
+        uint16_t sUuid;
+        uint16_t dUuid;
         float amount;
     } tAudioConnectionSmall;
 
@@ -119,6 +121,21 @@ namespace leaf
         tFullPresetState data;
         uint8_t bytes[sizeof (tFullPresetState)];
     } tFullPresetStateUnion;
+
+    typedef struct tFullPresetStateWithNameAndNumber {
+        //modules
+        uint8_t presetVersionNumberMajor;
+        uint8_t presetVersionNumberMinor;
+        uint8_t presetNumber;
+        uint8_t name[14];
+        tFullPresetState fullstate;
+    } tFullPresetStateWithNameAndNumber;
+
+    typedef union tFullPresetStateWithNameAndNumberUnion {
+        //modules
+        tFullPresetStateWithNameAndNumber fullstate;
+        uint8_t bytes[sizeof (tFullPresetStateWithNameAndNumber)];
+    } tFullPresetStateWithNameAndNumberUnion;
 
 
 // 7-Bit representation of tMappingPreset

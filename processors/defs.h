@@ -67,7 +67,7 @@ typedef enum {
 } ModuleType;
 
 typedef enum {
-    PROCTAG,
+    FULLPRESETTAG,
     MAPTAG
 } BYTETAGS;
 

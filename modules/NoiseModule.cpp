@@ -4,7 +4,8 @@
 
 #include "NoiseModule.h"
 #include "leaf-envelopes.h"
-#include <iostream>
+//#include <iostream>
+#include "string.h"
 
 void tNoiseModule_init(void** const noise, float* params, float id, LEAF* const leaf)
 {
@@ -72,7 +73,7 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
     _tNoiseModule* NoiseModule = (_tNoiseModule*) (*noise = (_tNoiseModule*) mpool_alloc (sizeof (_tNoiseModule), m));
 
 #ifndef __cplusplus
-    memcpy(NoiseModule->params, param, NoiseNumParams*sizeof(float));
+    memcpy(NoiseModule->header.params, param, NoiseNumParams*sizeof(float));
 #endif __cplusplus
     NoiseModule->header.uniqueID = id;
     NoiseModule->mempool = m;
@@ -100,7 +101,7 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
 #ifndef __cplusplus
     for (int i = 0; i < NoiseNumParams; i++)
     {
-    	tNoiseModule_setParameter(NoiseModule, i, NoiseModule->params[i]);
+    	tNoiseModule_setParameter(NoiseModule, i, NoiseModule->header.params[i]);
     }
 #endif
 }

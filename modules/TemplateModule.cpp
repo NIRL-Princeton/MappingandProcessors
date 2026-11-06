@@ -4,7 +4,9 @@
 
 #include "TemplateModule.h"
 #include <assert.h>
+#include "string.h"
 
+#if 0
 // TODO: Change every instance of "Template" in this file to the capitalized name of your module
 // TODO: Change every instance of "template" and "template_" in this file to the name of your module (not capitalized)
 
@@ -25,7 +27,7 @@ void tTemplateModule_initToPool(void** const template_, float* const params, flo
     tMempool* m = *mempool;
     _tTemplateModule* TemplateModule =(_tTemplateModule *) ( *template_ = (_tTemplateModule*) mpool_alloc(sizeof(_tTemplateModule), m));
     #ifndef __cplusplus
-        memcpy(TemplateModule->params, params, TemplateNumParams*sizeof(float));
+        memcpy(TemplateModule->header.params, params, TemplateNumParams*sizeof(float));
     #endif
 
     // initialize attributes of the module
@@ -43,7 +45,7 @@ void tTemplateModule_initToPool(void** const template_, float* const params, flo
     #ifndef __cplusplus
         for (int i = 0; i < TemplateNumParams; i++)
         {
-    	    tTemplateModule_setParameter(TemplateModule, i, TemplateModule->params[i]);
+    	    tTemplateModule_setParameter(TemplateModule, i, TemplateModule->header.params[i]);
 
         }
     #endif
@@ -116,3 +118,4 @@ void tTemplateModule_setSampleRate (tTemplateModule const template_, float const
 {
     //tCycle_setSampleRate(template_->template_s[0], sr);
 }
+#endif

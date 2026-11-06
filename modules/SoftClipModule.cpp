@@ -6,7 +6,7 @@
 #include "SoftClipModule.h"
 
 #include <assert.h>
-
+#include "string.h"
 
 void tSoftClipModule_init(void** const c, float* params, float id, LEAF* const leaf)
 {
@@ -16,8 +16,7 @@ void tSoftClipModule_init(void** const c, float* params, float id, LEAF* const l
 
 void tSoftClipModule_free(void** const c)
 {
-    _tSoftClipModule* SoftClipModule = static_cast<_tSoftClipModule *>(*c);
-
+    _tSoftClipModule* SoftClipModule = (_tSoftClipModule*) (*c);
     mpool_free((char*)SoftClipModule, SoftClipModule->mempool);
 }
 //tick function
@@ -102,10 +101,13 @@ void tSoftClipModule_setParameter(tSoftClipModule const  c, int parameter_id, fl
 void tSoftClipModule_initToPool(void** const c, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
-    _tSoftClipModule* SoftClipModule = static_cast<_tSoftClipModule *>(*c = (_tSoftClipModule*) mpool_alloc(sizeof(_tSoftClipModule), m));
+
+
+	_tSoftClipModule* SoftClipModule = (_tSoftClipModule*) (*c = (_tSoftClipModule*) mpool_alloc (sizeof (_tSoftClipModule), m));
 #ifndef __cplusplus
-    memcpy(SoftClipModule->params, params, SoftClipNumParams);
-#endif __cplusplus
+	memcpy(SoftClipModule->header.params, params, SoftClipNumParams);
+#endif
+
     SoftClipModule->mempool = m;
     tHighpass_init   (SoftClipModule->mempool->leaf, &SoftClipModule->highpass, 20.0f);
     SoftClipModule->mempool = m;

@@ -3,8 +3,7 @@
 //
 
 #include "ADEnvModule.h"
-#include <cstdio>
-#include <assert.h>
+
 
 void tADEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)
 {

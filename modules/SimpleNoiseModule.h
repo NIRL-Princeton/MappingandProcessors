@@ -13,6 +13,7 @@ typedef enum
 {
     SimpNoiseEventWatchFlag,
     SimpNoiseAmp,
+	SimpNoiseNumParams
 
 } SimpNosParams;
 

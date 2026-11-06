@@ -22,7 +22,8 @@ typedef enum
     NoiseKeyFollow,
     NoiseGlide,
     NoisePortaType,
-    NoiseMIDIPitch
+    NoiseMIDIPitch,
+	NoiseNumParams,
 
 } NosParams;
 

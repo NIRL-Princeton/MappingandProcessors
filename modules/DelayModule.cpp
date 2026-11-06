@@ -4,7 +4,7 @@
 
 #include "DelayModule.h"
 #include <assert.h>
-
+#include "string.h"
 // lagrange and tape delay
 
 void tDelayModule_init(void** const delay, float* params, float id, LEAF* const leaf) {
@@ -96,11 +96,11 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     tMempool* m = *mempool;
     _tDelayModule* DelayModule =(_tDelayModule *) ( *delay = (_tDelayModule*) mpool_alloc(sizeof(_tDelayModule), m));
 #ifndef __cplusplus
-    memcpy(DelayModule->params, params, DelayNumParams*sizeof(float));
+    memcpy(DelayModule->header.params, params, DelayNumParams*sizeof(float));
 
 #endif
     DelayModule->header.uniqueID = id;
-    //CPPDEREF DelayModule->params[DelayAudioInput] = 0.0f;
+    //CPPDEREF DelayModule->header.params[DelayAudioInput] = 0.0f;
     // int type = roundf(DelayModule->params[DelayType]);
     DelayModule->mempool = m;
     DelayModule->invSr = m->leaf->invSampleRate;
@@ -137,7 +137,7 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
 #ifndef __cplusplus
     for (int i = 0; i < DelayNumParams; i++)
     {
-    	tDelayModule_setParameter(DelayModule, i, DelayModule->params[i]);
+    	tDelayModule_setParameter(DelayModule, i, DelayModule->header.params[i]);
 
     }
 #endif

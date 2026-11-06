@@ -4,6 +4,7 @@
 
 #ifndef EVENT_EMITTER_H
 #define EVENT_EMITTER_H
+#include "stdint.h"
 #include "defs.h"
 // typedef void (*tNoteOnFunc)(void* const env, float velocity);
 

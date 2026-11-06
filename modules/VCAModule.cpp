@@ -8,6 +8,7 @@
 #include "VCAModule.h"
 
 #include <assert.h>
+#include "string.h"
 
 void tVCAModule_init(void** const VCA, float* params, float id, LEAF* const leaf)
 {
@@ -26,7 +27,7 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
     tMempool* m = *mempool;
     _tVCAModule* VCAModule =static_cast<_tVCAModule *> ( *VCA = (_tVCAModule*) mpool_alloc(sizeof(_tVCAModule), m));
 #ifndef __cplusplus
-    memcpy(VCAModule->params, params, VCANumParams*sizeof(float));
+    memcpy(VCAModule->header.params, params, VCANumParams*sizeof(float));
 
 #endif
     VCAModule->header.uniqueID = id;

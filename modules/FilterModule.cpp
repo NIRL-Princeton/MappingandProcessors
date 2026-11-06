@@ -6,9 +6,10 @@
 //
 
 #include "FilterModule.h"
-#include <cstdio>
+//#include <cstdio>
 
 #include <assert.h>
+#include "string.h"
 
 void tFiltModule_init(void** const filt, float* params, float id, LEAF* const leaf) {
 	if(leaf->resTable == NULL)
@@ -165,8 +166,13 @@ static void tFiltModule_resetNonlinearState(tFiltModule const filt, uint32_t con
         case FiltTypeLadderLowpass:
         {
             //auto* ladder = (tLadderFilter*)filt->filters[type];
-            for (float& state : filt->ladderFilter.b)
-                state = 0.0f;
+
+        	//is this what you were trying to do?? -JS
+			filt->ladderFilter.b[0] = 0.0f;
+			filt->ladderFilter.b[1] = 0.0f;
+			filt->ladderFilter.b[2] = 0.0f;
+			filt->ladderFilter.b[3] = 0.0f;
+
             break;
         }
         default:
@@ -214,7 +220,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     tMempool* m = *mempool;
     _tFiltModule* FiltModule =(_tFiltModule *) ( *filt = (_tFiltModule*) mpool_alloc(sizeof(_tFiltModule), m));
 #ifndef __cplusplus
-    memcpy(FiltModule->params, params, FiltNumParams*sizeof(float));
+    memcpy(FiltModule->header.params, params, FiltNumParams*sizeof(float));
 
 #endif
     FiltModule->header.uniqueID = id;
@@ -290,7 +296,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
 #ifndef __cplusplus
     for (int i = 0; i < FiltNumParams; i++)
     {
-    	tFiltModule_setParameter(FiltModule, i, FiltModule->params[i]);
+    	tFiltModule_setParameter(FiltModule, i, FiltModule->header.params[i]);
 
     }
 #endif

@@ -3,7 +3,8 @@
 //
 
 #include "PerlinNoiseModule.h"
-#include <cstdio>
+//#include <cstdio>
+#include "string.h"
 
 void tPerlNoiseModule_init(void** const perlNoise, float* params, float id, LEAF* const leaf)
 {
@@ -39,7 +40,7 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
     _tPerlNoiseModule* PerlNoiseModule = (_tPerlNoiseModule*) (*perlNoise = (_tPerlNoiseModule*) mpool_alloc (sizeof (_tPerlNoiseModule), m));
 
     #ifndef __cplusplus
-    memcpy(PerlNoiseModule->params, param, PerlNoiseNumParams*sizeof(float));
+    memcpy(PerlNoiseModule->header.params, param, PerlNoiseNumParams*sizeof(float));
     #endif __cplusplus
     PerlNoiseModule->header.uniqueID = id;
     PerlNoiseModule->lfoRateTable = rateTable;
@@ -56,7 +57,7 @@ void tPerlNoiseModule_initToPool(void** const perlNoise, float* const param, flo
     #ifndef __cplusplus
     for (int i = 0; i < PerlNoiseNumParams; i++)
     {
-        tPerlNoiseModule_setParameter(PerlNoiseModule, i, PerlNoiseModule->params[i]);
+        tPerlNoiseModule_setParameter(PerlNoiseModule, i, PerlNoiseModule->header.params[i]);
 
     }
     #endif

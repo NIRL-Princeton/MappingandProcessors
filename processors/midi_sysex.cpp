@@ -43,8 +43,9 @@ namespace leaf {
 
 
     void receiveMappingPreset(tMappingReceiver *receiver, tMapping **output, uint8_t *data, size_t size, LEAF *leaf) {
-        //does not contain an extra header right now bcus it can be packed into a single chunk
-        if (receiver->receivedDataSize + (size - 4) <= sizeof(tMappingPreset7Bit)) {
+#if 0
+    	//does not contain an extra header right now bcus it can be packed into a single chunk
+       if (receiver->receivedDataSize + (size - 4) <= sizeof(tMappingPreset7Bit)) {
             memcpy(receiver->receivedData + receiver->receivedDataSize,
                 data + 3,//skip sysex tag, type tag, and info tag
                 size - 4);
@@ -58,6 +59,7 @@ namespace leaf {
             tMapping_init(output, leaf);
             preset_to_mapping_(&preset,*output);
         }
+#endif
     }
 
 #ifdef __cplusplus

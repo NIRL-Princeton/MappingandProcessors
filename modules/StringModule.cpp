@@ -2,6 +2,8 @@
 // Created by Davis Polito on 4/29/25.
 //
 #include "StringModule.h"
+#include "string.h"
+
 void tStringModule_init(void** const module, float* params, float id, LEAF* const leaf)
 {
     tStringModule_initToPool(module, params, id, &leaf->mempool);
@@ -17,7 +19,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     tMempool* m = *mempool;
     _tStringModule* module = static_cast<_tStringModule *>(*s = (_tStringModule*) mpool_alloc(sizeof(_tStringModule), m));
     #ifndef __cplusplus
-    memcpy(module->params, params, StringNumParams);
+    memcpy(module->header.params, params, StringNumParams);
     #endif
     module->mempool = m;
     module->header.moduleType = ModuleTypeStringModule;

@@ -15,7 +15,8 @@ typedef enum
     PerlNoiseEventWatchFlag,
     PerlNoiseAmp,
     PerlNoiseRate,
-    PerlNoiseEnergy
+    PerlNoiseEnergy,
+	PerlNoiseNumParams,
 
 } PerlNosParams;
 

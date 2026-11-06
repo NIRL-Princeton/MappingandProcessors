@@ -3,10 +3,12 @@
 //
 
 #include "SineModule.h"
-#include <iostream>
+//#include <iostream>
 #include "defs.h"
 
 #include <assert.h>
+#include "string.h"
+
 void tSineModule_init(void** const osc, float* params, float id, LEAF* const leaf)
 {
     tSineModule_initToPool(osc, params, id, &leaf->mempool);
@@ -36,8 +38,7 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
     tMempool* m = *mempool;
     _tSineModule* SineModule = (_tSineModule*) (*osc = (_tSineModule*) mpool_alloc (sizeof (_tSineModule), m));
 #ifndef __cplusplus
-    memcpy(SineModule->params, param, SineNumParams*sizeof(float));
-    int type = roundf(CPPDEREF SineModule->params[SineType]);
+     memcpy(SineModule->header.params, param, SineNumParams*sizeof(float));
 #endif __cplusplus
     SineModule->header.uniqueID = id;
 
@@ -63,7 +64,7 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
 #ifndef __cplusplus
     for (int i = 0; i < SineNumParams; i++)
     {
-    	tSineModule_setParameter(SineModule, i, SineModule->params[i]);
+    	tSineModule_setParameter(SineModule, i, SineModule->header.params[i]);
 
     }
 #endif

@@ -3,6 +3,7 @@
 //
 
 #include "SimpleNoiseModule.h"
+#include "string.h"
 
 void tSimpNoiseModule_init(void** const simpNoise, float* params, float id, LEAF* const leaf)
 {
@@ -26,7 +27,7 @@ void tSimpNoiseModule_initToPool(void** const simpNoise, float* const param, flo
     _tSimpNoiseModule* SimpNoiseModule = (_tSimpNoiseModule*) (*simpNoise = (_tSimpNoiseModule*) mpool_alloc (sizeof (_tSimpNoiseModule), m));
 
 #ifndef __cplusplus
-    memcpy(SimpNoiseModule->params, param, SimpNoiseNumParams*sizeof(float));
+    memcpy(SimpNoiseModule->header.params, param, SimpNoiseNumParams*sizeof(float));
 #endif __cplusplus
     SimpNoiseModule->header.uniqueID = id;
 
@@ -40,7 +41,7 @@ void tSimpNoiseModule_initToPool(void** const simpNoise, float* const param, flo
 #ifndef __cplusplus
     for (int i = 0; i < SimpNoiseNumParams; i++)
     {
-    	tSimpNoiseModule_setParameter(SimpNoiseModule, i, SimpNoiseModule->params[i]);
+    	tSimpNoiseModule_setParameter(SimpNoiseModule, i, SimpNoiseModule->header.params[i]);
 
     }
 #endif

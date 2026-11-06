@@ -5,9 +5,11 @@
 #include "SimpleOscModule.h"
 //#include "../../../source/synthesis/framework/utils.h"
 #include "defs.h"
-#include <iostream>
+//#include <iostream>
 
 #include <assert.h>
+#include "string.h"
+
 void tOscModule_init(void** const osc, float* params, float id, LEAF* const leaf)
 {
     tOscModule_initToPool(osc, params, id, &leaf->mempool);
@@ -122,8 +124,8 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     tMempool* m = *mempool;
     _tOscModule* OscModule = (_tOscModule*) (*osc = (_tOscModule*) mpool_alloc (sizeof (_tOscModule), m));
 #ifndef __cplusplus
-    memcpy(OscModule->params, param, OscNumParams*sizeof(float));
-    int type = roundf(CPPDEREF OscModule->params[OscType]);
+    memcpy(OscModule->header.params, param, OscNumParams*sizeof(float));
+    int type = roundf(CPPDEREF OscModule->header.params[OscType]);
 #endif __cplusplus
     OscModule->header.uniqueID = id;
 
@@ -210,7 +212,7 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 #ifndef __cplusplus
     for (int i = 0; i < OscNumParams; i++)
     {
-    	tOscModule_setParameter(OscModule, i, OscModule->params[i]);
+    	tOscModule_setParameter(OscModule, i, OscModule->header.params[i]);
 
     }
 #endif

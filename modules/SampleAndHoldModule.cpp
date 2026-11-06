@@ -5,7 +5,8 @@
 #include "SampleAndHoldModule.h"
 #include "leaf-envelopes.h"
 
-#include <cstdio>
+//#include <cstdio>
+#include "string.h"
 
 void tSampleAndHoldModule_init(void** const sampHold, float* params, float id, LEAF* const leaf)
 {

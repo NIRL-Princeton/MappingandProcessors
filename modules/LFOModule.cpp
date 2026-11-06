@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include <assert.h>
+#include "string.h"
 
 void tLFOModule_init(void** const lfo, float* params, float id, LEAF* const leaf)
 {
@@ -24,7 +25,7 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
     _tLFOModule* LFOModule = static_cast<_tLFOModule*>(*lfo = (_tLFOModule*) mpool_alloc(sizeof(_tLFOModule), m));
     int type = 0;
 #ifndef __cplusplus
-    memcpy(LFOModule->params, params, LFONumParams*sizeof(ATOMIC_FLOAT));
+    memcpy(LFOModule->header.params, params, LFONumParams*sizeof(ATOMIC_FLOAT));
     int type = roundf(CPPDEREF LFOModule->params[LFOType]);
 #endif
     LFOModule->header.uniqueID = id;

@@ -40,14 +40,14 @@ typedef enum {
 //     OscNumTypes
 // } OscTypes;
 
-typedef enum FlagOscTypes{
+typedef enum {
     OscTypeSawSquare = 1,
     OscTypeSineTri = 2,
     OscTypeSaw = 4,
     OscTypePulse = 8,
     OscTypeSine = 16,
     OscTypeTri = 32
-};
+} FlagOscTypes;
 
 typedef struct _tOscModule {
     ModuleHeader header;

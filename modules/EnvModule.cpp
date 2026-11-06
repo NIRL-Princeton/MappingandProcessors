@@ -3,11 +3,11 @@
 //
 
 #include "EnvModule.h"
-#include <cstdio>
+//#include <cstdio>
 
 #include <assert.h>
-#include <iostream>
-
+//#include <iostream>
+#include "string.h"
 void tEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)
 {
     tEnvModule_initToPool (env, params, id, &leaf->mempool);
@@ -15,7 +15,7 @@ void tEnvModule_init (void** const env, float* params, float id, LEAF* const lea
 
 void tEnvModule_free (void** const env)
 {
-    _tEnvModule* EnvModule = static_cast<_tEnvModule*> (*env);
+    _tEnvModule* EnvModule = (_tEnvModule*) (*env);
     mpool_free ((char*) EnvModule, EnvModule->mempool);
 }
 //tick function
@@ -141,7 +141,7 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 void tEnvModule_initToPool (void** const env, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
-    _tEnvModule* EnvModule = static_cast<_tEnvModule*> (*env = (_tEnvModule*) mpool_alloc (sizeof (_tEnvModule), m));
+    _tEnvModule* EnvModule = (_tEnvModule*) (*env = (_tEnvModule*) mpool_alloc (sizeof (_tEnvModule), m));
 #ifndef __cplusplus
     memcpy (EnvModule->header.params, params, EnvNumParams);
 #endif __cplusplus

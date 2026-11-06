@@ -19,7 +19,7 @@
 
 extern "C" {
 #endif
-
+#include <stdint.h>
 // Universal smoothing time in ms for knobs
 #define SMOOTH_TIME_MS 15.f
 #define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample

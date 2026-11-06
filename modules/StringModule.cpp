@@ -11,13 +11,13 @@ void tStringModule_init(void** const module, float* params, float id, LEAF* cons
 
 void tStringModule_free(void** const mod)
 {
-    _tStringModule* module =static_cast<_tStringModule *>(*mod);
+    _tStringModule* module =(tStringModule )(*mod);
     mpool_free((char*)module, module->mempool);
 }
 void tStringModule_initToPool(void** const s, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
-    _tStringModule* module = static_cast<_tStringModule *>(*s = (_tStringModule*) mpool_alloc(sizeof(_tStringModule), m));
+    _tStringModule* module = (_tStringModule *)(*s = (_tStringModule*) mpool_alloc(sizeof(_tStringModule), m));
     #ifndef __cplusplus
     memcpy(module->header.params, params, StringNumParams);
     #endif

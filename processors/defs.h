@@ -48,6 +48,7 @@ typedef float (*tTickFuncReturningFloat)(void*); //used inside modules to wrap i
 typedef void (*tSetter)(void*, float);
 
 typedef enum {
+	ModuleTypeNone,
     ModuleTypeOscModule,
     ModuleTypeLFOModule,
     ModuleTypeEnvModule,

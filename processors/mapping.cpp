@@ -121,6 +121,7 @@ void processMapping (tMapping* mapping)
     {
         sum += (*mapping->inSources[i] * CPPDEREF mapping->scalingValues[i]) + mapping->bipolarOffset[i];
     }
+    LEAF_clip(0.0f, sum, 1.0f);
     tMapping_setParameter(mapping->destObject, mapping->paramID, sum);
 
     // mapping->setter(mapping->destObject, sum);
@@ -196,6 +197,7 @@ void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uu
 // #endif
 //         mapping->scalingValues[source] = scalingValue;
 // }
+    #if 0
 void mapping_to_preset(tMapping *mapping, tMappingPresetUnion * preset)
 {
     preset->data.uuid = mapping->uuid;
@@ -287,6 +289,7 @@ void unsplitMappingPreset(const tMappingPreset7Bit* preset7Bit, tMappingPreset* 
         preset->scalingValues[i] = unsplitFloat(preset7Bit->scalingValues[i]);
     }
 }
+    #endif
 #ifdef __cplusplus
 }
 #endif

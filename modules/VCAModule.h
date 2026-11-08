@@ -40,7 +40,7 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
 void tVCAModule_free(void** const VCA);
 
 // tick
-void tVCAModule_tick (tVCAModule const VCA, float*);
+void tVCAModule_tick (tVCAModule const VCA);
 
 void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input);
 

@@ -76,7 +76,7 @@ void tNoiseModule_initToPool(void** const noise, float* const params, float id, 
 void tNoiseModule_free(void** const noise);
 void tNoiseModule_setParameter(tNoiseModule const noise, NosParams param_type,float input);
 // Modulatable setters
-void tNoiseModule_tick (tNoiseModule const noise, float*);
+void tNoiseModule_tick (tNoiseModule const noise);
 void tNoiseModule_setPeakFreq(tNoiseModule const noise, float inputFreq);
 
 // Non-modulatable setters

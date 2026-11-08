@@ -73,12 +73,12 @@ void tDelayModule_free(void** const delay)
 
 /* sets the audio sample to the output of tTemplate_tick(), which is a function that should exist in LEAF for your
  * module*/
-void tTemplateModule_tick (tTemplateModule const template_, float* buffer)
+void tTemplateModule_tick (tTemplateModule const template_)
 {
     const float input = template_->header.inputs[0];
     template_->header.inputs[0] = 0.0f;
 
-    buffer[0] = template_->header.outputs[0] = tTemplate_tick((tTemplate*)template_->theTemplate,  input) * template_->amp + input;
+    template_->header.outputs[0] = tTemplate_tick((tTemplate*)template_->theTemplate,  input) * template_->amp + input;
 }
 
 /* private helper function for setting a parameter */

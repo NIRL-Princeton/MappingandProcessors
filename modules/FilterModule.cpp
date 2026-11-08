@@ -367,7 +367,7 @@ void tFiltModule_free(void** const filt)
 // }
 
 // tick function
-void tFiltModule_tick (tFiltModule const filt, float* buffer)
+void tFiltModule_tick (tFiltModule const filt)
 {
     const float input = filt->header.inputs[0]; // use previous input here?
     filt->header.inputs[0] = 0.0f; // VERY IMPORTANT ! for all LEAFModules in ES

@@ -120,7 +120,7 @@ void tSampleAndHoldModule_setBinLength(tSampleAndHoldModule const sampHold)
 }
 
 // tick function
-void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float* buffer)
+void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold)
 {
     const float input = sampHold->header.inputs[0];
     sampHold->header.inputs[0] = 0.0f;

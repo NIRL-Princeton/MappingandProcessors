@@ -100,7 +100,7 @@ void tFiltModule_free(void** const filt);
 float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* const tableAddress);
 
 // tick
-void tFiltModule_tick (tFiltModule const filt, float*);
+void tFiltModule_tick (tFiltModule const filt);
 
 void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type,float input);
 void tFiltModule_setType(tFiltModule const filt, uint16_t type);

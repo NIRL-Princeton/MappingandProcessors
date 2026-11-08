@@ -38,7 +38,7 @@ typedef struct _tStringModule {
 } _tStringModule;
 
 typedef _tStringModule* tStringModule;
-void tStringModule_tick (tStringModule const filt, float*);
+void tStringModule_tick (tStringModule const filt);
 //init module
 void tStringModule_init(void** const module, float* const params, float id, LEAF* const leaf);
 void tStringModule_initToPool(void** const module, float* const params, float id, tMempool** const mempool);

@@ -20,7 +20,7 @@ void tSoftClipModule_free(void** const c)
     mpool_free((char*)SoftClipModule, SoftClipModule->mempool);
 }
 //tick function
-void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
+void tSoftClipModule_tick (tSoftClipModule const c)
 {
     c->inputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->inputGainSmoother)*2047.f)];
     c->outputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->outputGainSmoother)*2047.f)];
@@ -48,7 +48,7 @@ void tSoftClipModule_tick (tSoftClipModule const c, float* buffer)
     }
 
     sample = tHighpass_tick(&c->highpass, sample) * c->outputGain * c->mix + input * (1-c->mix);
-    buffer[0] = c->header.outputs[0] = sample;
+    c->header.outputs[0] = sample;
 
 }
 

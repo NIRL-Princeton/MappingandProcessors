@@ -75,6 +75,6 @@ void tSampleAndHoldModule_setBinLength(tSampleAndHoldModule const sampHold);
 
 void tSampleAndHoldModule_onNoteOn(tSampleAndHoldModule const sampHold, float velocity);
 
-void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold, float*);
+void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold);
 
 #endif // ELECTORSYNTH_SAMPLEANDHOLDMODULE_H

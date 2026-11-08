@@ -84,7 +84,7 @@ void tTemplateModule_initToPool(void** const template_, float* const params, flo
 void tTemplateModule_free(void** const template_);
 
 /* tick() advances to the next audio sample. This is the function that gets called in the processBlock() function */
-void tTemplateModule_tick (tTemplateModule const template_, float*);
+void tTemplateModule_tick (tTemplateModule const template_);
 
 /* setParameter() changes the modules internal parameters when a user changes it */
 void tTemplateModule_setParameter(tTemplateModule const template_, TemplateParams param_type,float input);

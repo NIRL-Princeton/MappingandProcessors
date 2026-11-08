@@ -91,7 +91,7 @@ void tSineModule_free(void** const osc)
 // }
 
 // tick function
-void tSineModule_tick (tSineModule const osc,float* buffer)
+void tSineModule_tick (tSineModule const osc)
 {
     osc->amp = osc->gainAmpTable->table[(int)(tSlopeRamp_tick(&osc->ampSmoother)*2047.f)];
     //const float input = noise->header.summedInput + buffer[0];
@@ -99,11 +99,8 @@ void tSineModule_tick (tSineModule const osc,float* buffer)
 
     //osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
-    *buffer = tCycle_tick(&osc->theSine)* osc->amp;
-
-
     //printf("%f",osc->amp);
-    osc->header.outputs[0] = *buffer;
+    osc->header.outputs[0] = tCycle_tick(&osc->theSine)* osc->amp;
 }
 
 // void tOscModule_setGlideOrigin(tSineModule const osc, float originNote)

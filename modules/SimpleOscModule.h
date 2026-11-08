@@ -101,7 +101,7 @@ void tOscModule_free(void** const osc);
 void tOscModule_setParameter(tOscModule const osc, OscParams param_type, float input);
 // Modulatable setters
 void tOscModule_setInputNote (tOscModule const osc, float inputNote);
-void tOscModule_tick (tOscModule const osc, float*);
+void tOscModule_tick (tOscModule const osc);
 
 
 // Non-modulatable setters

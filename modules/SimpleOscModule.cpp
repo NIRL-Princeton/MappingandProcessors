@@ -238,7 +238,7 @@ void tOscModule_setGain (tOscModule const osc, float inputGain)
 }
 
 // tick function
-void tOscModule_tick (tOscModule const osc, float* buffer)
+void tOscModule_tick (tOscModule const osc)
 {
     //const float input = noise->header.summedInput + buffer[0];
     osc->header.inputs[0] = 0.0f;
@@ -270,45 +270,46 @@ void tOscModule_tick (tOscModule const osc, float* buffer)
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
     float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
     //printf("freq: %f\n", finalFreq);
+    float out = 0.0f;
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq(&osc->sawSquareOsc,finalFreq);
 	        tPBSawSquare_setShape(&osc->sawSquareOsc,osc->oscShape);
-		    *buffer = tPBSawSquare_tick(&osc->sawSquareOsc)* osc->gain;
+		    out = tPBSawSquare_tick(&osc->sawSquareOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypeSineTri: {
 		    tPBSineTriangle_setFreq(&osc->sineTriangleOsc,finalFreq);
 	        tPBSineTriangle_setShape(&osc->sineTriangleOsc,osc->oscShape);
-		    *buffer = tPBSineTriangle_tick(&osc->sineTriangleOsc)* osc->gain;
+		    out = tPBSineTriangle_tick(&osc->sineTriangleOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypeSaw: {
 		    tPBSaw_setFreq(&osc->sawOsc,finalFreq);
-		    *buffer = tPBSaw_tick(&osc->sawOsc)* osc->gain;
+		    out = tPBSaw_tick(&osc->sawOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypePulse: {
 		    tPBPulse_setFreq(&osc->squareOsc,finalFreq);
 	        tPBPulse_setWidth(&osc->squareOsc,osc->oscShape);
-		    *buffer = tPBPulse_tick(&osc->squareOsc)* osc->gain;
+		    out = tPBPulse_tick(&osc->squareOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypeSine: {
 		    tCycle_setFreq(&osc->sineOsc,finalFreq);
-		    *buffer = tCycle_tick(&osc->sineOsc)* osc->gain;
+		    out = tCycle_tick(&osc->sineOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypeTri: {
 		    tPBTriangle_setFreq(&osc->triOsc,finalFreq);
 	        tPBTriangle_setSkew(&osc->triOsc,osc->oscShape);
-		    *buffer = tPBTriangle_tick(&osc->triOsc)* osc->gain;
+		    out = tPBTriangle_tick(&osc->triOsc)* osc->gain;
 		    break;
 	    }
 	    default:
 	        break;
 	}
-    osc->header.outputs[0] = *buffer;
+    osc->header.outputs[0] = out;
 }
 
 void tOscModule_setShape(tOscModule const osc, float shape)

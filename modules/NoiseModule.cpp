@@ -138,18 +138,18 @@ void tNoiseModule_setPeakFreq (tNoiseModule const noise, float inputFreq)
 }
 
 // tick function
-void tNoiseModule_tick (tNoiseModule const noise, float* buffer)
+void tNoiseModule_tick (tNoiseModule const noise)
 {
     //const float input = noise->header.summedInput + buffer[0];
     noise->header.inputs[0] = 0.0f;
 
     tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->cutoffFreq);
 
-    *buffer = tNoise_tick(&noise->theNoise);
-    *buffer = tTiltFilter_tick(&noise->theTilter, *buffer);
-    *buffer = tVZFilterBell_tick(&noise->theBellter, *buffer) * noise->gain;
+    float out = tNoise_tick(&noise->theNoise);
+    out = tTiltFilter_tick(&noise->theTilter, out);
+    out = tVZFilterBell_tick(&noise->theBellter, out) * noise->gain;
 
-    noise->header.outputs[0] = *buffer;
+    noise->header.outputs[0] = out;
 }
 
 // Non-modulatable setters

@@ -61,7 +61,7 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
 void tDelayModule_free(void** const delay);
 
 // tick
-void tDelayModule_tick (tDelayModule const delay, float*);
+void tDelayModule_tick (tDelayModule const delay);
 
 void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,float input);
 

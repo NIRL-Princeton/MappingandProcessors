@@ -57,7 +57,7 @@ void tSoftClipModule_init(void** const c, float* const params, float id, LEAF* c
 void tSoftClipModule_initToPool(void** const c, float* const params, float id, tMempool** const mempool);
 void tSoftClipModule_free(void** const c);
 
-void tSoftClipModule_tick (tSoftClipModule const c, float*);
+void tSoftClipModule_tick (tSoftClipModule const c);
 
 // Modulatable setters
 // void tEnvModule_setRate (tEnvModule const env, float rate);

@@ -55,7 +55,7 @@ void tSineModule_free(void** const osc);
 void tSineModule_setParameter(tSineModule const osc, SineParams param_type, float input);
 // Modulatable setters
 //void tSineModule_setInputNote (tSineModule const osc, float inputNote);
-void tSineModule_tick (tSineModule const osc, float*);
+void tSineModule_tick (tSineModule const osc);
 
 
 // Non-modulatable setters

@@ -52,10 +52,9 @@ namespace leaf
         uint8_t uuid; // ID for this processors
         uint8_t destinationUUID;
         uint8_t destParamID;
-        uint8_t numUsedSources;
-        uint8_t inUUIDs[MAX_NUM_SOURCES];
-        float bipolarOffset[MAX_NUM_SOURCES];
-        float scalingValues[MAX_NUM_SOURCES];
+        uint8_t inUUID;
+        float bipolarOffset;
+        float scalingValues;
 
     } tMappingPreset;
 

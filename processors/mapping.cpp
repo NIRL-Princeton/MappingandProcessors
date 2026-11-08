@@ -139,13 +139,7 @@ void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uu
      mapping->inSources[currIndex] = insource;
      mapping->inUUIDS[currIndex] = insource_uuid;
 
-
- //    mapping->scalingValues[0] = scalingValues[0];
- //    mapping->scalingValues[1] = scalingValues[1];
- //    mapping->scalingValues[2] = scalingValues[2];
-
      mapping->initialVal = dest_param;
-     // mapping->setter = setter;
      mapping->destinationProcessorUniqueID = dest_uuid;
      mapping->paramID = dest_param_index;
      mapping->destObject = obj;

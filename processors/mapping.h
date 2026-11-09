@@ -93,6 +93,17 @@ namespace leaf
         float amount;
     } tAudioConnectionSmall;
 
+
+    typedef struct tAudioConnectionHardware
+    {
+        float* sourcePointer;
+        float* destinationPointer;
+        float amount;
+        uint8_t chainExit;
+        uint8_t terminal;
+    } tAudioConnectionHardware;
+
+
 //representation of full state of preset
     typedef struct tFullPresetState {
         //modules

@@ -296,7 +296,6 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
 */
     if (m->leaf->gainAmpTable == NULL)
     {
-
     	tLookupTable_create(&m->leaf->mempool, &m->leaf->gainAmpTable);
     	tLookupTable_init (m->leaf, m->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
     }
@@ -318,9 +317,9 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
 
     if (m->leaf->mtofTable == NULL)
     {
-        tLookupTable_create(&m->leaf->mempool, &m->leaf->mtofTable);
-        tLookupTable_init (m->leaf, m->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
-        LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 127, 16384);
+    	tLookupTable_create(&m->leaf->mempool, &m->leaf->mtofTable);
+    	tLookupTable_init (m->leaf, m->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
+    	LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 127, 16384);
     }
     FiltModule->mtofTable = m->leaf->mtofTable;
 
@@ -415,6 +414,7 @@ void tFiltModule_tick (tFiltModule const filt)
     //tSlopeRamp_tick(&filt->cutoffSmoother);
 
     float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+
     //float output = filt->keyFollow * mtof(filt->inputNote);
 
     //filt->currFreq = filt->cutoffSmoother.curr + output;

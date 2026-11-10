@@ -83,6 +83,7 @@ typedef struct _tFiltModule {
     tLookupTable* mtofTable;
     tLookupTable* filtFreqTable;
     tLookupTable* gainAmpTable;
+
 } _tFiltModule;
 
 typedef _tFiltModule* tFiltModule;

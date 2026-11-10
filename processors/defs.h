@@ -22,7 +22,8 @@ extern "C" {
 #include <stdint.h>
 // Universal smoothing time in ms for knobs
 #define SMOOTH_TIME_MS 15.f
-#define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample
+    #define SMOOTH_SLOPE_MULTIPLIER 1.0f
+//#define SMOOTH_SLOPE_MULTIPLIER 0.0075f // per sample
 #define TEN_DB_AMPLITUDE 3.1623f
 #define TWELVE_DB_AMPLITUDE 3.981f
 

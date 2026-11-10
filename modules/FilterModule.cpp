@@ -411,7 +411,8 @@ void tFiltModule_tick (tFiltModule const filt)
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    float output = filt->keyFollow * filt->mtofTable->table[(int)(((filt->inputNote)*0.00787402f)*16383)]; //divide by 127
+    float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+
     //float output = filt->keyFollow * mtof(filt->inputNote);
     filt->currFreq = filt->cutoffSmoother.curr + output;
     //printf("Freq: %f\n", filt->currFreq);
@@ -478,7 +479,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltCutoff:
 	        filt->cutoffKnob = input;
-	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(int)(input * filt->filtFreqTable->tableSize-1)]);
+	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)]);
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, mtof(input*127.0f));
 		    break;
 	    case FiltGain:

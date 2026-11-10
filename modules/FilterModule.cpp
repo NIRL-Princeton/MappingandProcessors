@@ -458,7 +458,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 	    case FiltEventWatchFlag:
 	        break;
 	    case FiltMidiPitch:
-	        filt->inputNote = input * 127.f;
+	        filt->inputNote = input;
 	        //tFiltModule_setFreq(filt, filt->mtofTable->table[(int)((input/127)*16383)]);
 		    break;
 	    case FiltCutoff:

@@ -47,7 +47,9 @@ void tFiltModule_setGain(tFiltModule const filt, float const gain)
 {
     filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
     // I think there should be two separate gain parameters. One master, and one for the filters with internal gain parameters -Matt
+    // I agree. Not sure how to handle it with dynamically creating knobs? Or we could have a separate filter module for Bell/Shelves? -JS
     //filt->gain = gain; // Also unsure if it's a good thing to have the master gain and internal gain to be set simultaneously -Matt
+    // I think not. Let's separate out the bell/shelves as their own module with an additional knob -JS
     const float eqGain = powf(10.0f, ((gain * 50.0f) - 25.0f) / 20.0f);
 	switch (filt->filtType)
 	{
@@ -304,6 +306,12 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     	tLookupTable_init(m->leaf, m->leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
     }
     FiltModule->resTable = m->leaf->resTable;
+
+    if (m->leaf->filtFreqTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool,&m->leaf->filtFreqTable);
+        tLookupTable_init(m->leaf, m->leaf->filtFreqTable, 20.0f, 20000.f, 1000.f, 16384);
+    }
     FiltModule->filtFreqTable = m->leaf->filtFreqTable;
 
     FiltModule->filtType = FiltTypeLowpass;
@@ -398,7 +406,7 @@ void tFiltModule_tick (tFiltModule const filt)
 
     //float output = filt->keyFollow * filt->mtofTable->table[(int)(((filt->inputNote)/127)*16383)];
     float output = filt->keyFollow * mtof(filt->inputNote);
-    tFiltModule_setFreq(filt, filt->cutoffSmoother.curr + output);
+    filt->currFreq = filt->cutoffSmoother.curr + output;
     //printf("Freq: %f\n", filt->currFreq);
     //printf("Keyfloow: %f\n", output);
 
@@ -422,15 +430,15 @@ void tFiltModule_tick (tFiltModule const filt)
             break;
         case FiltTypePeak:
             tVZFilterBell_setFreq(&filt->bellFilter, filt->currFreq);
-            output = tVZFilterBell_tick(&filt->bellFilter, input) * 0.01f; // bell filter is extremely loud some reason
+            output = tVZFilterBell_tick(&filt->bellFilter, input) ; // bell filter is extremely loud some reason //probably needs it's gain parameter to be set or initialized-JS
             break;
         case FiltTypeHighShelf:
             tVZFilterHS_setFreq(&filt->highShelfFilter, filt->currFreq);
-            output = tVZFilterHS_tick(&filt->highShelfFilter, input) * 0.01f; // this one is also incredibly loud
+            output = tVZFilterHS_tick(&filt->highShelfFilter, input) ; // this one is also incredibly loud  //probably needs it's gain parameter to be set or initialized-JS
             break;
         case FiltTypeLowShelf:
             tVZFilterLS_setFreq(&filt->lowShelfFilter, filt->currFreq);
-            output = tVZFilterLS_tick(&filt->lowShelfFilter, input) * 0.0075f;
+            output = tVZFilterLS_tick(&filt->lowShelfFilter, input) ;
             break;
         case FiltTypeNotch:
             tVZFilterBR_setFreq(&filt->notchFilter, filt->currFreq);
@@ -463,7 +471,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltCutoff:
 	        filt->cutoffKnob = input;
-	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(int)(input * filt->filtFreqTable->tableSize)]);
+	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(int)(input * filt->filtFreqTable->tableSize-1)]);
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, mtof(input*127.0f));
 		    break;
 	    case FiltGain:

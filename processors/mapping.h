@@ -143,7 +143,7 @@ namespace leaf
 
     typedef union tFullPresetStateWithNameAndNumberUnion {
         //modules
-        tFullPresetStateWithNameAndNumber fullstate;
+        tFullPresetStateWithNameAndNumber data;
         uint8_t bytes[sizeof (tFullPresetStateWithNameAndNumber)];
     } tFullPresetStateWithNameAndNumberUnion;
 

@@ -53,12 +53,6 @@ typedef struct _tFiltModule {
     tVZFilterBR notchFilter;
     tLadderFilter ladderFilter;
 
-    float* dbTableAddress;
-    uint32_t dbTableScalar;
-    float dbTableOffset;
-    float dbTableSizeMinusOne;
-    float* resTableAddress;
-    float resTableSizeMinusOne;
     uint16_t filtType;
 
     float gainKnob; // from Gabe
@@ -86,7 +80,7 @@ typedef struct _tFiltModule {
     tMempool* mempool;
     tLookupTable* resTable;
     tLookupTable* mtofTable;
-    tLookupTable* skewFreqTable;
+    tLookupTable* filtFreqTable;
     tLookupTable* gainAmpTable;
 } _tFiltModule;
 

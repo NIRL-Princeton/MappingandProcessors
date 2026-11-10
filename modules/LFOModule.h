@@ -84,7 +84,7 @@ void tLFOModule_setType(tLFOModule const lfo, int type);
 void tLFOModule_setShape(tLFOModule const lfo, float shape);
 void tLFOModule_setPhase(tLFOModule const lfo, float phase);
 
-void tLFOModule_setParameter(tLFOModule const, LFOParams param_type, float input);
+void tLFOModule_setParameter(tLFOModule const, int param_type, float input);
 
 // Non-modulatable setters
 //void tLFOModule_setRateTableLocationAndSize (tLFOModule const lfo, float* tableAddress, uint32_t size);

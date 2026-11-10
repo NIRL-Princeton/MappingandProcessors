@@ -44,7 +44,8 @@ void tMapping_initToPool (tMapping** const mapping, tMempool** const mp)
 }
 
 void tMapping_setParameter(void* module, int paramID, float value) {
-    uint32_t type = *((uint32_t*)module);
+
+	uint32_t type = *((uint32_t*)module);
     switch (type)
     {
         case ModuleTypeOscModule:
@@ -110,18 +111,19 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             // handle invalid type
             break;
     }
+
 }
 
 
 void processMapping (tMapping* mapping)
 {
-    float sum = *mapping->initialVal;
+	float sum = *mapping->initialVal;
 
     for (int i = 0; i < mapping->numUsedSources; i++)
     {
         sum += (*mapping->inSources[i] * CPPDEREF mapping->scalingValues[i]) + mapping->bipolarOffset[i];
     }
-    LEAF_clip(0.0f, sum, 1.0f);
+    sum = LEAF_clip(0.0f, sum, 1.0f);
     tMapping_setParameter(mapping->destObject, mapping->paramID, sum);
 
     // mapping->setter(mapping->destObject, sum);

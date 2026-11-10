@@ -165,49 +165,49 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 
     OscModule->header.moduleType = ModuleTypeOscModule;
 
-    // if (dbtoaTable == NULL)
-    // {
-    //     tLookupTable_create(&OscModule->mempool, &dbtoaTable);
-    //     tLookupTable_init (OscModule->mempool->leaf, dbtoaTable, 0.f, 0.f, 0.f, 2048);
-    //     LEAF_generate_dbtoa (dbtoaTable->table, 2048, -80.f, 9.542f);
-    // }
+#if 0
+     if (dbtoaTable == NULL)
+     {
+         tLookupTable_create(&OscModule->mempool, &dbtoaTable);
+         tLookupTable_init (OscModule->mempool->leaf, dbtoaTable, 0.f, 0.f, 0.f, 2048);
+         LEAF_generate_dbtoa (dbtoaTable->table, 2048, -80.f, 9.542f);
+     }
 
-    // if (atodbTable == NULL)
-    // {
-    //     tLookupTable_create(&OscModule->mempool, &atodbTable);
-    //     tLookupTable_init (OscModule->mempool->leaf, atodbTable, 0.f, 0.f, 0.f, 2048);
-    //     LEAF_generate_atodb (atodbTable->table, 2048, 0.f, 3.f);
-    // }
+     if (atodbTable == NULL)
+     {
+         tLookupTable_create(&OscModule->mempool, &atodbTable);
+         tLookupTable_init (OscModule->mempool->leaf, atodbTable, 0.f, 0.f, 0.f, 2048);
+         LEAF_generate_atodb (atodbTable->table, 2048, 0.f, 3.f);
+     }
+     if (ftomTable == NULL)
+     {
+         tLookupTable_create(&OscModule->mempool, &ftomTable);
+         tLookupTable_init (OscModule->mempool->leaf, ftomTable, 0.f, 0.f, 0.f, 32768);
+         LEAF_generate_ftom (ftomTable->table, 0.02535f, 20500.f, 32768);
+     }
+#endif
 
-    // if (mtofTable == NULL)
-    // {
-    //     tLookupTable_create(&OscModule->mempool, &mtofTable);
-    //     tLookupTable_init (OscModule->mempool->leaf, mtofTable, 0.f, 0.f, 0.f, 32768);
-    //     LEAF_generate_mtof (mtofTable->table, -160, 135.5, 32768);
-    // }
-    //
-    // if (ftomTable == NULL)
-    // {
-    //     tLookupTable_create(&OscModule->mempool, &ftomTable);
-    //     tLookupTable_init (OscModule->mempool->leaf, ftomTable, 0.f, 0.f, 0.f, 32768);
-    //     LEAF_generate_ftom (ftomTable->table, 0.02535f, 20500.f, 32768);
-    // }
-
-    // if (glideTimeTable == NULL)
-    // {
-    //     tLookupTable_create(&OscModule->mempool, &glideTimeTable);
-    //     tLookupTable_init (OscModule->mempool->leaf, glideTimeTable, 0.f, 8000.f, 500.f, 2048);
-    // }
-
-    tLookupTable_create(&OscModule->mempool, &OscModule->glideTimeTable);
-    tLookupTable_init (OscModule->mempool->leaf, OscModule->glideTimeTable, 0.f, 8000.f, 500.f, 2048);
-
-    tLookupTable_create(&OscModule->mempool, &OscModule->mtofTable);
-    tLookupTable_init (OscModule->mempool->leaf, OscModule->mtofTable, 0.f, 0.f, 0.f, 16384);
-    LEAF_generate_mtof (OscModule->mtofTable->table, 0, 127, 16384);
-
-    tLookupTable_create(&OscModule->mempool, &OscModule->gainAmpTable);
-    tLookupTable_init (OscModule->mempool->leaf, OscModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+     if (OscModule->mempool->leaf->glideTimeTable == NULL)
+     {
+         tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->glideTimeTable);
+         tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->glideTimeTable, 0.f, 8000.f, 500.f, 2048);
+     }
+#if 0
+     if (OscModule->mempool->leaf->mtofTable == NULL)
+     {
+    	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->mtofTable);
+    	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
+    	 LEAF_generate_mtof (OscModule->mtofTable->table, 0, 127, 16384);
+     }
+#endif
+     if (OscModule->mempool->leaf->gainAmpTable == NULL)
+     {
+    	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->gainAmpTable);
+    	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+     }
+     OscModule->glideTimeTable = OscModule->mempool->leaf->glideTimeTable;
+     OscModule->mtofTable = OscModule->mempool->leaf->mtofTable;
+     OscModule->gainAmpTable = OscModule->mempool->leaf->gainAmpTable;
 
 #ifndef __cplusplus
     for (int i = 0; i < OscNumParams; i++)
@@ -227,7 +227,7 @@ void tOscModule_free(void** const osc)
 
 void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 {
-    osc->inputNote = inputNote;
+    osc->inputNote = inputNote* 127.0f;
     tRamp_setDest(&osc->pitchSmooth, osc->inputNote);
 }
 
@@ -268,7 +268,8 @@ void tOscModule_tick (tOscModule const osc)
 	    //float nowFreq = tempMIDI;// ((freqToSmooth1 * (1.0f - tempIndexF)) + (freqToSmooth2 * tempIndexF));
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
-    float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
+    //float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
+    float finalFreq = (mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset);
     //printf("freq: %f\n", finalFreq);
     float out = 0.0f;
 	switch (osc->oscType) {

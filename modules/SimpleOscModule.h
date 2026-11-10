@@ -84,10 +84,6 @@ typedef struct _tOscModule {
     tMempool* mempool;
 
     tLookupTable* mtofTable;
-    //tLookupTable* ftomTable;
-    //tLookupTable* dbtoaTable;
-    //tLookupTable* atodbTable;
-
     tLookupTable* glideTimeTable;
     tLookupTable* gainAmpTable;
 } _tOscModule;

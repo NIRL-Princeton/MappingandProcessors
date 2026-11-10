@@ -3,7 +3,7 @@
 //
 
 #include "LFOModule.h"
-#include <cstdio>
+//#include <cstdio>
 
 #include <assert.h>
 #include "string.h"
@@ -22,11 +22,11 @@ void tLFOModule_init(void** const lfo, float* params, float id, LEAF* const leaf
 void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMempool** const mempool, tLookupTable* rateTable)
 {
     tMempool* m = *mempool;
-    _tLFOModule* LFOModule = static_cast<_tLFOModule*>(*lfo = (_tLFOModule*) mpool_alloc(sizeof(_tLFOModule), m));
+    _tLFOModule* LFOModule = (_tLFOModule*)(*lfo = (_tLFOModule*) mpool_alloc(sizeof(_tLFOModule), m));
     int type = 0;
 #ifndef __cplusplus
     memcpy(LFOModule->header.params, params, LFONumParams*sizeof(ATOMIC_FLOAT));
-    int type = roundf(CPPDEREF LFOModule->params[LFOType]);
+    type = roundf(CPPDEREF LFOModule->header.params[LFOType]);
 #endif
     LFOModule->header.uniqueID = id;
     LFOModule->table = rateTable;
@@ -61,7 +61,7 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
 
 void tLFOModule_free(void** const lfo)
 {
-    _tLFOModule* LFOModule = static_cast<_tLFOModule*>(*lfo);
+    _tLFOModule* LFOModule = (_tLFOModule*)(*lfo);
 
     // tSineTriLFO_free    (&LFOModule->sineTriLFO);
     // tSawSquareLFO_free  (&LFOModule->sawSquareLFO);
@@ -258,9 +258,9 @@ void tLFOModule_setType (tLFOModule const lfo, int type)
     tLFOModule_setPhase(lfo, lfo->phase);
 }
 
-void tLFOModule_setParameter(tLFOModule const lfo, LFOParams param_type, float input)
+void tLFOModule_setParameter(tLFOModule const lfo, int parameter_id, float input)
 {
-    switch (param_type)
+    switch (parameter_id)
     {
         case LFOEventWatchFlag:
             break;

@@ -37,12 +37,7 @@ typedef struct _tEnvModule {
     tSlopeRamp velSenseSmoother;
     const float* envTimeTableAddress;
     float envTimeTableSizeMinusOne;
-    uint32_t tableSize;
-    float expBuffer[EXP_BUFFER_SIZE];
-    float expBufferSizeMinusOne;
 
-    float decayExpBuffer[DECAY_EXP_BUFFER_SIZE];
-    float decayExpBufferSizeMinusOne;
     //mempool
     tMempool* mempool;
 } _tEnvModule;

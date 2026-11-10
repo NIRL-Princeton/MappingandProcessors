@@ -31,7 +31,7 @@ void tEnvModule_tick (tEnvModule const env)
 void tEnvModule_onNoteOn (tEnvModule const env, float velocity)
 {
     float envVel = velocity;
-    if (velocity > 0.0001f)
+    if (velocity > 0.005f)
     {
         float velSense = CPPDEREF env->header.params[EnvVelocitySense];
         envVel = envVel * velSense + (1.0f - velSense);
@@ -74,24 +74,24 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvAttack:
         {
-            // input *= env->envTimeTableSizeMinusOne;
-            // int const inputInt = (int) input;
-            // float const inputFloat = input - (float)inputInt;
-            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tADSRT_setAttack (&env->theEnv, input);
+             input *= env->envTimeTableSizeMinusOne;
+             int const inputInt = (int) input;
+             float const inputFloat = input - (float)inputInt;
+             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+            tADSRT_setAttack (&env->theEnv, theValue);
             break;
         }
 
         case EnvDecay:
         {
-            // input *= env->envTimeTableSizeMinusOne;
-            // int const inputInt = (int) input;
-            // float const inputFloat = input - (float) inputInt;
-            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            // tADSRT_setDecay (&env->theEnv, theValue + 0.001f);
-            tADSRT_setDecay (&env->theEnv, input);
+             input *= env->envTimeTableSizeMinusOne;
+             int const inputInt = (int) input;
+             float const inputFloat = input - (float) inputInt;
+             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+             tADSRT_setDecay (&env->theEnv, theValue);
+            //tADSRT_setDecay (&env->theEnv, input);
             break;
         }
 
@@ -103,15 +103,15 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvRelease:
         {
-            // std::cout << "input: " << input;
-            // input *= env->envTimeTableSizeMinusOne;
-            // int const inputInt = (int) input;
-            // float const inputFloat = input - (float) inputInt;
-            // int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            // float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            // tADSRT_setRelease (&env->theEnv, theValue + 0.001f);
-            // std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
-            tADSRT_setRelease (&env->theEnv, input);
+             //std::cout << "input: " << input;
+             input *= env->envTimeTableSizeMinusOne;
+             int const inputInt = (int) input;
+             float const inputFloat = input - (float) inputInt;
+             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+             tADSRT_setRelease (&env->theEnv, theValue);
+             //std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
+            //tADSRT_setRelease (&env->theEnv, input);
             break;
         }
 
@@ -143,22 +143,24 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
     tMempool* m = *mempool;
     _tEnvModule* EnvModule = (_tEnvModule*) (*env = (_tEnvModule*) mpool_alloc (sizeof (_tEnvModule), m));
 #ifndef __cplusplus
-    memcpy (EnvModule->header.params, params, EnvNumParams);
+    memcpy (EnvModule->header.params, params, EnvNumParams * sizeof(float));
 #endif __cplusplus
     EnvModule->mempool = m;
 
     EnvModule->header.uniqueID = id;
 
-    // exponential decay buffer falling from 1 to
-    LEAF_generate_exp (EnvModule->decayExpBuffer, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
-    EnvModule->expBufferSizeMinusOne = EXP_BUFFER_SIZE - 1;
 
-    EnvModule->decayExpBufferSizeMinusOne = DECAY_EXP_BUFFER_SIZE - 1;
-    tADSRT_set (&EnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, EnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
-    tADSRT_setSampleRate (&EnvModule->theEnv, m->leaf->sampleRate);
-    EnvModule->header.setterFunctions[EnvEventWatchFlag] = (tSetter) &tEnvModule_onNoteOn;
+    if ((*mempool)->leaf->decayExpBuffer == NULL)
+    {
+		// exponential decay buffer falling from 1 to
+    	tLookupTable_create (&m, &(*mempool)->leaf->decayExpBuffer);
+    	tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->decayExpBuffer, 0.0001f, 20000.f, 4000.f, DECAY_EXP_BUFFER_SIZE);
+		LEAF_generate_exp ((*mempool)->leaf->decayExpBuffer->table, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
 
-    tEnvModule_setExpTableLocation (EnvModule, EnvModule->decayExpBuffer, DECAY_EXP_BUFFER_SIZE);
+    }
+    tADSRT_set (&EnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, (*mempool)->leaf->decayExpBuffer->table, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
+	tADSRT_setSampleRate (&EnvModule->theEnv, m->leaf->sampleRate);
+	EnvModule->header.setterFunctions[EnvEventWatchFlag] = (tSetter) &tEnvModule_onNoteOn;
     if ((*mempool)->leaf->envTimeTable == NULL)
     {
         tLookupTable_create (&m, &(*mempool)->leaf->envTimeTable);
@@ -168,5 +170,12 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
 
     tSlopeRamp_init(m->leaf, &EnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     EnvModule->header.moduleType = ModuleTypeEnvModule;
+#ifndef __cplusplus
+    for (int i = 0; i < EnvNumParams; i++)
+    {
+    	tEnvModule_setParameter(EnvModule, i, EnvModule->header.params[i]);
+
+    }
+#endif
 }
 

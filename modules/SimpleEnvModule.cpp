@@ -4,7 +4,7 @@
 
 #include "SimpleEnvModule.h"
 
-#include <cstdio>
+//#include <cstdio>
 
 #include <assert.h>
 
@@ -136,7 +136,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
 void tSimpleEnvModule_initToPool (void** const env, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
-    _tSimpleEnvModule* SimpleEnvModule = static_cast<_tSimpleEnvModule*> (*env = (_tSimpleEnvModule*) mpool_alloc (sizeof (_tSimpleEnvModule), m));
+    _tSimpleEnvModule* SimpleEnvModule = (_tSimpleEnvModule*) (*env = (_tSimpleEnvModule*) mpool_alloc (sizeof (_tSimpleEnvModule), m));
 
     SimpleEnvModule->mempool = m;
 

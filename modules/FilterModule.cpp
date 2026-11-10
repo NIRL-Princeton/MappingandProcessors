@@ -314,6 +314,14 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     }
     FiltModule->filtFreqTable = m->leaf->filtFreqTable;
 
+    if (m->leaf->mtofTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool, &m->leaf->mtofTable);
+        tLookupTable_init (m->leaf, m->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
+        LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 127, 16384);
+    }
+    FiltModule->mtofTable = m->leaf->mtofTable;
+
     FiltModule->filtType = FiltTypeLowpass;
 
     FiltModule->header.moduleType = ModuleTypeFilterModule;
@@ -404,8 +412,8 @@ void tFiltModule_tick (tFiltModule const filt)
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    //float output = filt->keyFollow * filt->mtofTable->table[(int)(((filt->inputNote)/127)*16383)];
-    float output = filt->keyFollow * mtof(filt->inputNote);
+    float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+    //float output = filt->keyFollow * mtof(filt->inputNote);
     filt->currFreq = filt->cutoffSmoother.curr + output;
     //printf("Freq: %f\n", filt->currFreq);
     //printf("Keyfloow: %f\n", output);
@@ -471,7 +479,7 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltCutoff:
 	        filt->cutoffKnob = input;
-	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(int)(input * filt->filtFreqTable->tableSize-1)]);
+	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)]);
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, mtof(input*127.0f));
 		    break;
 	    case FiltGain:

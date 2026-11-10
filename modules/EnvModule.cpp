@@ -156,7 +156,6 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
     	tLookupTable_create (&m, &(*mempool)->leaf->decayExpBuffer);
     	tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->decayExpBuffer, 0.0001f, 20000.f, 4000.f, DECAY_EXP_BUFFER_SIZE);
 		LEAF_generate_exp ((*mempool)->leaf->decayExpBuffer->table, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
-
     }
     tADSRT_set (&EnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, (*mempool)->leaf->decayExpBuffer->table, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
 	tADSRT_setSampleRate (&EnvModule->theEnv, m->leaf->sampleRate);

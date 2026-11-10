@@ -26,7 +26,7 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    case OscEventWatchFlag:
 		    break;
 	    case OscMidiPitch:
-	        tOscModule_setInputNote (osc, 127*input);
+	        tOscModule_setInputNote (osc, 127.0f * input);
 	        //printf("note: %f\n", input);
 		    break;
 	    case OscHarmonic:
@@ -227,7 +227,7 @@ void tOscModule_free(void** const osc)
 
 void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 {
-    osc->inputNote = inputNote* 127.0f;
+    osc->inputNote = inputNote;
     tRamp_setDest(&osc->pitchSmooth, osc->inputNote);
 }
 

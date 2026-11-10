@@ -35,7 +35,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
                                  1.0,
                                  1.0,
                                  0);
-    module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
+    //module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
     //CPPDEREF module->header.params[StringEventWatchFlag] = 1.0f;
 }
 

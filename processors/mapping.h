@@ -185,7 +185,7 @@ namespace leaf
     //      tProcessor *newDestProcessor, uint8_t destParam,
     //     ATOMIC_FLOAT CPPDEREF scalingValue);
     void tMappingAdd_(tMapping *mapping, ATOMIC_FLOAT* insource, uint8_t insource_uuid,
-        ATOMIC_FLOAT* dest_param, uint8_t dest_uuid,tSetter setter, uint8_t dest_param_index,
+        ATOMIC_FLOAT* dest_param, uint8_t dest_uuid, uint8_t dest_param_index,
         void* obj, LEAF* leaf,
     ATOMIC_FLOAT CPPDEREF scalingValue);
 

@@ -11,6 +11,7 @@
 #include <assert.h>
 #include "string.h"
 
+
 void tFiltModule_init(void** const filt, float* params, float id, LEAF* const leaf) {
 	if(leaf->resTable == NULL)
 	{
@@ -32,15 +33,6 @@ void tFiltModule_init(void** const filt, float* params, float id, LEAF* const le
 //     return ((tableAddress[inDBIndex] * (1.0f - alpha)) + (tableAddress[inDBIndexPlusOne] * alpha));
 // }
 
-
-float resTableLookupFunction (float input, float* resTableAddress, float resTableSizeMinusOne)
-{
-	input *= resTableSizeMinusOne;
-	int inputInt = (int)input;
-	float inputFloat = input - (float)inputInt;
-	int nextPos = LEAF_clip(0.0f, inputInt + 1.0f, resTableSizeMinusOne);
-	return LEAF_clip(0.1f, (resTableAddress[inputInt] * (1.0f - inputFloat)) + (resTableAddress[nextPos] * inputFloat), 10.0f);
-}
 
 
 void tFiltModule_setGain(tFiltModule const filt, float const gain)
@@ -112,8 +104,8 @@ void tFiltModule_setRes(tFiltModule const filt, float const res)
 
     const float normalizedResonance = LEAF_clip(0.0f, res, 1.0f);
     filt->resonanceKnob = normalizedResonance;
-    const float q = resTableLookupFunction(normalizedResonance, filt->resTable->table,
-                                           filt->resTable->tableSize - 1);
+    const float q = LEAF_interpolateTableLookupFunction(normalizedResonance,filt->resTable);
+    //const float q = resTableLookupFunction(normalizedResonance, table, filt->resTable->tableSize - 1);
 
     switch (filt->filtType)
     {
@@ -413,7 +405,8 @@ void tFiltModule_tick (tFiltModule const filt)
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     //tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+    float output = LEAF_interpolateTableLookupFunction((filt->keyFollow * filt->inputNote)*0.00787402f, filt->mtofTable);
+    //float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
 
     //float output = filt->keyFollow * mtof(filt->inputNote);
 
@@ -483,7 +476,8 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltCutoff:
 	        filt->cutoffKnob = input;
-	        filt->cutoffFreq = filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)];
+	        filt->cutoffFreq = LEAF_interpolateTableLookupFunction(input, filt->filtFreqTable);
+	        //filt->cutoffFreq = filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)];
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)]);
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, mtof(input*127.0f));
 		    break;

@@ -48,6 +48,8 @@ void tFiltModule_setGain(tFiltModule const filt, float const gain)
     filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
     // I think there should be two separate gain parameters. One master, and one for the filters with internal gain parameters -Matt
     // I agree. Not sure how to handle it with dynamically creating knobs? Or we could have a separate filter module for Bell/Shelves? -JS
+
+
     //filt->gain = gain; // Also unsure if it's a good thing to have the master gain and internal gain to be set simultaneously -Matt
     // I think not. Let's separate out the bell/shelves as their own module with an additional knob -JS
     const float eqGain = powf(10.0f, ((gain * 50.0f) - 25.0f) / 20.0f);
@@ -237,7 +239,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     FiltModule->invSr = m->leaf->invSampleRate;
     FiltModule->sr = m->leaf->sampleRate;
 	FiltModule->resTable = resTable;
-
+    FiltModule->mix = 1.0f; //currently the mix sliders aren't attached
     // for (int type = 0; type < FiltNumTypes; ++type)
     //     FiltModule->filters[type] = NULL;
 
@@ -405,16 +407,18 @@ void tFiltModule_tick (tFiltModule const filt)
     const float input = filt->header.inputs[0]; // use previous input here?
     filt->header.inputs[0] = 0.0f; // VERY IMPORTANT ! for all LEAFModules in ES
 
-    tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));
-    tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->gainSmoother));
-    tFiltModule_setRes(filt, tSlopeRamp_tick(&filt->qSmoother));
+    //tFiltModule_setMix(filt, tSlopeRamp_tick(&filt->mixSmoother));
+    //tFiltModule_setGain(filt, tSlopeRamp_tick(&filt->gainSmoother));
+    //tFiltModule_setRes(filt, tSlopeRamp_tick(&filt->qSmoother));
 
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
-    tSlopeRamp_tick(&filt->cutoffSmoother);
+    //tSlopeRamp_tick(&filt->cutoffSmoother);
 
     float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
     //float output = filt->keyFollow * mtof(filt->inputNote);
-    filt->currFreq = filt->cutoffSmoother.curr + output;
+
+    //filt->currFreq = filt->cutoffSmoother.curr + output;
+    filt->currFreq = filt->cutoffFreq + output;
     //printf("Freq: %f\n", filt->currFreq);
     //printf("Keyfloow: %f\n", output);
 
@@ -479,24 +483,28 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 		    break;
 	    case FiltCutoff:
 	        filt->cutoffKnob = input;
-	        tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)]);
+	        filt->cutoffFreq = filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)];
+	        //tSlopeRamp_setDest(&filt->cutoffSmoother, filt->filtFreqTable->table[(uint32_t)(input * filt->filtFreqTable->tableSize-1)]);
 	        //tSlopeRamp_setDest(&filt->cutoffSmoother, mtof(input*127.0f));
 		    break;
 	    case FiltGain:
 	        filt->gainKnob = input;
-	        tSlopeRamp_setDest(&filt->gainSmoother, input);
+	        //tSlopeRamp_setDest(&filt->gainSmoother, input);
+	        tFiltModule_setGain(filt, input);
 		    break;
 	    case FiltResonance:
-	        tSlopeRamp_setDest(&filt->qSmoother, input);
+	        //tSlopeRamp_setDest(&filt->qSmoother, input);
+	        tFiltModule_setRes(filt, input);
 		    break;
 	    case FiltKeyfollow:
 	        tSlopeRamp_setDest(&filt->keyFollowSmoother, input);
 		    break;
 	    case FiltType:
-	        tFiltModule_setType(filt, (int)(input*8.5f));
+	        tFiltModule_setType(filt, (uint8_t)(input*8.5f));
 		    break;
 	    case FiltMix:
-	        filt->mixSmoother.dest = input;
+	        //filt->mixSmoother.dest = input;
+	        filt->mix = input;
 	    default:
 		    break;
 	}

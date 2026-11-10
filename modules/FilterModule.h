@@ -64,6 +64,7 @@ typedef struct _tFiltModule {
 
     float cutoffKnob; // from Gabe
     tSlopeRamp cutoffSmoother;
+    float cutoffFreq;
     float inputNote; // raw midi input
     float currFreq;
 

@@ -188,7 +188,7 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
      {
     	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->mtofTable);
     	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
-    	 LEAF_generate_mtof (OscModule->mtofTable->table, 0, 127, 16384);
+    	 LEAF_generate_mtof (OscModule->mempool->leaf->mtofTable->table, 0, 127, 16384);
      }
      OscModule->mtofTable = OscModule->mempool->leaf->mtofTable;
 

@@ -19,13 +19,13 @@ typedef enum {
     OscPitchFine,
     OscFreqOffset,
     OscShapeParam,
+    OscType,
     OscGainParam,
     OscGlide,
     OscSteppedHarmonic,
     OscSteppedPitch,
     OscSyncMode,
     OscSyncIn,
-    OscType,
     OscPortaType,
     OscNumParams
 } OscParams;

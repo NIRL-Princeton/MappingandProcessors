@@ -69,20 +69,28 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	    }
 	    case OscShapeParam:
 	    {
-	        tSlopeRamp_setDest(&osc->shapeSmoother, input);
+	        osc->oscShape = input;
+	        tOscModule_setShape(osc, input);
+	        //tSlopeRamp_setDest(&osc->shapeSmoother, input);
 	        break;
 	    }
 	    case OscGainParam:
 	    {
-	        tSlopeRamp_setDest(&osc->gainSmoother, input); // * TEN_DB_AMPLITUDE
+	    	tOscModule_setGain(osc, input);
+	    	//tSlopeRamp_setDest(&osc->gainSmoother, input); // * TEN_DB_AMPLITUDE
 	        break;
 	    }
 	    case OscGlide:
 	    {
 	        osc->inputGlideTime = input;
+
+	        input = LEAF_interpolateTableLookupFunction(input, osc->glideTimeTable);
+	        tRamp_setTime(&osc->pitchSmooth, input);
+	        /*
 	        input = roundf(input * 2047);
 	        input = osc->glideTimeTable->table[(uint16_t)input];
 	        tRamp_setTime(&osc->pitchSmooth, input);
+	        */
 	        //printf("glideTime: %f\n", input);
 	        break;
 	    }
@@ -125,7 +133,6 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     _tOscModule* OscModule = (_tOscModule*) (*osc = (_tOscModule*) mpool_alloc (sizeof (_tOscModule), m));
 #ifndef __cplusplus
     memcpy(OscModule->header.params, param, OscNumParams*sizeof(float));
-    int type = roundf(CPPDEREF OscModule->header.params[OscType]);
 #endif __cplusplus
     OscModule->header.uniqueID = id;
 
@@ -145,10 +152,6 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 
     //tRamp_create(mempool, &OscModule->pitchSmooth);
     tRamp_init(OscModule->mempool->leaf, &OscModule->pitchSmooth, 1.0f, 1);
-    //tSlopeRamp_create(mempool, &OscModule->ampSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->gainSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.5f);
-    //tSlopeRamp_create(mempool, &OscModule->shapeSmoother);
-    tSlopeRamp_init(OscModule->mempool->leaf, &OscModule->shapeSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
 
     //tPBSawSquare_create (&OscModule->mempool, &OscModule->sawSquareOsc);
     tPBSawSquare_init   (OscModule->mempool->leaf, &OscModule->sawSquareOsc);
@@ -165,49 +168,31 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
 
     OscModule->header.moduleType = ModuleTypeOscModule;
 
-#if 0
-     if (dbtoaTable == NULL)
-     {
-         tLookupTable_create(&OscModule->mempool, &dbtoaTable);
-         tLookupTable_init (OscModule->mempool->leaf, dbtoaTable, 0.f, 0.f, 0.f, 2048);
-         LEAF_generate_dbtoa (dbtoaTable->table, 2048, -80.f, 9.542f);
-     }
-
-     if (atodbTable == NULL)
-     {
-         tLookupTable_create(&OscModule->mempool, &atodbTable);
-         tLookupTable_init (OscModule->mempool->leaf, atodbTable, 0.f, 0.f, 0.f, 2048);
-         LEAF_generate_atodb (atodbTable->table, 2048, 0.f, 3.f);
-     }
-     if (ftomTable == NULL)
-     {
-         tLookupTable_create(&OscModule->mempool, &ftomTable);
-         tLookupTable_init (OscModule->mempool->leaf, ftomTable, 0.f, 0.f, 0.f, 32768);
-         LEAF_generate_ftom (ftomTable->table, 0.02535f, 20500.f, 32768);
-     }
-#endif
-
      if (OscModule->mempool->leaf->glideTimeTable == NULL)
      {
          tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->glideTimeTable);
          tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->glideTimeTable, 0.f, 8000.f, 500.f, 2048);
      }
-#if 0
+     OscModule->glideTimeTable = OscModule->mempool->leaf->glideTimeTable;
+
+     if (OscModule->mempool->leaf->gainAmpTable == NULL)
+     {
+    	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->gainAmpTable);
+    	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+     }
+     OscModule->gainAmpTable = OscModule->mempool->leaf->gainAmpTable;
+
+
+
      if (OscModule->mempool->leaf->mtofTable == NULL)
      {
     	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->mtofTable);
     	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
     	 LEAF_generate_mtof (OscModule->mtofTable->table, 0, 127, 16384);
      }
-#endif
-     if (OscModule->mempool->leaf->gainAmpTable == NULL)
-     {
-    	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->gainAmpTable);
-    	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
-     }
-     OscModule->glideTimeTable = OscModule->mempool->leaf->glideTimeTable;
      OscModule->mtofTable = OscModule->mempool->leaf->mtofTable;
-     OscModule->gainAmpTable = OscModule->mempool->leaf->gainAmpTable;
+
+
 
 #ifndef __cplusplus
     for (int i = 0; i < OscNumParams; i++)
@@ -233,7 +218,8 @@ void tOscModule_setInputNote (tOscModule const osc, float inputNote)
 
 void tOscModule_setGain (tOscModule const osc, float inputGain)
 {
-    osc->gain = osc->gainAmpTable->table[(int)(inputGain * 2047)];
+    //osc->gain = osc->gainAmpTable->table[(int)(inputGain * 2047)];
+	osc->gain = LEAF_interpolateTableLookupFunction(inputGain, osc->gainAmpTable);
     //printf("Set gain %f\n", osc->gain);
 }
 
@@ -243,22 +229,19 @@ void tOscModule_tick (tOscModule const osc)
     //const float input = noise->header.summedInput + buffer[0];
     osc->header.inputs[0] = 0.0f;
 
+    /*
     if (osc->oscShape != osc->shapeSmoother.dest)
     {
         //tOscModule_setShape(osc, tSlopeRamp_tick(&osc->shapeSmoother));
         osc->oscShape = tSlopeRamp_tick(&osc->shapeSmoother);
     }
-
-    tOscModule_setGain(osc, tSlopeRamp_tick(&osc->gainSmoother));
+*/
+    //tOscModule_setGain(osc, tSlopeRamp_tick(&osc->gainSmoother));
 
     float tempMIDI;
-    if (osc->pitchSmooth.curr != osc->inputNote)
-    {
-        tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
-    } else
-    {
-        tempMIDI = osc->inputNote + osc->pitchOffset + osc->octaveOffset + osc->fine;
-    }
+
+    tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
 	//    int tempIndexI = (int)tempIndexF;
@@ -269,19 +252,19 @@ void tOscModule_tick (tOscModule const osc)
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
     //float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
-    float finalFreq = (mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset);
+    float finalFreq = (LEAF_interpolateTableLookupFunction(tempMIDI * 0.00787402f, osc->mtofTable) * osc->harmonicMultiplier + osc->freqOffset);
     //printf("freq: %f\n", finalFreq);
     float out = 0.0f;
 	switch (osc->oscType) {
 	    case OscTypeSawSquare: {
 		    tPBSawSquare_setFreq(&osc->sawSquareOsc,finalFreq);
-	        tPBSawSquare_setShape(&osc->sawSquareOsc,osc->oscShape);
+	        //tPBSawSquare_setShape(&osc->sawSquareOsc,osc->oscShape);
 		    out = tPBSawSquare_tick(&osc->sawSquareOsc)* osc->gain;
 		    break;
 	    }
 	    case OscTypeSineTri: {
 		    tPBSineTriangle_setFreq(&osc->sineTriangleOsc,finalFreq);
-	        tPBSineTriangle_setShape(&osc->sineTriangleOsc,osc->oscShape);
+	        //tPBSineTriangle_setShape(&osc->sineTriangleOsc,osc->oscShape);
 		    out = tPBSineTriangle_tick(&osc->sineTriangleOsc)* osc->gain;
 		    break;
 	    }
@@ -292,7 +275,7 @@ void tOscModule_tick (tOscModule const osc)
 	    }
 	    case OscTypePulse: {
 		    tPBPulse_setFreq(&osc->squareOsc,finalFreq);
-	        tPBPulse_setWidth(&osc->squareOsc,osc->oscShape);
+	        //tPBPulse_setWidth(&osc->squareOsc,osc->oscShape);
 		    out = tPBPulse_tick(&osc->squareOsc)* osc->gain;
 		    break;
 	    }
@@ -303,7 +286,7 @@ void tOscModule_tick (tOscModule const osc)
 	    }
 	    case OscTypeTri: {
 		    tPBTriangle_setFreq(&osc->triOsc,finalFreq);
-	        tPBTriangle_setSkew(&osc->triOsc,osc->oscShape);
+	        //tPBTriangle_setSkew(&osc->triOsc,osc->oscShape);
 		    out = tPBTriangle_tick(&osc->triOsc)* osc->gain;
 		    break;
 	    }
@@ -353,13 +336,13 @@ void tOscModule_setOctave (tOscModule const osc, float const oct)
 
 void tOscModule_onNoteOn (tOscModule const osc, float vel)
 {
-    if (vel > 0.0001f)
+    //if (vel > 0.0001f)
     {
-        osc->gainSmoother.curr = osc->gainSmoother.dest;
-        osc->gain = osc->gainSmoother.dest;
+        //osc->gainSmoother.curr = osc->gainSmoother.dest;
+        //osc->gain = osc->gainSmoother.dest;
 
-        osc->shapeSmoother.curr = osc->shapeSmoother.dest;
-        osc->oscShape = osc->shapeSmoother.dest;
+        //osc->shapeSmoother.curr = osc->shapeSmoother.dest;
+        //osc->oscShape = osc->shapeSmoother.dest;
     }
 }
 

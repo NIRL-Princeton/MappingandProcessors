@@ -35,8 +35,9 @@ typedef struct _tEnvModule {
     //specific other variables
     //float velocitySense;
     tSlopeRamp velSenseSmoother;
-    const float* envTimeTableAddress;
-    float envTimeTableSizeMinusOne;
+    tLookupTable* envTimeTable;
+    //const float* envTimeTableAddress;
+    //float envTimeTableSizeMinusOne;
 
     //mempool
     tMempool* mempool;

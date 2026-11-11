@@ -19,13 +19,13 @@ typedef enum {
     OscPitchFine,
     OscFreqOffset,
     OscShapeParam,
+    OscType,
     OscGainParam,
     OscGlide,
     OscSteppedHarmonic,
     OscSteppedPitch,
     OscSyncMode,
     OscSyncIn,
-    OscType,
     OscPortaType,
     OscNumParams
 } OscParams;
@@ -70,19 +70,15 @@ typedef struct _tOscModule {
     float inputNote;
     float finalFreq;
     float gain;
-    tSlopeRamp gainSmoother;
     float sr;
     float invSr;
     int hStepped;
     int pStepped;
     int syncMode;
     float oscShape;
-    tSlopeRamp shapeSmoother;
     uint8_t portaType;
     uint8_t counter;
-
     tMempool* mempool;
-
     tLookupTable* mtofTable;
     tLookupTable* glideTimeTable;
     tLookupTable* gainAmpTable;

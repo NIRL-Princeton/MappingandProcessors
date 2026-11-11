@@ -52,11 +52,7 @@ void tEnvModule_setExpTableLocation (tEnvModule const env, const float* tableAdd
     env->theEnv.bufferSizeDividedBySampleRateInMs = env->theEnv.buff_size / (env->theEnv.sampleRate * 0.001f);
 }
 
-void tEnvModule_setTimeScalingTableLocation (tEnvModule const env, const float* tableAddress, uint32_t const tableSize)
-{
-    env->envTimeTableAddress = tableAddress;
-    env->envTimeTableSizeMinusOne = (float) (tableSize - 1);
-}
+
 
 void tEnvModule_setSampleRate (tEnvModule const env, float sr)
 {
@@ -74,22 +70,14 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvAttack:
         {
-             input *= env->envTimeTableSizeMinusOne;
-             int const inputInt = (int) input;
-             float const inputFloat = input - (float)inputInt;
-             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+        	float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
             tADSRT_setAttack (&env->theEnv, theValue);
             break;
         }
 
         case EnvDecay:
         {
-             input *= env->envTimeTableSizeMinusOne;
-             int const inputInt = (int) input;
-             float const inputFloat = input - (float) inputInt;
-             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+        	 float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
              tADSRT_setDecay (&env->theEnv, theValue);
             //tADSRT_setDecay (&env->theEnv, input);
             break;
@@ -104,12 +92,13 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
         case EnvRelease:
         {
              //std::cout << "input: " << input;
-             input *= env->envTimeTableSizeMinusOne;
-             int const inputInt = (int) input;
-             float const inputFloat = input - (float) inputInt;
-             int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-             float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-             tADSRT_setRelease (&env->theEnv, theValue);
+        	 float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
+             //input *= env->envTimeTableSizeMinusOne;
+             //int const inputInt = (int) input;
+             //float const inputFloat = input - (float) inputInt;
+             //int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
+             //float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+           	 tADSRT_setRelease (&env->theEnv, theValue);
              //std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
             //tADSRT_setRelease (&env->theEnv, input);
             break;
@@ -165,7 +154,8 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
         tLookupTable_create (&m, &(*mempool)->leaf->envTimeTable);
         tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->envTimeTable, 0.0001f, 20000.f, 4000.f, 2048);
     }
-    tEnvModule_setTimeScalingTableLocation (EnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
+    EnvModule->envTimeTable = (*mempool)->leaf->envTimeTable;
+    //tEnvModule_setTimeScalingTableLocation (EnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
 
     tSlopeRamp_init(m->leaf, &EnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     EnvModule->header.moduleType = ModuleTypeEnvModule;

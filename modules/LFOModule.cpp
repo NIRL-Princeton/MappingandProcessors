@@ -43,6 +43,7 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
     // LFOModule->setterFunctions[LFOType] = (tSetter)(&tLFOModule_blankFunction);
     // LFOModule->setterFunctions[LFORateParam] = (tSetter)(&tLFOModule_setRate);
 
+
     //tSineTriLFO_create  (mempool, &LFOModule->sineTriLFO);
     tSineTriLFO_init    (m->leaf, &LFOModule->sineTriLFO);
     //tSawSquareLFO_create(mempool, &LFOModule->sawSquareLFO);
@@ -55,6 +56,14 @@ void tLFOModule_initToPool(void** const lfo, float* const params, float id, tMem
     tIntPhasor_init     (m->leaf, &LFOModule->sawLFO);
     //tSquareLFO_create   (mempool, &LFOModule->squareLFO);
     tSquareLFO_init     (m->leaf, &LFOModule->squareLFO);
+
+
+#ifndef __cplusplus
+    for (int i = 0; i < LFONumParams; i++)
+    {
+    	tLFOModule_setParameter(LFOModule, i, LFOModule->header.params[i]);
+    }
+#endif
 
     LFOModule->header.moduleType = ModuleTypeLFOModule;
 }

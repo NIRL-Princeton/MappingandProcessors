@@ -81,6 +81,7 @@ typedef struct _tFiltModule {
     tMempool* mempool;
     tLookupTable* resTable;
     tLookupTable* mtofTable;
+    tLookupTable* ftomTable;
     tLookupTable* filtFreqTable;
     tLookupTable* gainAmpTable;
 

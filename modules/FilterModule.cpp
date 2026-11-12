@@ -311,9 +311,17 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     {
     	tLookupTable_create(&m->leaf->mempool, &m->leaf->mtofTable);
     	tLookupTable_init (m->leaf, m->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
-    	LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 127, 16384);
+    	LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 136, 16384);
     }
     FiltModule->mtofTable = m->leaf->mtofTable;
+
+    if (m->leaf->ftomTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool, &m->leaf->ftomTable);
+        tLookupTable_init (m->leaf, m->leaf->ftomTable, 0.f, 0.f, 0.f, 16384);
+        LEAF_generate_ftom (m->leaf->ftomTable->table, 0.0f, 20000.0f, 16384);
+    }
+    FiltModule->ftomTable = m->leaf->ftomTable;
 
     FiltModule->filtType = FiltTypeLowpass;
 
@@ -405,13 +413,17 @@ void tFiltModule_tick (tFiltModule const filt)
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     //tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    float output = LEAF_interpolateTableLookupFunction((filt->keyFollow * filt->inputNote)*0.00787402f, filt->mtofTable);
-    //float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+    float knobInMIDIPitch = LEAF_interpolateTableLookupFunction((filt->cutoffFreq * 0.00005f), filt->ftomTable);
+    knobInMIDIPitch = LEAF_clip(0.0f, knobInMIDIPitch + (filt->keyFollow * filt->inputNote), 136.0f);
 
+    float output = LEAF_interpolateTableLookupFunction(( knobInMIDIPitch) * 0.00735294, filt->mtofTable); // divide by 136
+    //float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
+    output = LEAF_clip(20.0f, output, 19000.0f);
     //float output = filt->keyFollow * mtof(filt->inputNote);
 
     //filt->currFreq = filt->cutoffSmoother.curr + output;
-    filt->currFreq = filt->cutoffFreq + output;
+    //filt->currFreq = filt->cutoffFreq + output;
+    filt->currFreq = output;
     //printf("Freq: %f\n", filt->currFreq);
     //printf("Keyfloow: %f\n", output);
 

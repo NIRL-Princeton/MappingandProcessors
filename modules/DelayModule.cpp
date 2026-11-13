@@ -8,12 +8,8 @@
 // lagrange and tape delay
 
 void tDelayModule_init(void** const delay, float* params, float id, LEAF* const leaf) {
-	if(leaf->resTable == NULL)
-		{
-		tLookupTable_create(&leaf->mempool, &leaf->resTable);
-		tLookupTable_init(leaf, leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
-	}
-    tDelayModule_initToPool(delay, params, id, &leaf->mempool, leaf->resTable);
+
+    tDelayModule_initToPool(delay, params, id, &leaf->mempool);
 }
 
 // float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* const tableAddress)
@@ -91,7 +87,7 @@ void tDelayModule_setGain(tDelayModule const delay, float const gain)
 	// }
 }
 
-void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool, tLookupTable* resTable)
+void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
     _tDelayModule* DelayModule =(_tDelayModule *) ( *delay = (_tDelayModule*) mpool_alloc(sizeof(_tDelayModule), m));

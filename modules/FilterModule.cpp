@@ -303,7 +303,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     if (m->leaf->filtFreqTable == NULL)
     {
         tLookupTable_create(&m->leaf->mempool,&m->leaf->filtFreqTable);
-        tLookupTable_init(m->leaf, m->leaf->filtFreqTable, 20.0f, 20000.f, 1000.f, 16384);
+        tLookupTable_init(m->leaf, m->leaf->filtFreqTable, 0.0f, 20000.f, 1000.f, 16384);
     }
     FiltModule->filtFreqTable = m->leaf->filtFreqTable;
 
@@ -311,7 +311,7 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
     {
     	tLookupTable_create(&m->leaf->mempool, &m->leaf->mtofTable);
     	tLookupTable_init (m->leaf, m->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
-    	LEAF_generate_mtof (m->leaf->mtofTable->table, 0, 136, 16384);
+    	LEAF_generate_mtof (m->leaf->mtofTable->table, 0, LEAF_MODULE_MAX_MIDI_NOTE, 16384);
     }
     FiltModule->mtofTable = m->leaf->mtofTable;
 
@@ -413,10 +413,10 @@ void tFiltModule_tick (tFiltModule const filt)
     filt->keyFollow = tSlopeRamp_tick(&filt->keyFollowSmoother);
     //tSlopeRamp_tick(&filt->cutoffSmoother);
 
-    float knobInMIDIPitch = LEAF_interpolateTableLookupFunction((filt->cutoffFreq * 0.00005f), filt->ftomTable);
+    float knobInMIDIPitch = LEAF_interpolateTableLookupFunction((filt->cutoffFreq * 0.00005f), filt->ftomTable); //divide by 20000.0f
     knobInMIDIPitch = LEAF_clip(0.0f, knobInMIDIPitch + (filt->keyFollow * filt->inputNote), 136.0f);
 
-    float output = LEAF_interpolateTableLookupFunction(( knobInMIDIPitch) * 0.00735294, filt->mtofTable); // divide by 136
+    float output = LEAF_interpolateTableLookupFunction(( knobInMIDIPitch) * INV_LEAF_MODULE_MAX_MIDI_NOTE, filt->mtofTable); // divide by 136
     //float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127
     output = LEAF_clip(20.0f, output, 19000.0f);
     //float output = filt->keyFollow * mtof(filt->inputNote);

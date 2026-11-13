@@ -33,6 +33,14 @@ extern "C" {
 #define MAX_NUM_MAPPINGS 30
 #define MAX_NUM_AUDIO_CONNECTIONS 30
 
+#define LEAF_MODULE_MAX_MIDI_NOTE 136
+#define INV_LEAF_MODULE_MAX_MIDI_NOTE 0.00735294f
+
+#define LEAF_MODULE_MTOF_TABLE_SIZE 16384
+#define LEAF_MODULE_FTOM_TABLE_SIZE 16384
+
+
+
 // Maximum number of processors sources for a mapping object
 #define MAX_NUM_SOURCES 3
 #define MAX_NUM_VOICES 12

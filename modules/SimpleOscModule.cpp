@@ -188,7 +188,7 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
      {
     	 tLookupTable_create(&OscModule->mempool, &OscModule->mempool->leaf->mtofTable);
     	 tLookupTable_init (OscModule->mempool->leaf, OscModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
-    	 LEAF_generate_mtof (OscModule->mempool->leaf->mtofTable->table, 0, 127, 16384);
+    	 LEAF_generate_mtof (OscModule->mempool->leaf->mtofTable->table, 0, LEAF_MODULE_MAX_MIDI_NOTE, 16384);
      }
      OscModule->mtofTable = OscModule->mempool->leaf->mtofTable;
 
@@ -252,7 +252,7 @@ void tOscModule_tick (tOscModule const osc)
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
     //float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
-    float finalFreq = (LEAF_interpolateTableLookupFunction(tempMIDI * 0.00787402f, osc->mtofTable) * osc->harmonicMultiplier + osc->freqOffset);
+    float finalFreq = (LEAF_interpolateTableLookupFunction(tempMIDI * INV_LEAF_MODULE_MAX_MIDI_NOTE, osc->mtofTable) * osc->harmonicMultiplier + osc->freqOffset);
     //printf("freq: %f\n", finalFreq);
     float out = 0.0f;
 	switch (osc->oscType) {

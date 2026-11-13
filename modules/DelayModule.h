@@ -56,7 +56,7 @@ typedef _tDelayModule* tDelayModule;
 
 //init module
 void tDelayModule_init(void** const delay, float* const params, float id, LEAF* const leaf);
-void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool, tLookupTable* resTable);
+void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool);
 
 void tDelayModule_free(void** const delay);
 

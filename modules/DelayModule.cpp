@@ -8,12 +8,7 @@
 // lagrange and tape delay
 
 void tDelayModule_init(void** const delay, float* params, float id, LEAF* const leaf) {
-	if(leaf->resTable == NULL)
-		{
-		tLookupTable_create(&leaf->mempool, &leaf->resTable);
-		tLookupTable_init(leaf, leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
-	}
-    tDelayModule_initToPool(delay, params, id, &leaf->mempool, leaf->resTable);
+    tDelayModule_initToPool(delay, params, id, &leaf->mempool);
 }
 
 // float dbToATableLookupFunction(float const in, float const sizeMinusOne, float* const tableAddress)
@@ -30,6 +25,8 @@ void tDelayModule_init(void** const delay, float* params, float id, LEAF* const 
 
 void tDelayModule_setDelay(tDelayModule const delay, float const time)
 {
+
+
     tDelay_setDelay((tDelay*)delay->theDelay, time*delay->sr);
     // switch(delay->delayType)
     // {
@@ -91,7 +88,7 @@ void tDelayModule_setGain(tDelayModule const delay, float const gain)
 	// }
 }
 
-void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool, tLookupTable* resTable)
+void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
     _tDelayModule* DelayModule =(_tDelayModule *) ( *delay = (_tDelayModule*) mpool_alloc(sizeof(_tDelayModule), m));
@@ -133,7 +130,13 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     //         break;
     // }
     DelayModule->header.moduleType = ModuleTypeDelayModule;
-
+    /*
+    if(m->leaf->delayTimeTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool, &m->leaf->delayTimeTable);
+        tLookupTable_init(m->leaf, m->leaf->delayTimeTable,  0.0f, 2250.0f, 200.0f, 2048);
+    }
+    */
 #ifndef __cplusplus
     for (int i = 0; i < DelayNumParams; i++)
     {
@@ -207,7 +210,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input / 1000.f);
+            tDelayModule_setDelay(delay, input);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);

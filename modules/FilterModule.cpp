@@ -414,7 +414,7 @@ void tFiltModule_tick (tFiltModule const filt)
     //tSlopeRamp_tick(&filt->cutoffSmoother);
 
     float knobInMIDIPitch = LEAF_interpolateTableLookupFunction((filt->cutoffFreq * 0.00005f), filt->ftomTable); //divide by 20000.0f
-    knobInMIDIPitch = LEAF_clip(0.0f, knobInMIDIPitch + (filt->keyFollow * filt->inputNote), 136.0f);
+    knobInMIDIPitch = LEAF_clip(0.0f, knobInMIDIPitch + (filt->keyFollow * filt->inputNote), LEAF_MODULE_MAX_MIDI_NOTE);
 
     float output = LEAF_interpolateTableLookupFunction(( knobInMIDIPitch) * INV_LEAF_MODULE_MAX_MIDI_NOTE, filt->mtofTable); // divide by 136
     //float output = filt->keyFollow * filt->mtofTable->table[(uint32_t)(((filt->inputNote)*0.00787402f)*16383.0f)]; //divide by 127

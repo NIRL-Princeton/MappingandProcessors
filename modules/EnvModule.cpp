@@ -33,9 +33,20 @@ void tEnvModule_onNoteOn (tEnvModule const env, float velocity)
     float envVel = velocity;
     if (velocity > 0.005f)
     {
+        //velocity sensitivity from mystran on KVR forum
+        // this would be a parameter from 0 to some maximum
+        // I just tried 20 and it feels nice
         float velSense = CPPDEREF env->header.params[EnvVelocitySense];
-        envVel = envVel * velSense + (1.0f - velSense);
-        tADSRT_on (&env->theEnv, envVel);
+        float velocity_dB_scale = 40.0f * velSense;
+
+        // map midi velocities [0, 127] to [0, 1] doubles
+        // MIDI velocity 0 has already been converted to note off
+        // but it doesn't really make any huge difference
+
+        // velo_level is the constant to scale the note with
+        float velo_level = powf(10.0f, velocity_dB_scale*(velocity - 0.7f) * 0.025f); //divide by 20 equals  * 0.05f
+
+        tADSRT_on (&env->theEnv, velo_level);
     }
     else
     {

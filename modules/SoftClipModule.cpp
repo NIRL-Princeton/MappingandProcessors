@@ -47,7 +47,7 @@ void tSoftClipModule_tick (tSoftClipModule const c)
         sample = sample * c->shapeDivider;
     }
 
-    sample = tHighpass_tick(&c->highpass, sample) * c->outputGain * c->mix + input * (1-c->mix);
+    sample = tHighpass_tick(&c->highpass, sample) * c->outputGain * c->mix + input * (1.0f-c->mix);
     c->header.outputs[0] = sample;
 
 }

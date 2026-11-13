@@ -144,7 +144,7 @@ void tLFOModule_onNoteOn(tLFOModule const lfo, float vel)
     //     lfo->counter = 0;
     //     //printf("really off\n");
     // }
-    if (vel > 0.0001f)
+    if ((vel > 0.0001f) && (lfo->syncNoteOn))
     {
         tLFOModule_setPhase(lfo, lfo->phase);
     }

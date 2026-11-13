@@ -147,9 +147,9 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
 
 void tDelayModule_free(void** const delay)
 {
-    _tDelayModule* DelayModule =(_tDelayModule*) *delay;
-    int type = roundf(CPPDEREF DelayModule->header.params[DelayType]);
-    tDelay_free((tDelay**)DelayModule->theDelay);
+
+    _tDelayModule* DelayModule = (_tDelayModule*) (*delay);
+    mpool_free ((char*) DelayModule, DelayModule->mempool);
 
     // switch(type)
     // {
@@ -168,7 +168,7 @@ void tDelayModule_free(void** const delay)
     //     default:
     //         break;
     // }
-    mpool_free((char*)DelayModule, DelayModule->mempool);
+
 }
 
 // tick function

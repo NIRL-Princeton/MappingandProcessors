@@ -8,7 +8,6 @@
 // lagrange and tape delay
 
 void tDelayModule_init(void** const delay, float* params, float id, LEAF* const leaf) {
-
     tDelayModule_initToPool(delay, params, id, &leaf->mempool);
 }
 
@@ -129,7 +128,13 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     //         break;
     // }
     DelayModule->header.moduleType = ModuleTypeDelayModule;
-
+    /*
+    if(m->leaf->delayTimeTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool, &m->leaf->delayTimeTable);
+        tLookupTable_init(m->leaf, m->leaf->delayTimeTable,  0.0f, 2250.0f, 200.0f, 2048);
+    }
+    */
 #ifndef __cplusplus
     for (int i = 0; i < DelayNumParams; i++)
     {
@@ -203,7 +208,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input / 1000.f);
+            tDelayModule_setDelay(delay, input);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);

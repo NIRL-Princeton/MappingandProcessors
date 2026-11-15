@@ -327,8 +327,9 @@ void tFiltModule_initToPool(void** const filt, float* const params, float id, tM
 
     FiltModule->header.moduleType = ModuleTypeFilterModule;
     //must set filter type before setting the parameters (or they get set in the wrong sub-filter
-    tFiltModule_setType(FiltModule, (uint8_t)(FiltModule->header.params[FiltType]*8.5f));
-#ifndef __cplusplus
+    #ifndef __cplusplus
+    tFiltModule_setType(FiltModule, (uint8_t)(FiltModule->header.params[FiltType] * 8.5f));
+
     for (int i = 0; i < FiltNumParams; i++)
     {
     	tFiltModule_setParameter(FiltModule, i, FiltModule->header.params[i]);

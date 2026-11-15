@@ -19,6 +19,7 @@
 #include "SampleAndHoldModule.h"
 #include "SimpleEnvModule.h"
 #include "ADEnvModule.h"
+#include "ControlModule.h"
 typedef void (*createModuleFunc)(void** const module, float* const params, float id, LEAF* const leaf);
 
 #include "defs.h"

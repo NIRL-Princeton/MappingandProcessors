@@ -10,19 +10,16 @@
 // TODO: Change every instance of "Template" in this file to the capitalized name of your module
 // TODO: Change every instance of "template" and "template_" in this file to the name of your module (not capitalized)
 
-/* init() ensures that the resTable has been initialized and calls initToPool() with the mempool and resTable
+/* init() ensures that the resTable has been initialized and calls initToPool() with the mempool
  * associated with the LEAF instance passed into it. No changes needed here. */
 void tTemplateModule_init(void** const template_, float* params, float id, LEAF* const leaf) {
-	if(leaf->resTable == NULL) {
-		tLookupTable_create(&leaf->mempool,&leaf->resTable);
-		tLookupTable_init(leaf, leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
-	}
-    tTemplateModule_initToPool(template_, params, id, &leaf->mempool, leaf->resTable);
+
+    tTemplateModule_initToPool(template_, params, id, &leaf->mempool;
 }
 
 /* initToPool() are the functions that initialize your module. init() will call initToPool() with the default
- * values, but a user can call initToPool() directly to specify the mempool and resTable. */
-void tTemplateModule_initToPool(void** const template_, float* const params, float id, tMempool** const mempool, tLookupTable* resTable)
+ * values, but a user can call initToPool() directly to specify the mempool */
+void tTemplateModule_initToPool(void** const template_, float* const params, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
     _tTemplateModule* TemplateModule =(_tTemplateModule *) ( *template_ = (_tTemplateModule*) mpool_alloc(sizeof(_tTemplateModule), m));
@@ -63,28 +60,20 @@ void tTemplateModule_free(void** const template_)
     //int type = roundf(CPPDEREF TemplateModule->header.params[TemplateType]);
 }
 
-void tDelayModule_free(void** const delay)
-{
-    _tDelayModule* DelayModule =(_tDelayModule*) *delay;
-    int type = roundf(CPPDEREF DelayModule->header.params[DelayType]);
-    tDelay_free((tDelay**)DelayModule->theDelay);
-    mpool_free((char*)DelayModule, DelayModule->mempool);
-}
 
-/* sets the audio sample to the output of tTemplate_tick(), which is a function that should exist in LEAF for your
- * module*/
+/* sets the audio sample to what the value output from the module should be (computed each sample).  */
 void tTemplateModule_tick (tTemplateModule const template_)
 {
-    const float input = template_->header.inputs[0];
-    template_->header.inputs[0] = 0.0f;
+    const float input = template_->header.inputs[0]; //get any audio input coming into the module if you need it
+    template_->header.inputs[0] = 0.0f; //set the input in the header to zero to prepare for next input sample to come in
 
-    template_->header.outputs[0] = tTemplate_tick((tTemplate*)template_->theTemplate,  input) * template_->amp + input;
+    template_->header.outputs[0] = 0.0f; //tick a LEAF object like a tCycle or whatever and get the output//
 }
 
 /* private helper function for setting a parameter */
 static void tTemplateModule_setParam1(tTemplateModule const template_, float const time) {
-    // LEAF should have a function for setting a parameter. Make sure you change the function inputs to be what it needs
-    tTemplate_setParam1((tTemplate*)template_->theTemplate, time*template_->sr);
+    // this is where you set the internal LEAF objects to have their real values, based on the 0-1 inputs from the parameters array
+    //for instance, if it was freq and the module holds a sine wave, call tCycle_setFreq here.
 }
 
 /* changes the modules internal parameters when a user changes it */
@@ -104,18 +93,19 @@ void tTemplateModule_setParameter(tTemplateModule const template_, TemplateParam
     }
 }
 
-/* sets the module's attributes related to the decibel table  */
-void tTemplateModule_setDBtoATableLocation (tTemplateModule const template_, float* const tableAddress, uint32_t const tableSize)
-{
-    template_->dbTableAddress = tableAddress;
-    template_->dbTableSizeMinusOne = (float)(tableSize - 1);
-    template_->dbTableScalar = template_->dbTableSizeMinusOne/(4.0f-0.00001f);
-    template_->dbTableOffset = 0.00001f * template_->dbTableScalar;
-}
-
 /* calls the relevant LEAF function for setting the sample rate  */
 void tTemplateModule_setSampleRate (tTemplateModule const template_, float const sr)
 {
     //tCycle_setSampleRate(template_->template_s[0], sr);
 }
 #endif
+
+
+//TODO: include your .h file in funcmaps.h
+//TODO: include your init function in funcmaps.c
+//TODO: make sure your type name is in defs.h
+//TODO: for the C++ code in JUCE project, add your parameters to the array in parameterArrays.h
+//TODO: for the C++ code in JUCE project, create a TemplateModuleProcessor.cpp and TemplateModuleProcessor.h in either Processors or Modulators and
+//fill that info in
+//TODO: for the C++ code in JUCE project, add it to ModuleList.cpp (include it's processor.h file and add it to the list where it belongs)
+//TODO: for the C++ code in JUCE project, add it to the ModulationModuleSection or SoundModuleSection, so it shows up in the dropdown

@@ -55,14 +55,10 @@ typedef struct _tTemplateModule {
 
     // TODO: add any other variables needed here
 
-    // most modules will need tables for the decibels
-    float* dbTableAddress;
-    uint32_t dbTableScalar;
-    float dbTableOffset;
-    float dbTableSizeMinusOne;
-
-    // all modules need a pointer to a lookup table for mapping parameter values and a pointer to the memory pool
+    //might need a pointer to a lookup table if you are using one
     tLookupTable* table;
+    // all modules need a pointer to the memory pool
+
     tMempool* mempool;
 } _tTemplateModule;
 
@@ -78,7 +74,7 @@ typedef _tTemplateModule* tTemplateModule;
 /* init() and initToPool() are the functions that initialize your module. init() will call initToPool() with the default
  * values, but a user can call initToPool() directly to specify the mempool and resTable. */
 void tTemplateModule_init(void** const template_, float* const params, float id, LEAF* const leaf);
-void tTemplateModule_initToPool(void** const template_, float* const params, float id, tMempool** const mempool, tLookupTable* resTable);
+void tTemplateModule_initToPool(void** const template_, float* const params, float id, tMempool** const mempool);
 
 /* free() removes the module from the memory pool when it is deleted */
 void tTemplateModule_free(void** const template_);
@@ -90,7 +86,6 @@ void tTemplateModule_tick (tTemplateModule const template_);
 void tTemplateModule_setParameter(tTemplateModule const template_, TemplateParams param_type,float input);
 
 /* These are setter functions for non-modulatable variables */
-void tTemplateModule_setDBtoATableLocation (tTemplateModule const template_, float* tableAddress, uint32_t tableSize);
 void tTemplateModule_setSampleRate (tTemplateModule const template_, float sr);
 
 //TODO: Add more relevant functions

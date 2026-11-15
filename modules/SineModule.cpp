@@ -21,12 +21,13 @@ void tSineModule_setParameter(tSineModule osc, SineParams param_type, float inpu
 		    break;
 	    case SinePitch:
 	        //tOscModule_setInputNote (osc, input * 127.f);
-	        osc->note = input * 127;
-	        input = osc->mtofTable->table[(int)(input*16383)];
+	        osc->note = input * 127.0f;
+	        //input = osc->mtofTable->table[(int)(input*16383)];
+	        input = (LEAF_interpolateTableLookupFunction(osc->note * INV_LEAF_MODULE_MAX_MIDI_NOTE, osc->mtofTable));
 	        tCycle_setFreq(&osc->theSine, input);
 		    break;
 	    case SineGain:
-	        tSlopeRamp_setDest(&osc->ampSmoother, input);
+	    	osc->amp = LEAF_interpolateTableLookupFunction(input, osc->gainAmpTable);
 		    break;
 	    default:
 		    break;
@@ -48,17 +49,25 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
 
     //tRamp_init(SineModule->mempool->leaf, (tRamp*)&SineModule->pitchSmooth, 1.0f, 1);
 
-    tSlopeRamp_init(SineModule->mempool->leaf, &SineModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER * TEN_DB_AMPLITUDE, 1.f);
-
     //tCycle_create (mempool, &SineModule->theSine);
     tCycle_init   (SineModule->mempool->leaf, &SineModule->theSine);
 
-    tLookupTable_create(&SineModule->mempool, &SineModule->mtofTable);
-    tLookupTable_init (SineModule->mempool->leaf, SineModule->mtofTable, 0.f, 0.f, 0.f, 16384);
-    LEAF_generate_mtof (SineModule->mtofTable->table, 0, 127, 16384);
+    if (SineModule->mempool->leaf->mtofTable == NULL)
+    {
+   	 tLookupTable_create(&SineModule->mempool, &SineModule->mempool->leaf->mtofTable);
+   	 tLookupTable_init (SineModule->mempool->leaf, SineModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
+   	 LEAF_generate_mtof (SineModule->mempool->leaf->mtofTable->table, 0, LEAF_MODULE_MAX_MIDI_NOTE, 16384);
+    }
+    SineModule->mtofTable = SineModule->mempool->leaf->mtofTable;
 
-    tLookupTable_create(&SineModule->mempool, &SineModule->gainAmpTable);
-    tLookupTable_init (SineModule->mempool->leaf, SineModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    if (SineModule->mempool->leaf->gainAmpTable == NULL)
+    {
+   	 tLookupTable_create(&SineModule->mempool, &SineModule->mempool->leaf->gainAmpTable);
+ 	 tLookupTable_init (SineModule->mempool->leaf, SineModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    }
+
+    SineModule->gainAmpTable = SineModule->mempool->leaf->gainAmpTable;
+
 
     SineModule->header.moduleType = ModuleTypeSineModule;
 #ifndef __cplusplus
@@ -93,10 +102,10 @@ void tSineModule_free(void** const osc)
 // tick function
 void tSineModule_tick (tSineModule const osc)
 {
-    osc->amp = osc->gainAmpTable->table[(int)(tSlopeRamp_tick(&osc->ampSmoother)*2047.f)];
+
     //const float input = noise->header.summedInput + buffer[0];
     osc->header.inputs[0] = 0.0f;
-
+    //tSineModule_setParameter(osc, SineFreqParam, MIDIpitch)
     //osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
     //printf("%f",osc->amp);

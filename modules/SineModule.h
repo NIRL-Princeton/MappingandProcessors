@@ -33,7 +33,6 @@ typedef struct _tSineModule {
     // float finalFreq;
     float note;
     float amp;
-    tSlopeRamp ampSmoother;
     tLookupTable* gainAmpTable;
     tLookupTable* mtofTable;
     float sr;

@@ -23,7 +23,6 @@ void tEnvModule_tick (tEnvModule const env)
 {
     //const float input = noise->header.summedInput + buffer[0];
     env->header.inputs[0] = 0.0f;
-    CPPDEREF env->header.params[EnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
     env->header.outputs[0] = tADSRT_tick (&env->theEnv);
 }
 
@@ -36,8 +35,8 @@ void tEnvModule_onNoteOn (tEnvModule const env, float velocity)
         //velocity sensitivity from mystran on KVR forum
         // this would be a parameter from 0 to some maximum
         // I just tried 20 and it feels nice
-        float velSense = CPPDEREF env->header.params[EnvVelocitySense];
-        float velocity_dB_scale = 40.0f * velSense;
+
+        float velocity_dB_scale = 40.0f * env->velSense;
 
         // map midi velocities [0, 127] to [0, 1] doubles
         // MIDI velocity 0 has already been converted to note off
@@ -129,7 +128,7 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvVelocitySense:
         {
-            tSlopeRamp_setDest (&env->velSenseSmoother, input);
+            env->velSense = input;
             break;
         }
 
@@ -168,13 +167,11 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
     EnvModule->envTimeTable = (*mempool)->leaf->envTimeTable;
     //tEnvModule_setTimeScalingTableLocation (EnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
 
-    tSlopeRamp_init(m->leaf, &EnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     EnvModule->header.moduleType = ModuleTypeEnvModule;
 #ifndef __cplusplus
     for (int i = 0; i < EnvNumParams; i++)
     {
     	tEnvModule_setParameter(EnvModule, i, EnvModule->header.params[i]);
-
     }
 #endif
 }

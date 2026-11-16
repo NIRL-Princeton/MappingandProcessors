@@ -15,6 +15,8 @@ typedef enum {
     VCAGain,
     VCAAmp,
     VCAOffset,
+    VCARouting,
+    VCAAudioInput,
     VCANumParams
 } VCAParams;
 
@@ -24,6 +26,7 @@ typedef struct _tVCAModule {
     float gain;
     float amp;
     float external_offset;
+    float audioInput;
     tLookupTable* gainAmpTable;
 
     tMempool* mempool;

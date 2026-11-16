@@ -26,64 +26,15 @@ void tDelayModule_init(void** const delay, float* params, float id, LEAF* const 
 void tDelayModule_setDelay(tDelayModule const delay, float const time)
 {
     tDelay_setDelay((tDelay*)delay->theDelay, time*delay->sr);
-    // switch(delay->delayType)
-    // {
-    //     case DelayTypeDelay:
-    //         tDelay_setDelay((tDelay*)delay->theDelay, time);
-    //         break;
-    //     case DelayTypeLinear:
-    //         tLinearDelay_setDelay((tLinearDelay*)delay->theDelay, time);
-    //         break;
-    //     case DelayTypeHermite:
-    //         tHermiteDelay_setDelay((tHermiteDelay*)delay->theDelay, time);
-    //         break;
-    //     case DelayTypeLagrange:
-    //         tLagrangeDelay_setDelay((tLagrangeDelay*)delay->theDelay, time);
-    //         break;
-    //     case DelayTypeAllpass:
-    //         tAllpassDelay_setDelay((tAllpassDelay*)delay->theDelay, time);
-    //         break;
-    //     case DelayTypeTape:
-    //         tTapeDelay_setDelay((tTapeDelay*)delay->theDelay, time);
-    //         break;
-    //     default:
-    //         break;
-    // }
+
 }
 
 void tDelayModule_setGain(tDelayModule const delay, float const gain)
 {
 	float floatIndex = 0.0f;
     delay->amp = gain;
-    // floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
     tDelay_setGain((tDelay*)delay->theDelay, gain);
-	// switch(delay->delayType)
-	// {
-	//     case DelayTypeDelay:
-	//         floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
-	//         tDelay_setGain((tDelay*)delay->theDelay, dbToATableLookupFunction(floatIndex, delay->dbTableSizeMinusOne, delay->dbTableAddress));
-	//         break;
-	//     case DelayTypeLinear:
-	//         floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
-	//         tLinearDelay_setGain((tLinearDelay*)delay->theDelay, dbToATableLookupFunction(floatIndex, delay->dbTableSizeMinusOne, delay->dbTableAddress));
-	//         break;
-	//     case DelayTypeHermite:
-	//         floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
-	//         tHermiteDelay_setGain((tHermiteDelay*)delay->theDelay, dbToATableLookupFunction(floatIndex, delay->dbTableSizeMinusOne, delay->dbTableAddress));
-	//         break;
-	//     case DelayTypeLagrange:
-	//         break;
-	//     case DelayTypeAllpass:
-	//         floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
-	//         tAllpassDelay_setGain((tAllpassDelay*)delay->theDelay, dbToATableLookupFunction(floatIndex, delay->dbTableSizeMinusOne, delay->dbTableAddress));
-	//         break;
-	//     case DelayTypeTape:
-	//         floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * delay->dbTableScalar) -  delay->dbTableOffset, delay->dbTableSizeMinusOne);
-	//         tTapeDelay_setGain((tTapeDelay*)delay->theDelay, dbToATableLookupFunction(floatIndex, delay->dbTableSizeMinusOne, delay->dbTableAddress));
-	//         break;
-	//     default:
-	//         break;
-	// }
+
 }
 
 void tDelayModule_initToPool(void** const delay, float* const params, float id, tMempool** const mempool)
@@ -95,8 +46,7 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
 
 #endif
     DelayModule->header.uniqueID = id;
-    //CPPDEREF DelayModule->header.params[DelayAudioInput] = 0.0f;
-    // int type = roundf(DelayModule->params[DelayType]);
+
     DelayModule->mempool = m;
     DelayModule->invSr = m->leaf->invSampleRate;
     DelayModule->sr = m->leaf->sampleRate;
@@ -150,25 +100,6 @@ void tDelayModule_free(void** const delay)
 
     _tDelayModule* DelayModule = (_tDelayModule*) (*delay);
     mpool_free ((char*) DelayModule, DelayModule->mempool);
-
-    // switch(type)
-    // {
-    //     case DelayTypeDelay:
-    //         tDelay_free((tDelay**)DelayModule->theDelay);
-    //     case DelayTypeLinear:
-    //         tLinearDelay_free((tLinearDelay**)DelayModule->theDelay);
-    //     case DelayTypeHermite:
-    //         tHermiteDelay_free((tHermiteDelay**)DelayModule->theDelay);
-    //     case DelayTypeLagrange:
-    //         tLagrangeDelay_free((tLagrangeDelay**)DelayModule->theDelay);
-    //     case DelayTypeAllpass:
-    //         tAllpassDelay_free((tAllpassDelay**)DelayModule->theDelay);
-    //     case DelayTypeTape:
-    //         tTapeDelay_free((tTapeDelay**)DelayModule->theDelay);
-    //     default:
-    //         break;
-    // }
-
 }
 
 // tick function
@@ -177,29 +108,7 @@ void tDelayModule_tick (tDelayModule const delay)
     const float input = delay->header.inputs[0];
     delay->header.inputs[0] = 0.0f;
     delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp;
-    // switch(delay->delayType)
-    // {
-    //     case DelayTypeDelay:
-    //         buffer[0] = delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     case DelayTypeLinear:
-    //         buffer[0] = delay->header.outputs[0] = tLinearDelay_tick((tLinearDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     case DelayTypeHermite:
-    //         buffer[0] = delay->header.outputs[0] = tHermiteDelay_tick((tHermiteDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     case DelayTypeLagrange:
-    //         buffer[0] = delay->header.outputs[0] = tLagrangeDelay_tick((tLagrangeDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     case DelayTypeAllpass:
-    //         buffer[0] = delay->header.outputs[0] = tAllpassDelay_tick((tAllpassDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     case DelayTypeTape:
-    //         buffer[0] = delay->header.outputs[0] = tTapeDelay_tick((tTapeDelay*)delay->theDelay,  buffer[0]) * delay->amp;
-    //         break;
-    //     default:
-    //         break;
-    // }
+
 }
 
 // Modulatable setters
@@ -213,27 +122,14 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
         case DelayGain:
             tDelayModule_setGain(delay, input);
             break;
-        // case DelayFeedback:
-        //     delay->feedback = input;
-        //     break;
-        // case DelayMix:
-        //     delay->mix = input;
-        //     break;
+
         default:
             break;
     }
 }
 
-// Non-modulatable setters
-void tDelayModule_setDBtoATableLocation (tDelayModule const delay, float* const tableAddress, uint32_t const tableSize)
-{
-    delay->dbTableAddress = tableAddress;
-    delay->dbTableSizeMinusOne = (float)(tableSize - 1);
-    delay->dbTableScalar = delay->dbTableSizeMinusOne/(4.0f-0.00001f);
-    delay->dbTableOffset = 0.00001f * delay->dbTableScalar;
-}
 
 void tDelayModule_setSampleRate (tDelayModule const delay, float const sr)
 {
-    //tCycle_setSampleRate(delay->delays[0], sr);
+    //tDelay_setSampleRate(delay, sr);
 }

@@ -15,21 +15,10 @@ typedef enum {
     DelayEventWatchFlag,
     DelayTime,
     DelayGain,
-    // DelayFeedback,
-    // DelayMix,
-    DelayType,
     DelayNumParams
 } DelParams;
 
-typedef enum {
-    DelayTypeDelay,
-    DelayTypeLinear,
-    DelayTypeHermite,
-    DelayTypeLagrange,
-    DelayTypeAllpass,
-    DelayTypeTape,
-    DelayNumTypes
-} DelayTypes;
+
 
 //the actual frequency setter function
 // typedef void (*tDelayInternalParamSetFunc)(void*, float);
@@ -37,16 +26,11 @@ typedef enum {
 typedef struct _tDelayModule {
     ModuleHeader header;
     void* theDelay;
-    uint32_t delayType;
 
     float amp;
     float sr;
     float invSr;
 
-    float* dbTableAddress;
-    uint32_t dbTableScalar;
-    float dbTableOffset;
-    float dbTableSizeMinusOne;
 
     tLookupTable* table;
     tMempool* mempool;
@@ -65,8 +49,7 @@ void tDelayModule_tick (tDelayModule const delay);
 
 void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,float input);
 
-// Non-modulatable setters
-void tDelayModule_setDBtoATableLocation (tDelayModule const delay, float* tableAddress, uint32_t tableSize);
+
 void tDelayModule_setSampleRate (tDelayModule const delay, float sr);
 
 #endif // ELECTORSYNTH_DELAYMODULE_H

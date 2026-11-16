@@ -36,6 +36,7 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
     VCAModule->mempool = m;
     VCAModule->amp = 1.0f;
     VCAModule->gain = 1.0f;
+    VCAModule->audioInput = 0.0f;
     VCAModule->header.moduleType = ModuleTypeVCAModule;
     VCAModule->external_offset = 0.0f;
 
@@ -71,6 +72,11 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
         case VCAOffset:
             VCA->external_offset = input;
             break;
+        case VCAAudioInput:
+            VCA->audioInput = input;
+            break;
+        case VCARouting:
+            break;
         default:
             break;
     }
@@ -85,7 +91,7 @@ void tVCAModule_tick (tVCAModule const VCA)
     const float input = VCA->header.inputs[0];
     VCA->header.inputs[0] = 0.0f;
 
-    VCA->header.outputs[0] = (input  + VCA->external_offset) * VCA->amp * VCA->gain;
+    VCA->header.outputs[0] = (input  + VCA->external_offset + VCA->audioInput) * VCA->amp * VCA->gain;
 }
 
 // Modulatable setters

@@ -23,7 +23,7 @@ void tSimpleEnvModule_tick (tSimpleEnvModule const env)
 {
     CPPDEREF env->header.params[SimpEnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
     float out = tADSR_tick (&env->theEnv);
-    env->header.outputs[0] = LEAF_clip(0, out, 1);
+    env->header.outputs[0] = LEAF_clip(0.0f, out, 1.0f);
     //printf("%f\n", out);
 }
 
@@ -67,6 +67,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
 
         case SimpEnvAttack:
         {
+
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float)inputInt;
@@ -75,10 +76,12 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
             tADSR_setAttack (&env->theEnv, theValue + 0.001f);
             //printf("Attack: %f\n", theValue + 0.001f);
             break;
+
         }
 
         case SimpEnvDecay:
         {
+
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float) inputInt;
@@ -87,6 +90,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
             tADSR_setDecay (&env->theEnv, theValue + 0.001f);
             //printf("Decay: %f\n", theValue + 0.001f);
             break;
+
         }
 
         case SimpEnvSustain:
@@ -98,6 +102,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
 
         case SimpEnvRelease:
         {
+
             input *= env->envTimeTableSizeMinusOne;
             int const inputInt = (int) input;
             float const inputFloat = input - (float) inputInt;
@@ -107,6 +112,7 @@ void tSimpleEnvModule_setParameter (tSimpleEnvModule const env, int parameter_id
 
             //printf("Release: %f\n", theValue + 0.001f);
             break;
+
         }
 
         case SimpEnvLeak:

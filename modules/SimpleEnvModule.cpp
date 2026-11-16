@@ -168,5 +168,11 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
 
     tSlopeRamp_init(m->leaf, &SimpleEnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     SimpleEnvModule->header.moduleType = ModuleTypeSimpleEnvModule;
+    #ifndef __cplusplus
+    for (int i = 0; i < SimpEnvNumParams; i++)
+    {
+        tSimpleEnvModule_setParameter(SimpleEnvModule, i, SimpleEnvModule->header.params[i]);
+    }
+    #endif
 }
 

@@ -143,7 +143,9 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
 {
     tMempool* m = *mempool;
     _tSimpleEnvModule* SimpleEnvModule = (_tSimpleEnvModule*) (*env = (_tSimpleEnvModule*) mpool_alloc (sizeof (_tSimpleEnvModule), m));
-
+    #ifndef __cplusplus
+    memcpy (SimpleEnvModule->header.params, params, SimpEnvNumParams * sizeof(float));
+    #endif __cplusplus
     SimpleEnvModule->mempool = m;
 
     SimpleEnvModule->header.uniqueID = id;

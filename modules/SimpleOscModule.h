@@ -26,7 +26,8 @@ typedef enum {
     OscSteppedPitch,
     OscSyncMode,
     OscSyncIn,
-    OscPortaType,
+    OscAmp,
+    OscOctave,
     OscNumParams
 } OscParams;
 
@@ -69,9 +70,11 @@ typedef struct _tOscModule {
     float octaveOffset;
     float inputNote;
     float finalFreq;
+    float amp;
     float gain;
     float sr;
     float invSr;
+    float octave;
     int hStepped;
     int pStepped;
     int syncMode;

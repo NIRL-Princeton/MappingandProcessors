@@ -107,19 +107,22 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 		    break;
 	    case OscType:
 	    {
-	        input = powf(2, (uint8_t)(5.4 * input));
+	        input = powf(2.0f, (uint8_t)(5.4 * input));
 	        if ((uint8_t)input != osc->oscType)
 	        {
 	            tOscModule_setType(osc, (uint8_t)input);
 	        }
 	        break;
 	    }
-        case OscPortaType:
+        case OscAmp:
 	    {
-	        if (osc->portaType != (uint8_t)input)
-	        {
-	            osc->portaType = (uint8_t)input;
-	        }
+	        osc->amp = input;
+	        break;
+	    }
+
+        case OscOctave:
+	    {
+	        osc->octave = powf(2.0f, roundf((4.0f * input) - 2.0f));
 	        break;
 	    }
 	    default:
@@ -144,7 +147,8 @@ void tOscModule_initToPool(void** const osc, float* const param, float id, tMemp
     OscModule->inputGlideTime = 0;
     OscModule->gain = 1.f;
     OscModule->pitchOffset = 0;
-
+    OscModule->octave = 1.0f;
+    OscModule->amp = 1.0f;
     OscModule->mempool = m;
     OscModule->invSr = m->leaf->invSampleRate;
     OscModule->sr = m->leaf->sampleRate;
@@ -240,7 +244,7 @@ void tOscModule_tick (tOscModule const osc)
 
     float tempMIDI;
 
-    tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->octaveOffset + osc->fine;
+    tempMIDI = tRamp_tick(&osc->pitchSmooth) + osc->pitchOffset + osc->fine;
 
 
 	//    float tempIndexgit F = ((LEAF_clip(-163.0f, tempMIDI, 163.0f) * 100.0f) + 16384.0f);
@@ -252,7 +256,7 @@ void tOscModule_tick (tOscModule const osc)
 
     // float finalFreq = mtof(tempMIDI) * osc->harmonicMultiplier + osc->freqOffset;
     //float finalFreq = LEAF_clip(0.f, osc->mtofTable->table[(int)LEAF_clip(0, ((tempMIDI)/(127) * 16383), 16383)] * osc->harmonicMultiplier + osc->freqOffset, 20500.f);
-    float finalFreq = (LEAF_interpolateTableLookupFunction(tempMIDI * INV_LEAF_MODULE_MAX_MIDI_NOTE, osc->mtofTable) * osc->harmonicMultiplier + osc->freqOffset);
+    float finalFreq = (LEAF_interpolateTableLookupFunction(tempMIDI * INV_LEAF_MODULE_MAX_MIDI_NOTE, osc->mtofTable) * osc->harmonicMultiplier * osc->octave + osc->freqOffset);
     //printf("freq: %f\n", finalFreq);
     float out = 0.0f;
 	switch (osc->oscType) {
@@ -293,7 +297,7 @@ void tOscModule_tick (tOscModule const osc)
 	    default:
 	        break;
 	}
-    osc->header.outputs[0] = out;
+    osc->header.outputs[0] = out * osc->amp;
 }
 
 void tOscModule_setShape(tOscModule const osc, float shape)
@@ -325,7 +329,7 @@ void tOscModule_setGlideOrigin(tOscModule const osc, float originNote)
 
 void tOscModule_setOctave (tOscModule const osc, float const oct)
 {
-	 osc->octaveOffset = (roundf(((oct - 0.5f) * 6.0f))) * 12.0f;
+	 //osc->octaveOffset = (roundf(((oct - 0.5f) * 6.0f))) * 12.0f;
 }
 
 // Non-modulatable setters

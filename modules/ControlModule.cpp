@@ -32,6 +32,12 @@ void tControlModule_setSampleRate (tControlModule const env, float sr)
 {
     //how to handle this? if then cases for different types?
 }
+
+uint8_t tControlModule_getCCNum (tControlModule const ctl)
+{
+	return ctl->ccNum;
+}
+
 void tControlModule_setParameter (tControlModule const ctl, int parameter_id, float input)
 {
     switch (parameter_id)

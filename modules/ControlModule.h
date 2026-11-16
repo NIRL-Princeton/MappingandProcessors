@@ -37,6 +37,7 @@ void tControlModule_free(void** const ctl);
 
 // Modulatable setters
 void tControlModule_setCCNum (tControlModule const ctl, float ccNum);
+uint8_t tControlModule_getCCNum (tControlModule const ctl);
 
 void tControlModule_setParameter(tControlModule const ctl, int param_type, float input);
 

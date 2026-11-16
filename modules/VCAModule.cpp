@@ -35,15 +35,17 @@ void tVCAModule_initToPool(void** const VCA, float* const params, float id, tMem
     //int type = 0.0f;//roundf(VCAModule->params[VCAType]);
     VCAModule->mempool = m;
     VCAModule->amp = 1.0f;
+    VCAModule->gain = 1.0f;
     VCAModule->header.moduleType = ModuleTypeVCAModule;
-    VCAModule->external_input = 0;
-    //VCAModule->header.setterFunctions[VCAGain] = (tSetter)&(*tVCAModule_setGain);
-    //VCAModule->header.setterFunctions[VCAAudioInput] = (tSetter)&(*tVCAModule_setAudio);
+    VCAModule->external_offset = 0.0f;
 
-    tSlopeRamp_init(VCAModule->mempool->leaf, &VCAModule->ampSmoother, SMOOTH_SLOPE_MULTIPLIER,0.5);
+    if (m->leaf->gainAmpTable == NULL)
+    {
+        tLookupTable_create(&m->leaf->mempool, &m->leaf->gainAmpTable);
+        tLookupTable_init (m->leaf, m->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    }
+    VCAModule->gainAmpTable = m->leaf->gainAmpTable;
 
-    tLookupTable_create(&VCAModule->mempool, &VCAModule->gainAmpTable);
-    tLookupTable_init (VCAModule->mempool->leaf, VCAModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
 }
 
 
@@ -53,14 +55,6 @@ void tVCAModule_free(void** const VCA)
     mpool_free((char*)VCAModule, VCAModule->mempool);
 }
 
-void tVCAModule_setAudio(tVCAModule const VCA, float audio)
-{
-    VCA->external_input = audio;
-}
-void tVCAModule_setGain(tVCAModule const VCA, float gain)
-{
-    VCA->gainAmpTable->table[(int)(gain*2047)];
-}
 
 void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input)
 {
@@ -68,13 +62,14 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
     {
         case VCAEventWatchFlag:
             break;
-        case VCAGain:
-            tSlopeRamp_setDest(&VCA->ampSmoother, input);
+        case VCAGain: //exponential
+            VCA->gain = LEAF_interpolateTableLookupFunction(input, VCA->gainAmpTable);
             break;
-        case VCARouting:
+        case VCAAmp: //linear
+            VCA->amp = input;
             break;
-        case VCAAudioInput:
-            tVCAModule_setAudio(VCA, input);
+        case VCAOffset:
+            VCA->external_offset = input;
             break;
         default:
             break;
@@ -86,12 +81,11 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
 void tVCAModule_tick (tVCAModule const VCA)
 {
 
-    tVCAModule_setGain(VCA,tSlopeRamp_tick(&VCA->ampSmoother));
     //buffer[0] = VCA->header.outputs[0] = (*buffer   + VCA->external_input)*VCA->amp;
     const float input = VCA->header.inputs[0];
     VCA->header.inputs[0] = 0.0f;
 
-    VCA->header.outputs[0] = (input  + VCA->external_input) * VCA->amp;
+    VCA->header.outputs[0] = (input  + VCA->external_offset) * VCA->amp * VCA->gain;
 }
 
 // Modulatable setters

@@ -13,20 +13,17 @@
 typedef enum {
     VCAEventWatchFlag,
     VCAGain,
-    VCARouting,
-    VCAAudioInput,
+    VCAAmp,
+    VCAOffset,
     VCANumParams
 } VCAParams;
 
 
 typedef struct _tVCAModule {
     ModuleHeader header;
-    //void* theVCA;
-
-    tSlopeRamp ampSmoother;
+    float gain;
     float amp;
-    float external_input;
-
+    float external_offset;
     tLookupTable* gainAmpTable;
 
     tMempool* mempool;
@@ -44,8 +41,6 @@ void tVCAModule_tick (tVCAModule const VCA);
 
 void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float input);
 
-void tVCAModule_setAudio(tVCAModule const VCA, float audio);
-void tVCAModule_setGain(tVCAModule const VCA, float gain);
 
 // Non-modulatable setters
 

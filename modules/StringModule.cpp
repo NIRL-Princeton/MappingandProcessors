@@ -27,7 +27,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     tSimpleLivingString3_create (mempool, &module->theString);
     tSimpleLivingString3_init   (m->leaf,
                                  module->theString,
-                                 1,
+                                 4,
                                  440.f,
                                  440.0,
                                  1.0,
@@ -44,6 +44,8 @@ void tStringModule_tick(tStringModule const s)
 {
     const float input = s->header.inputs[0];
     s->header.inputs[0] = 0.0f;
+    float inputFreq = mtof(s->inputNote);
+    tSimpleLivingString3_setFreq(s->theString, inputFreq);
     s->header.outputs[0] = tSimpleLivingString3_tick(s->theString, input);
 }
 
@@ -54,7 +56,7 @@ void tStringModule_onNoteOn(tStringModule const s, float velocity)
     if (velocity > 0.0001f)
     {
 
-        tSimpleLivingString3_pluck(s->theString, Vel, 0.6f);
+        tSimpleLivingString3_pluck(s->theString, Vel, s->pluckPosition);
     }
     else
     {
@@ -75,15 +77,15 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
 
 
         case StringMIDIPitch:
-            s->inputNote = input; // store directly or implement oversample logic
+            s->inputNote = input * 127.0f;
             break;
 
         case StringFreq:
-            tSimpleLivingString3_setFreq(s->theString, mtof(input * 127.0f));
+
             break;
 
         case StringWaveLength:
-            tSimpleLivingString3_setWaveLength(s->theString, input * 95.f + 5.f);
+            //tSimpleLivingString3_setWaveLength(s->theString, input * 95.f + 5.f);
 
             break;
 
@@ -92,7 +94,7 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             break;
 
         case StringDecay:
-            tSimpleLivingString3_setDecay(s->theString, input);
+            tSimpleLivingString3_setDecay(s->theString, input * 400.0f);
             break;
 
         case StringTargetLevel:

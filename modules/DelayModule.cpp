@@ -25,15 +25,14 @@ void tDelayModule_init(void** const delay, float* params, float id, LEAF* const 
 
 void tDelayModule_setDelay(tDelayModule const delay, float const time)
 {
-    tDelay_setDelay((tDelay*)delay->theDelay, time*delay->sr);
+	tTapeDelay_setDelay(delay->theDelay, time*delay->sr);
 
 }
 
 void tDelayModule_setGain(tDelayModule const delay, float const gain)
 {
-	float floatIndex = 0.0f;
-    delay->amp = gain;
-    tDelay_setGain((tDelay*)delay->theDelay, gain);
+    delay->amp = LEAF_interpolateTableLookupFunction(gain, delay->gainAmpTable);;
+    //tLagrangeDelay_setGain((tDelay*)delay->theDelay, gain);
 
 }
 
@@ -51,8 +50,14 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     DelayModule->invSr = m->leaf->invSampleRate;
     DelayModule->sr = m->leaf->sampleRate;
 
-    tDelay_create(mempool, (tDelay**)&DelayModule->theDelay);
-    tDelay_init(m->leaf,(tDelay*)DelayModule->theDelay, 0.0f, 100000.f);
+    tTapeDelay_create(mempool,&DelayModule->theDelay);
+    tTapeDelay_init(m->leaf,DelayModule->theDelay,2000, 30000);
+    tSVF_init(m->leaf,&DelayModule->lp, SVFTypeLowpass, 16000.f, .7f);
+    tSVF_init(m->leaf,&DelayModule->hp, SVFTypeHighpass, 20.f, .7f);
+    tHighpass_init(m->leaf,&DelayModule->shaperHp, 20.0f);
+    tFeedbackLeveler_init(m->leaf,&DelayModule->feedbackControl, .99f, 0.01f, 0.125f, 0);
+    //tLagrangeDelay_create(mempool,DelayModule->theDelay (tLagrangeDelay**)&DelayModule->theDelay);
+    //tLagrangeDelay_init(m->leaf,(tLagrangeDelay*)DelayModule->theDelay, 0.0f, 100000.f);
 
     // switch(type)
     // {
@@ -77,6 +82,14 @@ void tDelayModule_initToPool(void** const delay, float* const params, float id, 
     //     default:
     //         break;
     // }
+
+    if (DelayModule->mempool->leaf->gainAmpTable == NULL)
+    {
+   	 tLookupTable_create(&DelayModule->mempool, &DelayModule->mempool->leaf->gainAmpTable);
+   	 tLookupTable_init (DelayModule->mempool->leaf, DelayModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    }
+    DelayModule->gainAmpTable = DelayModule->mempool->leaf->gainAmpTable;
+
     DelayModule->header.moduleType = ModuleTypeDelayModule;
     /*
     if(m->leaf->delayTimeTable == NULL)
@@ -107,7 +120,14 @@ void tDelayModule_tick (tDelayModule const delay)
 {
     const float input = delay->header.inputs[0];
     delay->header.inputs[0] = 0.0f;
-    delay->header.outputs[0] = tDelay_tick((tDelay*)delay->theDelay,  input) * delay->amp;
+
+    float input1 = tFeedbackLeveler_tick(&delay->feedbackControl, tanhf(input + (delay->fbSample * delay->fbAmount)));
+
+    delay->fbSample = tTapeDelay_tick(delay->theDelay, input1);
+    delay->fbSample = tSVF_tick(&delay->lp, delay->fbSample);
+    delay->fbSample = tanhf(tSVF_tick(&delay->hp, delay->fbSample));
+
+    delay->header.outputs[0] = delay->fbSample * delay->amp;
 
 }
 
@@ -117,12 +137,24 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input);
+            tDelayModule_setDelay(delay, input * 30000.0f);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);
             break;
+        case DelayHPCutoff:
+            delay->cutoff1 = LEAF_clip(10.0f,faster_mtof((input * 133.0f) + 3.0f),
+                                                  20000.0f);
+            tSVF_setFreq(&delay->hp, delay->cutoff1);
 
+            break;
+        case DelayLPCutoff:
+            delay->cutoff2 = LEAF_clip(10.0f,faster_mtof((input * 133.0f) + 3.0f),
+                                                  20000.0f);
+            tSVF_setFreq(&delay->lp, delay->cutoff2);
+            break;
+        case DelayFeedback:
+        	delay->fbAmount = input;
         default:
             break;
     }

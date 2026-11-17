@@ -23,19 +23,23 @@ void tSoftClipModule_free(void** const c)
 void tSoftClipModule_tick (tSoftClipModule const c)
 {
 
-	c->inputGain = LEAF_InterpolateTableLookupFunction(tSlopeRamp_tick(&c->inputGainSmoother), c->gainAmpTable);
-	c->inputGain = LEAF_InterpolateTableLookupFunction(tSlopeRamp_tick(&c->outputGainSmoother), c->gainAmpTable);
+	c->inputGain = LEAF_interpolateTableLookupFunction(tSlopeRamp_tick(&c->inputGainSmoother), c->gainAmpTable);
+	c->inputGain = LEAF_interpolateTableLookupFunction(tSlopeRamp_tick(&c->outputGainSmoother), c->gainAmpTable);
     const float input = c->header.inputs[0];
     c->header.inputs[0] = 0.0f;
 
     float sample = input;
-    c->shapeDivider = tSlopeRamp_tick(&c->shapeDividerSmoother);
+    //c->shapeDivider = tSlopeRamp_tick(&c->shapeDividerSmoother);
     c->offset = tSlopeRamp_tick(&c->offsetSmoother);
     c->mix = tSlopeRamp_tick(&c->mixSmoother);
 
-    sample = sample * c->inputGain * 5.0f;
+    //sample = sample * c->inputGain * 5.0f;
+    sample = sample * c->inputGain;
     sample = sample + (c->offset * 2.0f) - 1.0f;
 
+    sample = tanhf(sample);
+
+    /*
     if (sample <= -1.0f)
     {
         sample = -1.0f;
@@ -47,7 +51,7 @@ void tSoftClipModule_tick (tSoftClipModule const c)
         sample = 1.5f * (sample) - (((sample * sample * sample))* 0.3333333f);
         sample = sample * c->shapeDivider;
     }
-
+*/
     sample = tHighpass_tick(&c->highpass, sample) * c->outputGain * c->mix + input * (1.0f-c->mix);
     c->header.outputs[0] = sample;
 

@@ -14,6 +14,9 @@
 typedef enum {
     DelayEventWatchFlag,
     DelayTime,
+	DelayHPCutoff,
+	DelayLPCutoff,
+	DelayFeedback,
     DelayGain,
     DelayNumParams
 } DelParams;
@@ -25,14 +28,21 @@ typedef enum {
 
 typedef struct _tDelayModule {
     ModuleHeader header;
-    void* theDelay;
-
+    tTapeDelay* theDelay;
+    tSVF lp;
+    tSVF hp;
+    tHighpass shaperHp;
+    tFeedbackLeveler feedbackControl;
+    float fbSample;
+    float fbAmount;
+    float cutoff1;
+    float cutoff2;
     float amp;
     float sr;
     float invSr;
 
 
-    tLookupTable* table;
+    tLookupTable* gainAmpTable;
     tMempool* mempool;
 } _tDelayModule;
 

@@ -110,7 +110,7 @@ void tSoftClipModule_initToPool(void** const c, float* const params, float id, t
 
 	_tSoftClipModule* SoftClipModule = (_tSoftClipModule*) (*c = (_tSoftClipModule*) mpool_alloc (sizeof (_tSoftClipModule), m));
 #ifndef __cplusplus
-	memcpy(SoftClipModule->header.params, params, SoftClipNumParams);
+	memcpy(SoftClipModule->header.params, params, SoftClipNumParams*sizeof(float));
 #endif
 
     SoftClipModule->mempool = m;
@@ -135,6 +135,13 @@ void tSoftClipModule_initToPool(void** const c, float* const params, float id, t
    	 tLookupTable_init (SoftClipModule->mempool->leaf, SoftClipModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
     }
     SoftClipModule->gainAmpTable = SoftClipModule->mempool->leaf->gainAmpTable;
+#ifndef __cplusplus
+    for (int i = 0; i < SoftClipNumParams; i++)
+    {
+    	tSoftClipModule_setParameter(SoftClipModule, i, SoftClipModule->header.params[i]);
+
+    }
+#endif
 
     SoftClipModule->header.moduleType = ModuleTypeSoftClipModule;
 }

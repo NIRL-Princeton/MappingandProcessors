@@ -112,6 +112,7 @@ void tDelayModule_free(void** const delay)
 {
 
     _tDelayModule* DelayModule = (_tDelayModule*) (*delay);
+    tTapeDelay_free(&DelayModule->theDelay);
     mpool_free ((char*) DelayModule, DelayModule->mempool);
 }
 
@@ -154,7 +155,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
             tSVF_setFreq(&delay->lp, delay->cutoff2);
             break;
         case DelayFeedback:
-        	delay->fbAmount = input;
+        	delay->fbAmount = input* 1.1f;
             break;
         case DelayMix:
             delay->mix = input;

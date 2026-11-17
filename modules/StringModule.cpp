@@ -40,6 +40,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
                                  1.0,
                                  0);
     tExpSmooth_init(m->leaf,&module->barSlideSmoother, 0.0f, 0.001f);
+    tExpSmooth_init(m->leaf,&module->barMovementSmoother, 0.0f, 0.01f);
     tEnvelopeFollower_init(m->leaf,&module->barNoiseSmoother,0.000001f, 0.9993f);
     tNoise_init(m->leaf,&module->noise, WhiteNoise);
     tVZFilter_init(m->leaf, &module->noiseFilter, Lowpass, 800.0f, 0.9f);
@@ -96,10 +97,14 @@ void tStringModule_tick(tStringModule const s)
 	}
 
 	tSimpleLivingString3_setDecay(s->theString, decay);
-	tSimpleLivingString3_setDampFreq(s->theString, dampFreq);
+	//tSimpleLivingString3_setDampFreq(s->theString, dampFreq);
 
 
 	tSimpleLivingString3_setFreq(s->theString, mtof(note));
+
+	float currentBarSlide = tExpSmooth_tick(&s->barMovementSmoother);
+	s->slideChange = fabsf(currentBarSlide - s->slidePosition);
+	s->slidePosition = currentBarSlide;
 	float barDelta = s->slideChange;
 	if (barDelta > 0.9f)
 	{
@@ -160,11 +165,11 @@ void tStringModule_setParameter(tStringModule const s, StringModuleParams param,
             break;
 
         case StringOctave:
-            s->octave = (roundf((input * 8.0f) - 4.0f) * 12.0f) - 24.0f;
+            s->octave = (roundf((input * 8.0f) - 4.0f) * 12.0f);
             break;
 
         case StringDampFreq:
-            tSimpleLivingString3_setDampFreq(s->theString, mtof(input * 127.0f));
+            tSimpleLivingString3_setDampFreq(s->theString, mtof(input * 136.0f));
             break;
 
         case StringDecay:
@@ -213,7 +218,7 @@ void tStringModule_setParameter(tStringModule const s, StringModuleParams param,
 
 void tStringModule_setSlidePosition(tStringModule const s, float input)
 {
-    s->slideChange = fabsf(input - s->slidePosition);
-    s->slidePosition = input;
+    tExpSmooth_setDest(&s->barMovementSmoother, input);
+
 
 }

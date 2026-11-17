@@ -41,6 +41,7 @@ typedef struct _tStringModule {
     float pluckPosition;
     float inputNote;
     float slideNoiseAmount;
+    tExpSmooth barMovementSmoother;
     tExpSmooth barSlideSmoother;
     tEnvelopeFollower barNoiseSmoother;
     tVZFilter noiseFilter;

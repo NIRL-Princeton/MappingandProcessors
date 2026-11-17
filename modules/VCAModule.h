@@ -12,9 +12,9 @@
 
 typedef enum {
     VCAEventWatchFlag,
-    VCAGain,
-    VCAAmp,
     VCAOffset,
+    VCAAmp,
+    VCAGain,
     VCARouting,
     VCAAudioInput,
     VCANumParams

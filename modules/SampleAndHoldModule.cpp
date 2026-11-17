@@ -137,5 +137,5 @@ void tSampleAndHoldModule_tick (tSampleAndHoldModule const sampHold)
         tSampleAndHoldModule_setBinLength(sampHold);
     }
     //sampHold->currSample = tRamp_tick(&sampHold->sampleSmoother) * sampHold->gain;
-
+    sampHold->header.outputs[0] = sampHold->currSample * sampHold->mix + input * (1 - sampHold->mix);
 }

@@ -6,6 +6,7 @@
 
 //#include <cstdio>
 
+#include "string.h"
 #include <assert.h>
 
 void tSimpleEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)

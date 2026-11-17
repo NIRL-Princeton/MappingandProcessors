@@ -12,6 +12,7 @@ void tStringModule_init(void** const module, float* params, float id, LEAF* cons
 void tStringModule_free(void** const mod)
 {
     _tStringModule* module =(tStringModule )(*mod);
+    tSimpleLivingString3_free(&module->theString);
     mpool_free((char*)module, module->mempool);
 }
 void tStringModule_initToPool(void** const s, float* const params, float id, tMempool** const mempool)
@@ -19,7 +20,10 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     tMempool* m = *mempool;
     _tStringModule* module = (_tStringModule *)(*s = (_tStringModule*) mpool_alloc(sizeof(_tStringModule), m));
     #ifndef __cplusplus
-    memcpy(module->header.params, params, StringNumParams);
+    for (int i = 0; i < StringNumParams; i++)
+    {
+    	module->header.params[i] = params[i];
+    }
     #endif
     module->mempool = m;
     module->header.moduleType = ModuleTypeStringModule;
@@ -27,7 +31,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     tSimpleLivingString3_create (mempool, &module->theString);
     tSimpleLivingString3_init   (m->leaf,
                                  module->theString,
-                                 4,
+                                 1,
                                  440.f,
                                  440.0,
                                  1.0,
@@ -35,6 +39,12 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
                                  1.0,
                                  1.0,
                                  0);
+	#ifndef __cplusplus
+	for (int i = 0; i < StringNumParams; i++)
+	{
+		tStringModule_setParameter(module, i, module->header.params[i]);
+	}
+	#endif
     //module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringModule_onNoteOn;
     //CPPDEREF module->header.params[StringEventWatchFlag] = 1.0f;
 }
@@ -63,6 +73,7 @@ void tStringModule_onNoteOn(tStringModule const s, float velocity)
         ;
     }
 }
+
 void tStringModule_setParameter(tStringModule const s, StringModelParams param, float input)
 {
     switch (param)

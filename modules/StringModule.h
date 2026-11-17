@@ -11,11 +11,8 @@
 
 typedef enum {
     StringEventWatchFlag,
-    StringOversample,
-    StringMIDIPitch,
-    StringFreqOffset,
-    StringOctave,
     StringDampFreq,
+    StringFreqOffset,
     StringDecay,
     StringTargetLevel,
     StringLevelSmooth,
@@ -25,6 +22,8 @@ typedef enum {
     StringRippleGain,
     StringRippleDelay,
     StringPluckPosition,
+    StringOctave,
+    StringMIDIPitch,
     StringNumParams
 } StringModuleParams;
 

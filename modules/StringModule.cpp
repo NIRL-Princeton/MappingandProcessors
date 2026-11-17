@@ -101,14 +101,14 @@ void tStringModule_tick(tStringModule const s)
 
 	tSimpleLivingString3_setFreq(s->theString, mtof(note));
 	float barDelta = s->slideChange;
-	if (barDelta > 0.2f)
+	if (barDelta > 0.9f)
 	{
 		barDelta = 0.0f; //to avoid noise on open string glitches
 	}
 	tExpSmooth_setDest(&s->barSlideSmoother, barDelta);
 	barDelta = tExpSmooth_tick(&s->barSlideSmoother);
 	barDelta = tEnvelopeFollower_tick(&s->barNoiseSmoother, barDelta);
-	barDelta -= 0.003f;//remove noise
+	barDelta -= 0.00003f;//remove noise
 	if (barDelta < 0.0f)
 	{
 		barDelta = 0.0f;
@@ -117,7 +117,7 @@ void tStringModule_tick(tStringModule const s)
 
 	float filtNoise = tVZFilter_tickEfficient(&s->noiseFilter, tNoise_tick(&s->noise));
 	//filtNoise = tVZFilter_tickEfficient(&noiseFilt2, filtNoise);
-	float slideNoise = filtNoise * barDelta * s->slideNoiseAmount * 10.0f;
+	float slideNoise = filtNoise * barDelta * s->slideNoiseAmount * 100.0f;
 
 	temp = tPickupNonLinearity_tick(&s->pu, tSimpleLivingString3_tick(s->theString, LEAF_clip(-1.0f, slideNoise + input, 1.0f)));
     s->header.outputs[0] = temp;

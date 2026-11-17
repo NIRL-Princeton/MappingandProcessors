@@ -25,7 +25,7 @@ void tDelayModule_init(void** const delay, float* params, float id, LEAF* const 
 
 void tDelayModule_setDelay(tDelayModule const delay, float const time)
 {
-	tTapeDelay_setDelay(delay->theDelay, time*delay->sr);
+	tTapeDelay_setDelay(delay->theDelay, time*30000.0f);
 
 }
 
@@ -137,7 +137,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input * 3000.0f);
+            tDelayModule_setDelay(delay, input);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);

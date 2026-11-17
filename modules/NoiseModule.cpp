@@ -30,7 +30,6 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
         case NoiseFreqKnob:
         {
             noise->freqKnob = input;
-            int index =(int)(input * 16383);
             noise->cutoffFreq = LEAF_interpolateTableLookupFunction(input,noise->filtFreqTable);
             break;
         }
@@ -73,6 +72,7 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
     NoiseModule->header.uniqueID = id;
     NoiseModule->mempool = m;
     NoiseModule->header.moduleType = ModuleTypeNoiseModule;
+
 
     tNoise_init(NoiseModule->mempool->leaf, &NoiseModule->theNoise, WhiteNoise);
 
@@ -153,7 +153,7 @@ void tNoiseModule_tick (tNoiseModule const noise)
 
     tNoiseModule_setPeakFreq(noise, tRamp_tick(&noise->pitchSmoother) * noise->keyFollow + noise->cutoffFreq);
 
-    float out = tNoise_tick(&noise->theNoise);
+   float out = tNoise_tick(&noise->theNoise);
     out = tTiltFilter_tick(&noise->theTilter, out);
     out = tVZFilterBell_tick(&noise->theBellter, out) * noise->gain;
 

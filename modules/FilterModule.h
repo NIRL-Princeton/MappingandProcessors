@@ -16,10 +16,9 @@ typedef enum {
     FiltMidiPitch,
     FiltCutoff,
     FiltResonance,
-    FiltKeyfollow,
-    FiltBandGain,
-    FiltGain,
     FiltType,
+    FiltKeyfollow,
+    FiltGain,
     FiltMix,
     FiltNumParams
 } FiltParams;

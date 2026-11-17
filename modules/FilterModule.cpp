@@ -36,7 +36,7 @@ void tFiltModule_init(void** const filt, float* params, float id, LEAF* const le
 
 void tFiltModule_setGain(tFiltModule const filt, float const gain)
 {
-    filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
+
     // I think there should be two separate gain parameters. One master, and one for the filters with internal gain parameters -Matt
     // I agree. Not sure how to handle it with dynamically creating knobs? Or we could have a separate filter module for Bell/Shelves? -JS
 
@@ -56,6 +56,7 @@ void tFiltModule_setGain(tFiltModule const filt, float const gain)
 	        tVZFilterLS_setGain(&filt->lowShelfFilter, eqGain);
 	        break;
 	    default:
+	        filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
 	        break;
 	}
 
@@ -558,10 +559,6 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 	    case FiltMix:
 	        //filt->mixSmoother.dest = input;
 	        filt->mix = input;
-	        break;
-	    case FiltBandGain:
-	        //filt->mixSmoother.dest = input;
-	        tFiltModule_setBandGain(filt, input);
 	        break;
 	    default:
 		    break;

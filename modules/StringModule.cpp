@@ -152,17 +152,13 @@ void tStringModule_setParameter(tStringModule const s, StringModuleParams param,
             //CPPDEREF s->header.params[StringEventWatchFlag] = input; // store directly or implement oversample logic
             break;
 
-        case StringOversample:
-            //CPPDEREF s->header.params[StringOversample] = input; // store directly or implement oversample logic
-            break;
-
 
         case StringMIDIPitch:
             s->inputNote = input * 127.0f;
             break;
 
         case StringFreqOffset:
-            s->freqOffset = input * 2000.0f;
+            s->freqOffset = (input - 0.5f) * 2000.0f;
             break;
 
         case StringOctave:

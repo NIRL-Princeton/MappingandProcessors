@@ -62,9 +62,8 @@ typedef struct _tNoiseModule
 
     tMempool* mempool;
 
-    tLookupTable* resTable;
     tLookupTable* mtofTable;
-    tLookupTable* skewFreqTable;
+    tLookupTable* filtFreqTable;
     tLookupTable* gainAmpTable;
 } _tNoiseModule;
 
@@ -72,7 +71,7 @@ typedef _tNoiseModule* tNoiseModule;
 
 //init module
 void tNoiseModule_init(void** const noise, float* const params, float id, LEAF* const leaf);
-void tNoiseModule_initToPool(void** const noise, float* const params, float id, tMempool** const mempool, tLookupTable* resTable);
+void tNoiseModule_initToPool(void** const noise, float* const params, float id, tMempool** const mempool);
 void tNoiseModule_free(void** const noise);
 void tNoiseModule_setParameter(tNoiseModule const noise, NosParams param_type,float input);
 // Modulatable setters

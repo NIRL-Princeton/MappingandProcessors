@@ -9,19 +9,15 @@
 
 void tNoiseModule_init(void** const noise, float* params, float id, LEAF* const leaf)
 {
-    if(leaf->resTable == NULL)
-    {
-        tLookupTable_create(&leaf->mempool,&leaf->resTable);
-        tLookupTable_init(leaf, leaf->resTable,  0.0f, 10.0f, 0.5f, 2048);
-    }
-    tNoiseModule_initToPool(noise, params, id, &leaf->mempool, leaf->resTable);
+
+    tNoiseModule_initToPool(noise, params, id, &leaf->mempool);
 }
 
 void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_type, float input)
 {
     switch (param_type) {
         case NoiseGain:
-            noise->gain = noise->gainAmpTable->table[(int)(input * 2047.f)];
+            noise->gain = LEAF_interpolateTableLookupFunction(input,noise->gainAmpTable);;
             break;
         case NoiseTilt:
             noise->tilt = (20.f*input)-10.f;
@@ -35,7 +31,7 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
         {
             noise->freqKnob = input;
             int index =(int)(input * 16383);
-            noise->cutoffFreq = noise->skewFreqTable->table[index];
+            noise->cutoffFreq = LEAF_interpolateTableLookupFunction(input,noise->filtFreqTable);
             break;
         }
         case NoisePeakBandwidth:
@@ -56,9 +52,8 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
         {
             //noise->inputMIDINote = input * 127.0;
             //tNoiseModule_setInputNote(noise, input * 127.0);
-            noise->inputMIDINote = input * 127.0;
-            int index = (int)((noise->inputMIDINote/127)*16383);
-            noise->inputFreq = noise->mtofTable->table[index];
+            noise->inputMIDINote = input * LEAF_MODULE_MAX_MIDI_NOTE;
+            noise->inputFreq = LEAF_interpolateTableLookupFunction(input, noise->mtofTable);
             tRamp_setDest(&noise->pitchSmoother, noise->inputFreq);
             break;
         }
@@ -67,7 +62,7 @@ void tNoiseModule_setParameter(tNoiseModule const noise, const NosParams param_t
     }
 }
 
-void tNoiseModule_initToPool(void** const noise, float* const param, float id, tMempool** const mempool, tLookupTable* resTable)
+void tNoiseModule_initToPool(void** const noise, float* const param, float id, tMempool** const mempool)
 {
     tMempool* m = *mempool;
     _tNoiseModule* NoiseModule = (_tNoiseModule*) (*noise = (_tNoiseModule*) mpool_alloc (sizeof (_tNoiseModule), m));
@@ -87,17 +82,30 @@ void tNoiseModule_initToPool(void** const noise, float* const param, float id, t
     //tVZFilterBell_setSampleRate((tVZFilterBell*)&NoiseModule->theBellter, NoiseModule->mempool->leaf->sampleRate * 2.f);
     tRamp_init (NoiseModule->mempool->leaf, &NoiseModule->pitchSmoother, 1.0f, 1);
 
-    NoiseModule->resTable = resTable;
+    if (NoiseModule->mempool->leaf->gainAmpTable == NULL)
+       {
+      	 tLookupTable_create(&NoiseModule->mempool, &NoiseModule->mempool->leaf->gainAmpTable);
+      	 tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+       }
+    NoiseModule->gainAmpTable = NoiseModule->mempool->leaf->gainAmpTable;
 
-    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->mtofTable);
-    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->mtofTable, 0.f, 0.f, 0.f, 16384);
-    LEAF_generate_mtof (NoiseModule->mtofTable->table, 0., 127, 16384);
 
-    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->skewFreqTable);
-    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->skewFreqTable, 0.1f, 20000.f, 1000.f, 16384);
 
-    tLookupTable_create(&NoiseModule->mempool, &NoiseModule->gainAmpTable);
-    tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+       if (NoiseModule->mempool->leaf->mtofTable == NULL)
+       {
+      	 tLookupTable_create(&NoiseModule->mempool, &NoiseModule->mempool->leaf->mtofTable);
+      	 tLookupTable_init (NoiseModule->mempool->leaf, NoiseModule->mempool->leaf->mtofTable, 0.f, 0.f, 0.f, 16384);
+      	 LEAF_generate_mtof (NoiseModule->mempool->leaf->mtofTable->table, 0, LEAF_MODULE_MAX_MIDI_NOTE, 16384);
+       }
+       NoiseModule->mtofTable = NoiseModule->mempool->leaf->mtofTable;
+
+       if (NoiseModule->mempool->leaf->filtFreqTable == NULL)
+       {
+           tLookupTable_create(&NoiseModule->mempool->leaf->mempool,&NoiseModule->mempool->leaf->filtFreqTable);
+           tLookupTable_init(NoiseModule->mempool->leaf, NoiseModule->mempool->leaf->filtFreqTable, 0.0f, 20000.f, 1000.f, 16384);
+       }
+       NoiseModule->filtFreqTable = NoiseModule->mempool->leaf->filtFreqTable;
+
 #ifndef __cplusplus
     for (int i = 0; i < NoiseNumParams; i++)
     {

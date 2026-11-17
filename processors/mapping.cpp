@@ -65,7 +65,7 @@ void tMapping_setParameter(void* module, int paramID, float value) {
             break;
 
         case ModuleTypeStringModule:
-            tStringModule_setParameter((tStringModule) module, (StringModelParams) paramID, value);
+            tStringModule_setParameter((tStringModule) module, (StringModuleParams) paramID, value);
             break;
 
         case ModuleTypeSoftClipModule:

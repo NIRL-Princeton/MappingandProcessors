@@ -13,8 +13,8 @@ typedef enum {
     StringEventWatchFlag,
     StringOversample,
     StringMIDIPitch,
-    StringFreq,
-    StringWaveLength,
+    StringFreqOffset,
+    StringOctave,
     StringDampFreq,
     StringDecay,
     StringTargetLevel,
@@ -31,8 +31,21 @@ typedef enum {
 typedef struct _tStringModule {
     ModuleHeader header;
     tSimpleLivingString3* theString;
+    float octave;
+    float freqOffset;
+    uint8_t lsDecay;
+    float decayIn;
+    float slidePosition;
+    float prevSlidePosition;
+    float slideChange;
     float pluckPosition;
     float inputNote;
+    float slideNoiseAmount;
+    tExpSmooth barSlideSmoother;
+    tEnvelopeFollower barNoiseSmoother;
+    tVZFilter noiseFilter;
+    tNoise noise;
+    tPickupNonLinearity pu;
     tMempool* mempool;
 
 } _tStringModule;
@@ -45,8 +58,8 @@ void tStringModule_initToPool(void** const module, float* const params, float id
 void tStringModule_free(void** const env);
 //init processors
 // Non-modulatable setters for tStringModule
-void tStringModule_setParameter(tStringModule const s, StringModelParams param, float input);
-
+void tStringModule_setParameter(tStringModule const s, StringModuleParams param, float input);
+void tStringModule_setSlidePosition(tStringModule const s, float input);
 void tStringModule_onNoteOn(tStringModule const s, float velocity);
 void tStringModule_onNoteOn(tStringModule const env, float vel);
 

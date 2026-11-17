@@ -72,6 +72,8 @@ typedef enum {
     ModuleTypeSimpleEnvModule,
     ModuleTypeADEnvModule,
     ModuleTypeControlModule,
+    ModuleTypeStringBModule,
+    ModuleTypeStringCModule,
 
 } ModuleType;
 

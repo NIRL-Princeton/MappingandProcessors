@@ -39,6 +39,18 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
                                  1.0,
                                  1.0,
                                  0);
+    tExpSmooth_init(m->leaf,&module->barSlideSmoother, 0.0f, 0.001f);
+    tEnvelopeFollower_init(m->leaf,&module->barNoiseSmoother,0.000001f, 0.9993f);
+    tNoise_init(m->leaf,&module->noise, WhiteNoise);
+    tVZFilter_init(m->leaf, &module->noiseFilter, Lowpass, 800.0f, 0.9f);
+    tVZFilter_setFreq( &module->noiseFilter, 3332.0f); //based on testing with knob values
+    tPickupNonLinearity_init(m->leaf, &module->pu);
+    module->slideNoiseAmount = 0.2f;
+    module->inputNote = 40.0f;
+    module->decayIn = 100.0f;
+    module->freqOffset = 0.0f;
+    module->lsDecay = 1;
+    module->prevSlidePosition = 0.0f;
 	#ifndef __cplusplus
 	for (int i = 0; i < StringNumParams; i++)
 	{
@@ -54,9 +66,61 @@ void tStringModule_tick(tStringModule const s)
 {
     const float input = s->header.inputs[0];
     s->header.inputs[0] = 0.0f;
-    float inputFreq = mtof(s->inputNote);
-    tSimpleLivingString3_setFreq(s->theString, inputFreq);
-    s->header.outputs[0] = tSimpleLivingString3_tick(s->theString, input);
+
+    float temp = 0.0f;
+	float note;
+
+
+	note = s->inputNote + s->octave;
+	//sourceValues[MIDI_KEY_SOURCE_OFFSET][v] = (note[v] - midiKeySubtractor) * midiKeyDivisor;
+
+	if (note < 0.0f)
+	{
+		note = 0.0f;
+	}
+	if (note > 127.0f)
+	{
+		note = 127.0f;
+	}
+	if (isnan(note))
+	{
+		note = 64.0f;
+	}
+
+	//float finalFreq = mtof(note[i]);
+	float dampFreq = 15778.3f;
+	float decay = 0.1f;
+	if (s->lsDecay)
+	{
+		decay = (s->decayIn * 800.0f) + 10.0f;
+	}
+
+	tSimpleLivingString3_setDecay(s->theString, decay);
+	tSimpleLivingString3_setDampFreq(s->theString, dampFreq);
+
+
+	tSimpleLivingString3_setFreq(s->theString, mtof(note));
+	float barDelta = s->slideChange;
+	if (barDelta > 0.2f)
+	{
+		barDelta = 0.0f; //to avoid noise on open string glitches
+	}
+	tExpSmooth_setDest(&s->barSlideSmoother, barDelta);
+	barDelta = tExpSmooth_tick(&s->barSlideSmoother);
+	barDelta = tEnvelopeFollower_tick(&s->barNoiseSmoother, barDelta);
+	barDelta -= 0.003f;//remove noise
+	if (barDelta < 0.0f)
+	{
+		barDelta = 0.0f;
+	}
+	//tVZFilter_setFreq(&noiseFilt, faster_mtof(knobScaled[5] * 128.0f));
+
+	float filtNoise = tVZFilter_tickEfficient(&s->noiseFilter, tNoise_tick(&s->noise));
+	//filtNoise = tVZFilter_tickEfficient(&noiseFilt2, filtNoise);
+	float slideNoise = filtNoise * barDelta * s->slideNoiseAmount * 10.0f;
+
+	temp = tPickupNonLinearity_tick(&s->pu, tSimpleLivingString3_tick(s->theString, LEAF_clip(-1.0f, slideNoise + input, 1.0f)));
+    s->header.outputs[0] = temp;
 }
 
 
@@ -65,16 +129,16 @@ void tStringModule_onNoteOn(tStringModule const s, float velocity)
     float Vel = velocity;
     if (velocity > 0.0001f)
     {
-
+        s->lsDecay = 1;
         tSimpleLivingString3_pluck(s->theString, Vel, s->pluckPosition);
     }
     else
     {
-        ;
+        s->lsDecay = 0;
     }
 }
 
-void tStringModule_setParameter(tStringModule const s, StringModelParams param, float input)
+void tStringModule_setParameter(tStringModule const s, StringModuleParams param, float input)
 {
     switch (param)
     {
@@ -91,13 +155,12 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             s->inputNote = input * 127.0f;
             break;
 
-        case StringFreq:
-
+        case StringFreqOffset:
+            s->freqOffset = input * 2000.0f;
             break;
 
-        case StringWaveLength:
-            //tSimpleLivingString3_setWaveLength(s->theString, input * 95.f + 5.f);
-
+        case StringOctave:
+            s->octave = input * 48.0f - 24.0f;
             break;
 
         case StringDampFreq:
@@ -105,7 +168,7 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             break;
 
         case StringDecay:
-            tSimpleLivingString3_setDecay(s->theString, input * 400.0f);
+            s->decayIn = (input * 800.0f) + 10.0f;
             break;
 
         case StringTargetLevel:
@@ -117,7 +180,7 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             break;
 
         case StringLevelStrength:
-            tSimpleLivingString3_setLevStrength(s->theString, input);
+            tSimpleLivingString3_setLevStrength(s->theString, input * 0.0352872f);
             break;
 
         case StringPickupPoint:
@@ -146,4 +209,11 @@ void tStringModule_setParameter(tStringModule const s, StringModelParams param, 
             // unknown param, do nothing
             break;
     }
+}
+
+void tStringModule_setSlidePosition(tStringModule const s, float input)
+{
+    s->slideChange = fabsf(input - s->slidePosition);
+    s->slidePosition = input;
+
 }

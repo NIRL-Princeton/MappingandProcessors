@@ -19,7 +19,10 @@ void tStringBModule_initToPool(void** const s, float* const params, float id, tM
     tMempool* m = *mempool;
     _tStringBModule* module = (_tStringBModule *)(*s = (_tStringBModule*) mpool_alloc(sizeof(_tStringBModule), m));
     #ifndef __cplusplus
-    memcpy(module->header.params, params, StringNumParams);
+    for (int i = 0; i < StringBNumParams; i++)
+    {
+        module->header.params[i] = params[i];
+    }
     #endif
     module->mempool = m;
     module->header.moduleType = ModuleTypeStringBModule;
@@ -28,13 +31,19 @@ void tStringBModule_initToPool(void** const s, float* const params, float id, tM
     tSimpleLivingString3_init   (m->leaf,
                                  module->theString,
                                  4,
-                                 440.f,
-                                 440.0,
-                                 1.0,
-                                 1.0,
-                                 1.0,
-                                 1.0,
+                                 220.f,
+                                 17000.0,
+                                 0.999999f,
+                                 0.0f,
+                                 0.01f,
+                                 0.01f,
                                  0);
+    #ifndef __cplusplus
+    for (int i = 0; i < StringBNumParams; i++)
+    {
+        tStringBModule_setParameter(module, i, module->header.params[i]);
+    }
+    #endif
     //module->header.setterFunctions[StringEventWatchFlag] =(tSetter) &tStringBModule_onNoteOn;
     //CPPDEREF module->header.params[StringEventWatchFlag] = 1.0f;
 }

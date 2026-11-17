@@ -158,7 +158,7 @@ void tStringModule_setParameter(tStringModule const s, StringModuleParams param,
             break;
 
         case StringFreqOffset:
-            s->freqOffset = input * 2000.0f;
+            s->freqOffset = (input - 0.5f) * 2000.0f;
             break;
 
         case StringOctave:

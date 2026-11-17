@@ -1,8 +1,8 @@
 //
 // Created by Joshua Warner on 6/13/24.
 //
-#ifndef VCAERMODULE_H
-#define VCAERMODULE_H
+#ifndef VCAMODULE_H
+#define VCAMODULE_H
 
 #include "leaf.h"
 #include "defs.h"
@@ -49,4 +49,4 @@ void tVCAModule_setParameter(tVCAModule const VCA, VCAParams param_type, float i
 
 
 
-#endif //VCAERMODULE_H
+#endif //VCAMODULE_H

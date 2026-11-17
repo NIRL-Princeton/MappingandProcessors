@@ -48,12 +48,15 @@ void tFiltModule_setGain(tFiltModule const filt, float const gain)
 	{
 	    case FiltTypePeak:
 	        tVZFilterBell_setGain(&filt->bellFilter, eqGain);
+	        filt->gain = 1.0f;
 	        break;
 	    case FiltTypeHighShelf:
 	        tVZFilterHS_setGain(&filt->highShelfFilter, eqGain);
+	        filt->gain = 1.0f;
 	        break;
 	    case FiltTypeLowShelf:
 	        tVZFilterLS_setGain(&filt->lowShelfFilter, eqGain);
+	        filt->gain = 1.0f;
 	        break;
 	    default:
 	        filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];

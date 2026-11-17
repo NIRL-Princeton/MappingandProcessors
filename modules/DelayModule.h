@@ -18,6 +18,7 @@ typedef enum {
 	DelayLPCutoff,
 	DelayFeedback,
     DelayGain,
+    DelayMix,
     DelayNumParams
 } DelParams;
 
@@ -38,6 +39,7 @@ typedef struct _tDelayModule {
     float cutoff1;
     float cutoff2;
     float amp;
+    float mix;
     float sr;
     float invSr;
 

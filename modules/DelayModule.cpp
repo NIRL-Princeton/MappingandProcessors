@@ -127,7 +127,7 @@ void tDelayModule_tick (tDelayModule const delay)
     delay->fbSample = tSVF_tick(&delay->lp, delay->fbSample);
     delay->fbSample = tanhf(tSVF_tick(&delay->hp, delay->fbSample));
 
-    delay->header.outputs[0] = delay->fbSample * delay->amp;
+    delay->header.outputs[0] = ((delay->fbSample * delay->amp)*delay->mix) + ((1.0f-delay->mix)*input);
 
 }
 
@@ -137,7 +137,7 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
 {
     switch (param_type) {
         case DelayTime:
-            tDelayModule_setDelay(delay, input * 30000.0f);
+            tDelayModule_setDelay(delay, input * 3000.0f);
             break;
         case DelayGain:
             tDelayModule_setGain(delay, input);
@@ -155,6 +155,10 @@ void tDelayModule_setParameter(tDelayModule const delay, DelParams param_type,fl
             break;
         case DelayFeedback:
         	delay->fbAmount = input;
+            break;
+        case DelayMix:
+            delay->mix = input;
+            break;
         default:
             break;
     }

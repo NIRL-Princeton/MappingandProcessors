@@ -30,7 +30,7 @@ typedef enum {
 
 typedef struct _tStringModule {
     ModuleHeader header;
-    tSimpleLivingString3 *theString;
+    tSimpleLivingString3* theString;
     float pluckPosition;
     float inputNote;
     tMempool* mempool;

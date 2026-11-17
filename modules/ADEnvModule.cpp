@@ -3,7 +3,7 @@
 //
 
 #include "ADEnvModule.h"
-
+#include "string.h"
 
 void tADEnvModule_init (void** const env, float* params, float id, LEAF* const leaf)
 {
@@ -96,7 +96,12 @@ void tADEnvModule_initToPool (void** const env, float* const params, float id, t
 {
     tMempool* m = *mempool;
     _tADEnvModule* ADEnvModule = (_tADEnvModule*) (*env = (_tADEnvModule*) mpool_alloc (sizeof (_tADEnvModule), m));
-
+#ifndef __cplusplus
+    for (int i = 0; i < ADEnvNumParams; i++)
+    {
+    	ADEnvModule->header.params[i] = params[i];
+    }
+#endif __cplusplus
     ADEnvModule->mempool = m;
 
     ADEnvModule->header.uniqueID = id;
@@ -113,6 +118,12 @@ void tADEnvModule_initToPool (void** const env, float* const params, float id, t
 
     tSlopeRamp_init(m->leaf, &ADEnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     ADEnvModule->header.moduleType = ModuleTypeADEnvModule;
+#ifndef __cplusplus
+for (int i = 0; i < ADEnvNumParams; i++)
+{
+    tADEnvModule_setParameter(ADEnvModule, i, ADEnvModule->header.params[i]);
+}
+#endif
 }
 
 

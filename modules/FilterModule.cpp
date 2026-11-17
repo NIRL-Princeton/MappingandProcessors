@@ -34,7 +34,6 @@ void tFiltModule_init(void** const filt, float* params, float id, LEAF* const le
 // }
 
 
-
 void tFiltModule_setGain(tFiltModule const filt, float const gain)
 {
     filt->gain = filt->gainAmpTable->table[(int)(gain*2047)];
@@ -44,6 +43,45 @@ void tFiltModule_setGain(tFiltModule const filt, float const gain)
 
     //filt->gain = gain; // Also unsure if it's a good thing to have the master gain and internal gain to be set simultaneously -Matt
     // I think not. Let's separate out the bell/shelves as their own module with an additional knob -JS
+    const float eqGain = powf(10.0f, ((gain * 50.0f) - 25.0f) / 20.0f);
+	switch (filt->filtType)
+	{
+	    case FiltTypePeak:
+	        tVZFilterBell_setGain(&filt->bellFilter, eqGain);
+	        break;
+	    case FiltTypeHighShelf:
+	        tVZFilterHS_setGain(&filt->highShelfFilter, eqGain);
+	        break;
+	    case FiltTypeLowShelf:
+	        tVZFilterLS_setGain(&filt->lowShelfFilter, eqGain);
+	        break;
+	    default:
+	        break;
+	}
+
+ //    filt->amp = gain;
+ //    //float floatIndex = LEAF_clip (0, ((gain * 24.0f) - 12.0f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+	// switch(filt->filtType)
+	//  {
+	//  case FiltTypePeak:
+	// 	 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+	// 	 tVZFilterBell_setGain((tVZFilterBell*)filt->theFilt, gain);
+	// 	 break;
+	//  case FiltTypeHighShelf:
+	// 	 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+	// 	 tVZFilterHS_setGain((tVZFilterHS*)filt->theFilt, gain);
+	// 	 break;
+	//  case FiltTypeLowShelf:
+	// 	 //floatIndex = LEAF_clip (0, ((gain * 50.f) - 25.f  * filt->dbTableScalar) -  filt->dbTableOffset, filt->dbTableSizeMinusOne);
+	// 	 tVZFilterLS_setGain((tVZFilterLS*)filt->theFilt, gain);
+	// 	 break;
+	//  default:
+	// 	 break;
+	//  }
+}
+void tFiltModule_setBandGain(tFiltModule const filt, float const gain)
+{
+
     const float eqGain = powf(10.0f, ((gain * 50.0f) - 25.0f) / 20.0f);
 	switch (filt->filtType)
 	{
@@ -481,7 +519,7 @@ void tFiltModule_tick (tFiltModule const filt)
             break;
     }
 
-    filt->header.outputs[0] = input * (1.f - filt->mix) + filt->mix * output;
+    filt->header.outputs[0] = (input * (1.f - filt->mix)) + (filt->mix * output);
 }
 
 // Modulatable setters
@@ -520,6 +558,11 @@ void tFiltModule_setParameter(tFiltModule const filt, FiltParams param_type, flo
 	    case FiltMix:
 	        //filt->mixSmoother.dest = input;
 	        filt->mix = input;
+	        break;
+	    case FiltBandGain:
+	        //filt->mixSmoother.dest = input;
+	        tFiltModule_setBandGain(filt, input);
+	        break;
 	    default:
 		    break;
 	}

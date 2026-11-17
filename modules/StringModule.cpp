@@ -99,8 +99,9 @@ void tStringModule_tick(tStringModule const s)
 	tSimpleLivingString3_setDecay(s->theString, decay);
 	//tSimpleLivingString3_setDampFreq(s->theString, dampFreq);
 
-
-	tSimpleLivingString3_setFreq(s->theString, mtof(note));
+    float noteFreq = mtof(note);
+    noteFreq = LEAF_clip(0.1f, noteFreq*s->freqOffset, 19000.0f);
+	tSimpleLivingString3_setFreq(s->theString, noteFreq);
 
 	float currentBarSlide = tExpSmooth_tick(&s->barMovementSmoother);
 	s->slideChange = fabsf(currentBarSlide - s->slidePosition);

@@ -26,7 +26,7 @@ typedef enum {
     StringRippleDelay,
     StringPluckPosition,
     StringNumParams
-} StringModelParams;
+} StringModuleParams;
 
 typedef struct _tStringModule {
     ModuleHeader header;

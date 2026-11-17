@@ -141,7 +141,7 @@ void tFiltModule_setRes(tFiltModule const filt, float const res)
 	// tLadderFilter_setQ((tLadderFilter*)filt->filters[FiltTypeLadderLowpass],
 	//                    0.2f + (normalizedResonance * 3.6f)); // feedback below 4.0
 
-    const float normalizedResonance = LEAF_clip(0.0f, res, 1.0f);
+    const float normalizedResonance = LEAF_clip(0.1f, res, 1.0f);
     filt->resonanceKnob = normalizedResonance;
     const float q = LEAF_interpolateTableLookupFunction(normalizedResonance,filt->resTable);
     //const float q = resTableLookupFunction(normalizedResonance, table, filt->resTable->tableSize - 1);

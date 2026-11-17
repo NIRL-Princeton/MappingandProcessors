@@ -160,7 +160,7 @@ void tStringModule_setParameter(tStringModule const s, StringModuleParams param,
             break;
 
         case StringOctave:
-            s->octave = roundf((input * 4.0f) - 2.0f) * 12.0f - 24.0f;
+            s->octave = (roundf((input * 8.0f) - 4.0f) * 12.0f) - 24.0f;
             break;
 
         case StringDampFreq:

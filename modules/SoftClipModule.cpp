@@ -22,8 +22,9 @@ void tSoftClipModule_free(void** const c)
 //tick function
 void tSoftClipModule_tick (tSoftClipModule const c)
 {
-    c->inputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->inputGainSmoother)*2047.f)];
-    c->outputGain = c->gainAmpTable->table[(int)(tSlopeRamp_tick(&c->outputGainSmoother)*2047.f)];
+
+	c->inputGain = LEAF_InterpolateTableLookupFunction(tSlopeRamp_tick(&c->inputGainSmoother), c->gainAmpTable);
+	c->inputGain = LEAF_InterpolateTableLookupFunction(tSlopeRamp_tick(&c->outputGainSmoother), c->gainAmpTable);
     const float input = c->header.inputs[0];
     c->header.inputs[0] = 0.0f;
 
@@ -124,8 +125,12 @@ void tSoftClipModule_initToPool(void** const c, float* const params, float id, t
     tSlopeRamp_init(m->leaf, &SoftClipModule->offsetSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
     tSlopeRamp_init(m->leaf, &SoftClipModule->mixSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
 
-    tLookupTable_create(&SoftClipModule->mempool, &SoftClipModule->gainAmpTable);
-    tLookupTable_init (SoftClipModule->mempool->leaf, SoftClipModule->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    if (SoftClipModule->mempool->leaf->gainAmpTable == NULL)
+    {
+   	 tLookupTable_create(&SoftClipModule->mempool, &SoftClipModule->mempool->leaf->gainAmpTable);
+   	 tLookupTable_init (SoftClipModule->mempool->leaf, SoftClipModule->mempool->leaf->gainAmpTable, 0.f, TWELVE_DB_AMPLITUDE, 1.f, 2048);
+    }
+    SoftClipModule->gainAmpTable = SoftClipModule->mempool->leaf->gainAmpTable;
 
     SoftClipModule->header.moduleType = ModuleTypeSoftClipModule;
 }

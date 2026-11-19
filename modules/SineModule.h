@@ -13,7 +13,10 @@
 #include "leaf-envelopes.h"
 typedef enum {
     SineEventWatchFlag,
+    SineHarmonic,
+    SinePitchFine,
     SinePitch,
+    SineAmp,
     SineGain,
     SineNumParams
 } SineParams;
@@ -32,6 +35,9 @@ typedef struct _tSineModule {
     // float inputNote;
     // float finalFreq;
     float note;
+    float pitchFine;
+    float harmonicMultiplier;
+    float gain;
     float amp;
     tLookupTable* gainAmpTable;
     tLookupTable* mtofTable;

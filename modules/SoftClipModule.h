@@ -34,15 +34,10 @@ typedef enum {
 typedef struct _tSoftClipModule {
     ModuleHeader header;
     float shapeDivider;
-    tSlopeRamp shapeDividerSmoother;
     float inputGain;
-    tSlopeRamp inputGainSmoother;
     float outputGain;
-    tSlopeRamp outputGainSmoother;
     float offset;
-    tSlopeRamp offsetSmoother;
     float mix;
-    tSlopeRamp mixSmoother;
     tHighpass highpass;
 
     tLookupTable* gainAmpTable;

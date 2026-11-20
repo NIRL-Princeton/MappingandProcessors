@@ -23,19 +23,15 @@ void tSoftClipModule_free(void** const c)
 void tSoftClipModule_tick (tSoftClipModule const c)
 {
 
-	c->inputGain = LEAF_interpolateTableLookupFunction(tSlopeRamp_tick(&c->inputGainSmoother), c->gainAmpTable);
-	c->outputGain = LEAF_interpolateTableLookupFunction(tSlopeRamp_tick(&c->outputGainSmoother), c->gainAmpTable);
+
     const float input = c->header.inputs[0];
     c->header.inputs[0] = 0.0f;
 
     float sample = input;
-    //c->shapeDivider = tSlopeRamp_tick(&c->shapeDividerSmoother);
-    c->offset = tSlopeRamp_tick(&c->offsetSmoother);
-    c->mix = tSlopeRamp_tick(&c->mixSmoother);
 
-    //sample = sample * c->inputGain * 5.0f;
-    sample = sample * c->inputGain;
-    sample = sample + (c->offset * 2.0f) - 1.0f;
+
+    sample = sample * 5.0f * c->inputGain;
+    sample = sample + c->offset;
 
     sample = tanhf(sample);
 
@@ -69,15 +65,17 @@ void tSoftClipModule_setParameter(tSoftClipModule const  c, int parameter_id, fl
 
         case SoftClipInputGain:
         {
+
+            c->inputGain = LEAF_interpolateTableLookupFunction(input, c->gainAmpTable);
             //c->inputGain = input;
-            tSlopeRamp_setDest(&c->inputGainSmoother, input);
+
             break;
         }
 
         case SoftClipOffset:
         {
             //c->offset = input;
-            tSlopeRamp_setDest(&c->offsetSmoother, input);
+            c->offset = input * 2.0f - 1.0f;
             break;
         }
 
@@ -85,17 +83,16 @@ void tSoftClipModule_setParameter(tSoftClipModule const  c, int parameter_id, fl
         {
             float shape = (input * .99f) + 0.01f;
             //c->shapeDivider = 1.0f / (shape - ((shape*shape*shape) * 0.3333333f));
-            tSlopeRamp_setDest(&c->shapeDividerSmoother, 1.0f / (shape - ((shape*shape*shape) * 0.3333333f)));
+            c->shapeDivider =  1.0f / (shape - ((shape*shape*shape) * 0.3333333f));
             break;
         }
         case SoftClipOutputGain:
         {
-            //c->outputGain = input;
-            tSlopeRamp_setDest(&c->outputGainSmoother, input);
+            c->outputGain = LEAF_interpolateTableLookupFunction(input, c->gainAmpTable);
             break;
         }
         case SoftClipMix:
-            tSlopeRamp_setDest(&c->mixSmoother, input);
+            c->mix = input;
             break;
         default:
             break;
@@ -122,12 +119,6 @@ void tSoftClipModule_initToPool(void** const c, float* const params, float id, t
     SoftClipModule->shapeDivider = 1.0f;
 
     SoftClipModule->header.uniqueID = id;
-
-    tSlopeRamp_init(m->leaf, &SoftClipModule->inputGainSmoother, SMOOTH_SLOPE_MULTIPLIER, .5f);
-    tSlopeRamp_init(m->leaf, &SoftClipModule->outputGainSmoother, SMOOTH_SLOPE_MULTIPLIER, .5f);
-    tSlopeRamp_init(m->leaf, &SoftClipModule->shapeDividerSmoother, SMOOTH_SLOPE_MULTIPLIER * 100.f, 1.f);
-    tSlopeRamp_init(m->leaf, &SoftClipModule->offsetSmoother, SMOOTH_SLOPE_MULTIPLIER, 0.f);
-    tSlopeRamp_init(m->leaf, &SoftClipModule->mixSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
 
     if (SoftClipModule->mempool->leaf->gainAmpTable == NULL)
     {

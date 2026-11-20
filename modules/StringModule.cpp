@@ -26,6 +26,7 @@ void tStringModule_initToPool(void** const s, float* const params, float id, tMe
     }
     #endif
     module->mempool = m;
+    module->header.uniqueID = id;
     module->header.moduleType = ModuleTypeStringModule;
    //can't figure out how to get this module to add itself as a listener of the event emitter... -JS
     tSimpleLivingString3_create (mempool, &module->theString);

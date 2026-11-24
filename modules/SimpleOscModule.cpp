@@ -35,14 +35,11 @@ void tOscModule_setParameter(tOscModule const osc, OscParams param_type,float in
 	        if (osc->hStepped) {
 	            input = roundf(input);
 	        }
-
 	        if (input >= 0.0f) {
 	            osc->harmonicMultiplier = (input + 1.0f);
 	        } else {
 	            osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
 	        }
-
-	        //printf("Harm: %f\n", input);
 	        break;
 	    }
 	    case OscPitchOffset:

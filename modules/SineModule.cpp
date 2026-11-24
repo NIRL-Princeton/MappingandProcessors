@@ -19,15 +19,32 @@ void tSineModule_setParameter(tSineModule osc, SineParams param_type, float inpu
 	switch (param_type) {
 	    case SineEventWatchFlag:
 		    break;
+	    case SineHarmonic:
+	        //tOscModule_setInputNote (osc, input * 127.f);
+	        input = (input - .5f) * 30.f;
+	        input = roundf(input);
+	        if (input >= 0.0f) {
+	            osc->harmonicMultiplier = (input + 1.0f);
+	        } else {
+	            osc->harmonicMultiplier = (1.0f / fabsf((input - 1.0f)));
+	        }
+	        break;
+	    case SinePitchFine:
+	        //tOscModule_setInputNote (osc, input * 127.f);
+	        osc->pitchFine = input * 2.0f - 1.0f;
+	        break;
 	    case SinePitch:
 	        //tOscModule_setInputNote (osc, input * 127.f);
-	        osc->note = input * 127.0f;
+	        osc->note = (input * 127.0f) + osc->pitchFine;
 	        //input = osc->mtofTable->table[(int)(input*16383)];
 	        input = (LEAF_interpolateTableLookupFunction(osc->note * INV_LEAF_MODULE_MAX_MIDI_NOTE, osc->mtofTable));
-	        tCycle_setFreq(&osc->theSine, input);
-		    break;
+	        tCycle_setFreq(&osc->theSine, input * osc->harmonicMultiplier);
+	        break;
+	    case SineAmp:
+	        osc->amp = input;
+	        break;
 	    case SineGain:
-	    	osc->amp = LEAF_interpolateTableLookupFunction(input, osc->gainAmpTable);
+	    	osc->gain = LEAF_interpolateTableLookupFunction(input, osc->gainAmpTable);
 		    break;
 	    default:
 		    break;
@@ -74,7 +91,6 @@ void tSineModule_initToPool(void** const osc, float* const param, float id, tMem
     for (int i = 0; i < SineNumParams; i++)
     {
     	tSineModule_setParameter(SineModule, i, SineModule->header.params[i]);
-
     }
 #endif
 
@@ -109,7 +125,7 @@ void tSineModule_tick (tSineModule const osc)
     //osc->amp = tSlopeRamp_tick(&osc->ampSmoother);
 
     //printf("%f",osc->amp);
-    osc->header.outputs[0] = tCycle_tick(&osc->theSine)* osc->amp;
+    osc->header.outputs[0] = tCycle_tick(&osc->theSine)* osc->amp * osc->gain;
 }
 
 // void tOscModule_setGlideOrigin(tSineModule const osc, float originNote)

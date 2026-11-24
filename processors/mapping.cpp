@@ -22,6 +22,7 @@
 #include "SampleAndHoldModule.h"
 #include "SimpleEnvModule.h"
 #include "ADEnvModule.h"
+#include "ControlModule.h"
 // Process mapping function
 #ifdef __cplusplus
 namespace leaf
@@ -106,6 +107,11 @@ void tMapping_setParameter(void* module, int paramID, float value) {
 
         case ModuleTypeADEnvModule:
             tADEnvModule_setParameter ((tADEnvModule) module, (ADEnvParams) paramID, value);
+            break;
+
+        case ModuleTypeControlModule:
+            tControlModule_setParameter ((tControlModule) module, (ControlParams) paramID, value);
+            break;
 
         default:
             // handle invalid type

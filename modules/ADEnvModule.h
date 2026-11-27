@@ -12,8 +12,6 @@
 #include "leaf-mempool.h"
 #include "leaf-envelopes.h"
 
-#define EXP_BUFFER_SIZE 2048
-#define DECAY_EXP_BUFFER_SIZE 2048
 typedef enum {
     ADEnvEventWatchFlag, //all of them need this
     ADEnvAttack,
@@ -25,9 +23,8 @@ typedef enum {
 typedef struct _tADEnvModule {
     ModuleHeader header;
 
-    tAD theEnv;
+    tADSRT theEnv;
 
-    tSlopeRamp velSenseSmoother;
     const float* envTimeTableAddress;
     float envTimeTableSizeMinusOne;
     uint32_t tableSize;

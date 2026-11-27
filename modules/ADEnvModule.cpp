@@ -60,11 +60,7 @@ void tADEnvModule_setParameter (tADEnvModule const env, int parameter_id, float 
 
         case ADEnvAttack:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float)inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
+
             tAD_setAttack (&env->theEnv, theValue + 0.001f);
             //printf("Attack: %f\n", theValue + 0.001f);
             break;
@@ -106,8 +102,8 @@ void tADEnvModule_initToPool (void** const env, float* const params, float id, t
 
     ADEnvModule->header.uniqueID = id;
 
-    tAD_init(m->leaf, &ADEnvModule->theEnv, 1.0f, 10.f);
-    tAD_setSampleRate (&ADEnvModule->theEnv, m->leaf->sampleRate);
+    tADSRT_init(m->leaf, &ADEnvModule->theEnv, 1.0f, 10.f);
+    tADSRT_setSampleRate (&ADEnvModule->theEnv, m->leaf->sampleRate);
 
     if ((*mempool)->leaf->envTimeTable == NULL)
     {
@@ -116,7 +112,6 @@ void tADEnvModule_initToPool (void** const env, float* const params, float id, t
     }
     tADEnvModule_setTimeScalingTableLocation (ADEnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
 
-    tSlopeRamp_init(m->leaf, &ADEnvModule->velSenseSmoother, SMOOTH_SLOPE_MULTIPLIER, 1.f);
     ADEnvModule->header.moduleType = ModuleTypeADEnvModule;
 #ifndef __cplusplus
 for (int i = 0; i < ADEnvNumParams; i++)

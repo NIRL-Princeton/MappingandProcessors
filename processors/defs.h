@@ -39,6 +39,8 @@ extern "C" {
 #define LEAF_MODULE_MTOF_TABLE_SIZE 16384
 #define LEAF_MODULE_FTOM_TABLE_SIZE 16384
 
+#define EXP_BUFFER_SIZE 2048
+#define DECAY_EXP_BUFFER_SIZE 2048
 
 
 // Maximum number of processors sources for a mapping object

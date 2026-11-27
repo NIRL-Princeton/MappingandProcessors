@@ -28,23 +28,10 @@ typedef enum {
 
 
 typedef struct _tSimpleEnvModule {
-    //start boilerplate  - processor represents all of these///
     ModuleHeader header;
-    //if its a combo/multi object put them all here
-    tADSR theEnv;
-    //end boilerplate  - processor represents all of these///
-    //specific other variables
-    //float velocitySense;
-    tSlopeRamp velSenseSmoother;
-    const float* envTimeTableAddress;
-    float envTimeTableSizeMinusOne;
-    uint32_t tableSize;
-    // float expBuffer[EXP_BUFFER_SIZE];
-    // float expBufferSizeMinusOne;
-    //
-    // float decayExpBuffer[DECAY_EXP_BUFFER_SIZE];
-    // float decayExpBufferSizeMinusOne;
-    //mempool
+    tADSRT theEnv;
+    float velSense;
+    tLookupTable* envTimeTable;
     tMempool* mempool;
 } _tSimpleEnvModule;
 

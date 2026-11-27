@@ -53,17 +53,6 @@ void tEnvModule_onNoteOn (tEnvModule const env, float velocity)
     }
 }
 
-// Non-modulatable setters
-void tEnvModule_setExpTableLocation (tEnvModule const env, const float* tableAddress, uint32_t const tableSize)
-{
-    env->theEnv.exp_buff = tableAddress;
-    env->theEnv.buff_size = tableSize;
-    env->theEnv.buff_sizeMinusOne = tableSize - 1;
-    env->theEnv.bufferSizeDividedBySampleRateInMs = env->theEnv.buff_size / (env->theEnv.sampleRate * 0.001f);
-}
-
-
-
 void tEnvModule_setSampleRate (tEnvModule const env, float sr)
 {
     //how to handle this? if then cases for different types?
@@ -101,16 +90,8 @@ void tEnvModule_setParameter (tEnvModule const env, int parameter_id, float inpu
 
         case EnvRelease:
         {
-             //std::cout << "input: " << input;
         	 float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
-             //input *= env->envTimeTableSizeMinusOne;
-             //int const inputInt = (int) input;
-             //float const inputFloat = input - (float) inputInt;
-             //int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-             //float const theValue = LEAF_clip (0.01f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
            	 tADSRT_setRelease (&env->theEnv, theValue);
-             //std::cout << " release milliseconds: " << std::to_string(theValue + 0.001f) << std::endl;
-            //tADSRT_setRelease (&env->theEnv, input);
             break;
         }
 

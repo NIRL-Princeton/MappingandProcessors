@@ -158,7 +158,7 @@ void tSimpleEnvModule_initToPool (void** const env, float* const params, float i
     SimpleEnvModule->envTimeTable = (*mempool)->leaf->envTimeTable;
     //tEnvModule_setTimeScalingTableLocation (EnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
 
-    SimpleEnvModule->header.moduleType = ModuleTypeEnvModule;
+    SimpleEnvModule->header.moduleType = ModuleTypeSimpleEnvModule;
     #ifndef __cplusplus
     for (int i = 0; i < SimpEnvNumParams; i++)
     {

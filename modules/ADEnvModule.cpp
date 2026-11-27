@@ -67,7 +67,7 @@ void tADEnvModule_setParameter (tADEnvModule const env, int parameter_id, float 
         {
 
             float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
-            tADSRT_setDecay (&env->theEnv, theValue);
+            tADSRT_setAttack (&env->theEnv, theValue);
             break;
         }
 
@@ -129,5 +129,4 @@ for (int i = 0; i < ADEnvNumParams; i++)
 }
 #endif
 }
-
 

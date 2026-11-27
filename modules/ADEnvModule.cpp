@@ -19,9 +19,8 @@ void tADEnvModule_free (void** const env)
 //tick function
 void tADEnvModule_tick (tADEnvModule const env)
 {
-    CPPDEREF env->header.params[ADEnvVelocitySense] = tSlopeRamp_tick(&env->velSenseSmoother);
-    float out = tAD_tick (&env->theEnv);
-    env->header.outputs[0] = LEAF_clip(0, out, 1);
+    float out = tADSRT_tick (&env->theEnv);
+    env->header.outputs[0] = out;
     //printf("%f\n", out);
 }
 
@@ -29,25 +28,31 @@ void tADEnvModule_tick (tADEnvModule const env)
 void tADEnvModule_onNoteOn (tADEnvModule const env, float velocity)
 {
     float envVel = velocity;
-    if (velocity > 0.0001f)
+    if (velocity > 0.005f)
     {
-        float velSense = CPPDEREF env->header.params[ADEnvVelocitySense];
-        envVel = envVel * velSense + (1.0f - velSense);
-        tAD_on (&env->theEnv, envVel);
-        //printf("On\n");
+        //velocity sensitivity from mystran on KVR forum
+        // this would be a parameter from 0 to some maximum
+        // I just tried 20 and it feels nice
+
+        float velocity_dB_scale = 40.0f * env->velSense;
+
+        // map midi velocities [0, 127] to [0, 1] doubles
+        // MIDI velocity 0 has already been converted to note off
+        // but it doesn't really make any huge difference
+
+        // velo_level is the constant to scale the note with
+        float velo_level = powf(10.0f, velocity_dB_scale*(velocity - 0.7f) * 0.025f); //divide by 20 equals  * 0.05f
+
+        tADSRT_on (&env->theEnv, velo_level);
     }
 }
 
-void tADEnvModule_setTimeScalingTableLocation (tADEnvModule const env, const float* tableAddress, uint32_t const tableSize)
-{
-    env->envTimeTableAddress = tableAddress;
-    env->envTimeTableSizeMinusOne = (float) (tableSize - 1);
-}
 
 void tADEnvModule_setSampleRate (tADEnvModule const env, float sr)
 {
-    //how to handle this? if then cases for different types?
+
 }
+
 void tADEnvModule_setParameter (tADEnvModule const env, int parameter_id, float input)
 {
     switch (parameter_id)
@@ -61,26 +66,22 @@ void tADEnvModule_setParameter (tADEnvModule const env, int parameter_id, float 
         case ADEnvAttack:
         {
 
-            tAD_setAttack (&env->theEnv, theValue + 0.001f);
-            //printf("Attack: %f\n", theValue + 0.001f);
+            float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
+            tADSRT_setDecay (&env->theEnv, theValue);
             break;
         }
 
         case ADEnvDecay:
         {
-            input *= env->envTimeTableSizeMinusOne;
-            int const inputInt = (int) input;
-            float const inputFloat = input - (float) inputInt;
-            int const nextPos = LEAF_clip (0.0f, inputInt + 1.0f, env->envTimeTableSizeMinusOne);
-            float const theValue = LEAF_clip (0.1f, (env->envTimeTableAddress[inputInt] * (1.0f - inputFloat)) + (env->envTimeTableAddress[nextPos] * inputFloat), 20000.0f);
-            tAD_setDecay (&env->theEnv, theValue + 0.001f);
+        	 float const theValue = LEAF_interpolateTableLookupFunction(input, env->envTimeTable);
+             tADSRT_setDecay (&env->theEnv, theValue);
             //printf("Decay: %f\n", theValue + 0.001f);
             break;
         }
 
         case ADEnvVelocitySense:
         {
-            tSlopeRamp_setDest (&env->velSenseSmoother, input);
+            env->velSense =  input;
             break;
         }
         default:
@@ -102,15 +103,23 @@ void tADEnvModule_initToPool (void** const env, float* const params, float id, t
 
     ADEnvModule->header.uniqueID = id;
 
-    tADSRT_init(m->leaf, &ADEnvModule->theEnv, 1.0f, 10.f);
+    if ((*mempool)->leaf->decayExpBuffer == NULL)
+    {
+        // exponential decay buffer falling from 1 to
+        tLookupTable_create (&m, &(*mempool)->leaf->decayExpBuffer);
+        tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->decayExpBuffer, 0.0001f, 20000.f, 4000.f, DECAY_EXP_BUFFER_SIZE);
+        LEAF_generate_exp ((*mempool)->leaf->decayExpBuffer->table, 0.001f, 0.0f, 1.0f, -0.0008f, DECAY_EXP_BUFFER_SIZE);
+    }
+    tADSRT_set (&ADEnvModule->theEnv, 1.0f, 1000.0f, 1.0f, 1000.0f, (*mempool)->leaf->decayExpBuffer->table, DECAY_EXP_BUFFER_SIZE, (*mempool)->leaf);
     tADSRT_setSampleRate (&ADEnvModule->theEnv, m->leaf->sampleRate);
+
 
     if ((*mempool)->leaf->envTimeTable == NULL)
     {
         tLookupTable_create (&m, &(*mempool)->leaf->envTimeTable);
         tLookupTable_init ((*mempool)->leaf, (*mempool)->leaf->envTimeTable, 0.0001f, 20000.f, 4000.f, 2048);
     }
-    tADEnvModule_setTimeScalingTableLocation (ADEnvModule, (*mempool)->leaf->envTimeTable->table, 2048);
+    ADEnvModule->envTimeTable = (*mempool)->leaf->envTimeTable;
 
     ADEnvModule->header.moduleType = ModuleTypeADEnvModule;
 #ifndef __cplusplus

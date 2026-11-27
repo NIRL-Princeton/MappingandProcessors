@@ -24,8 +24,8 @@ typedef struct _tADEnvModule {
     ModuleHeader header;
 
     tADSRT theEnv;
-
-    const float* envTimeTableAddress;
+    float velSense;
+    tLookupTable* envTimeTable;
     float envTimeTableSizeMinusOne;
     uint32_t tableSize;
 

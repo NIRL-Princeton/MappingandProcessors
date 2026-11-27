@@ -22,7 +22,7 @@ void tEnvModule_free (void** const env)
 void tEnvModule_tick (tEnvModule const env)
 {
     //const float input = noise->header.summedInput + buffer[0];
-    env->header.inputs[0] = 0.0f;
+    //env->header.inputs[0] = 0.0f;
     env->header.outputs[0] = tADSRT_tick (&env->theEnv);
 }
 
@@ -147,7 +147,6 @@ void tEnvModule_initToPool (void** const env, float* const params, float id, tMe
     EnvModule->mempool = m;
 
     EnvModule->header.uniqueID = id;
-
 
     if ((*mempool)->leaf->decayExpBuffer == NULL)
     {
